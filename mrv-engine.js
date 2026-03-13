@@ -1,25 +1,20 @@
 let DADOS_PLANILHA = [];
-let pathSelecionado = null; 
-let imovelAtivoNome = "";    
-let nomeSelecionado = ""; 
-let mapaAtivo = 'GSP'; 
+let mapaAtivo = 'GSP';
 
 const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, NOME: 3, NOME_FULL: 4, 
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, DOCUMENTOS: 15, 
-    DICA: 16, DESC_LONGA: 17, CAMPANHA: 15, 
-    BK_CLI: 24
+    DICA: 16, DESC_LONGA: 17, CAMPANHA: 15
 };
 
 async function iniciarApp() {
-    try {
-        // Primeiro desenha o mapa vazio (ou carregando)
-        if (typeof MAPA_GSP !== 'undefined') desenharMapas();
-        // Carrega os dados
-        await carregarPlanilha();
-    } catch (err) { console.error("Erro na inicialização:", err); }
+    // Garante que o container não fique branco
+    const f = document.getElementById('ficha-tecnica');
+    if(f) f.innerHTML = `<div style="text-align:center; color:#ccc; margin-top:100px;"><p style="font-size: 30px;">📍</p><p>Carregando dados...</p></div>`;
+    
+    await carregarPlanilha();
 }
 
 async function carregarPlanilha() {
@@ -28,59 +23,40 @@ async function carregarPlanilha() {
     
     try {
         const response = await fetch(URL_CSV);
-        let texto = await response.text();
-        if (!texto.endsWith('\n')) texto += '\n';
-
-        const linhas = [];
-        let linhaAtual = "", dentroDeAspas = false;
-        for (let i = 0; i < texto.length; i++) {
-            const char = texto[i];
-            if (char === '"') dentroDeAspas = !dentroDeAspas;
-            if ((char === '\n' || char === '\r') && !dentroDeAspas) {
-                if (linhaAtual.trim()) linhas.push(linhaAtual);
-                linhaAtual = "";
-            } else { linhaAtual += char; }
-        }
+        const texto = await response.text();
+        const linhas = texto.split(/\r?\n/);
 
         DADOS_PLANILHA = linhas.slice(1).map(linha => {
-            const colunas = [];
-            let campo = "", aspas = false;
-            for (let i = 0; i < linha.length; i++) {
-                const char = linha[i];
-                if (char === '"') aspas = !aspas;
-                else if (char === ',' && !aspas) { colunas.push(campo.trim()); campo = ""; }
-                else { campo += char; }
-            }
-            colunas.push(campo.trim());
-            const catLimpa = colunas[COL.CATEGORIA] ? colunas[COL.CATEGORIA].toUpperCase() : "";
-            
+            const col = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split por vírgula respeitando aspas
             return {
-                id_path: colunas[COL.ID] ? colunas[COL.ID].toLowerCase().replace(/\s/g, '') : "",
-                tipo: catLimpa.includes('COMPLEXO') ? 'N' : 'R',
-                ordem: parseInt(colunas[COL.ORDEM]) || 999,
-                nome: colunas[COL.NOME] || "",
-                nomeFull: colunas[COL.NOME_FULL] || colunas[COL.NOME] || "",
-                cidade: colunas[COL.ID] || "",
-                estoque: colunas[COL.ESTOQUE], 
-                endereco: colunas[COL.END] || "",
-                entrega: colunas[COL.ENTREGA] || "---",
-                obra: colunas[COL.OBRA] || "0",
-                regiao: colunas[COL.REGIAO] || "---",
-                p_de: colunas[COL.P_DE] || "---",
-                p_ate: colunas[COL.P_ATE] || "---",
-                limitador: colunas[COL.LIMITADOR] || "---",
-                casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
-                campanha: colunas[COL.CAMPANHA] || "",
-                descLonga: colunas[COL.DESC_LONGA] || ""
+                id_path: col[COL.ID] ? col[COL.ID].toLowerCase().replace(/\s/g, '').trim() : "",
+                tipo: (col[COL.CATEGORIA] || "").toUpperCase().includes('COMPLEXO') ? 'N' : 'R',
+                ordem: parseInt(col[COL.ORDEM]) || 999,
+                nome: col[COL.NOME] || "",
+                nomeFull: col[COL.NOME_FULL] || col[COL.NOME] || "",
+                estoque: col[COL.ESTOQUE] || "",
+                endereco: col[COL.END] || "",
+                entrega: col[COL.ENTREGA] || "---",
+                obra: col[COL.OBRA] || "0",
+                regiao: col[COL.REGIAO] || "---",
+                p_de: col[COL.P_DE] || "---",
+                p_ate: col[COL.P_ATE] || "---",
+                limitador: col[COL.LIMITADOR] || "---",
+                casa_paulista: col[COL.CASA_PAULISTA] || "---",
+                campanha: col[COL.CAMPANHA] || "",
+                descLonga: col[COL.DESC_LONGA] || ""
             };
-        }).filter(i => i.nome && i.nome.length > 2);
+        }).filter(i => i.nome.length > 2);
 
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         
-        // APÓS CARREGAR: Gera a lista e atualiza o mapa com as cores verdes
         gerarListaLateral();
         desenharMapas();
-    } catch (e) { console.error("Erro CSV:", e); }
+        resetTitulo();
+    } catch (e) { 
+        console.error("Erro CSV:", e); 
+        document.getElementById('ficha-tecnica').innerHTML = "Erro ao carregar dados.";
+    }
 }
 
 function gerarListaLateral() {
@@ -89,35 +65,88 @@ function gerarListaLateral() {
     
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const classe = item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes';
-        // Se o nome do residencial for o que está ativo, coloca a classe 'ativo'
-        const ativoClass = (item.nome === imovelAtivoNome) ? 'ativo' : '';
-        
-        return `<div class="${classe} ${ativoClass}" onclick="navegarVitrine('${item.nome}', '${item.regiao}')">
+        return `<div class="${classe}" data-nome="${item.nome}" onclick="navegarVitrine('${item.nome}', '${item.regiao}')">
                     <strong>${item.nome}</strong>
-                    ${item.tipo === 'R' ? obterHtmlEstoque(item.estoque, 'R') : ''}
+                    ${item.tipo === 'R' ? obterHtmlEstoque(item.estoque) : ''}
                 </div>`;
     }).join('');
 }
 
-function obterHtmlEstoque(valor, tipo) {
-    if (tipo === 'N') return "";
-    const clean = valor ? valor.toString().toUpperCase().trim() : "";
-    if (clean === "" || clean === "CONSULTAR") return `<span class="badge-estoque" style="color:#666">CONSULTAR</span>`;
-    if (clean === "VENDIDO" || clean === "0") return `<span class="badge-estoque" style="color:#999; text-decoration: line-through;">VENDIDO</span>`;
-    const num = parseInt(clean);
-    if (!isNaN(num)) {
-        const cor = num < 6 ? "#e31010" : "#666";
-        return `<span class="badge-estoque" style="color:${cor}">RESTAM ${num} UN.</span>`;
-    }
-    return `<span class="badge-estoque" style="color:#666">${clean}</span>`;
+function desenharMapas() {
+    renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
+    renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
 }
 
-function comandoSelecao(idPath, nomePath, fonte) {
-    const idBusca = idPath.toLowerCase().replace(/\s/g, '');
-    const imoveis = DADOS_PLANILHA.filter(d => d.id_path === idBusca);
-    
-    // Atualiza os estados globais
-    pathSelecionado = idBusca; 
-    imovelAtivoNome = (fonte && fonte.nome) ? fonte.nome : (imoveis[0] ? imoveis[0].nome : "");
+function renderizarNoContainer(id, dados, interativo) {
+    const container = document.getElementById(id);
+    if (!container || !dados) return;
 
-    if (imoveis.length > 0)
+    const pathsHtml = dados.paths.map(p => {
+        const idNorm = p.id.toLowerCase().replace(/\s/g, '').trim();
+        const temMRV = DADOS_PLANILHA.some(d => d.id_path === idNorm);
+        const isGSP = idNorm === "grandesaopaulo";
+        
+        let classe = (temMRV || isGSP) && interativo ? 'commrv' : '';
+        const acoes = interativo ? 
+            `onclick="cliqueNoMapa('${p.id}', '${p.name}', ${temMRV || isGSP})"` : 
+            `onclick="trocarMapas()"`;
+
+        return `<path id="path-${idNorm}" data-id="${idNorm}" name="${p.name}" d="${p.d}" class="${classe}" ${acoes} onmouseover="hoverNoMapa('${p.name}')" onmouseout="resetTitulo()"></path>`;
+    }).join('');
+
+    container.innerHTML = `<svg viewBox="${dados.viewBox}" style="width:100%; height:100%;"><g>${pathsHtml}</g></svg>`;
+}
+
+function comandoSelecao(idPath, nomeRegiao, imovelManual) {
+    const idNorm = idPath.toLowerCase().replace(/\s/g, '').trim();
+    
+    // 1. Limpa destaques anteriores
+    document.querySelectorAll('.ativo').forEach(el => el.classList.remove('ativo'));
+
+    // 2. Destaca no Mapa
+    const elMapa = document.getElementById(`path-${idNorm}`);
+    if (elMapa) elMapa.classList.add('ativo');
+
+    // 3. Destaca na Lista Lateral
+    const imovelAlvo = imovelManual || DADOS_PLANILHA.find(d => d.id_path === idNorm);
+    if (imovelAlvo) {
+        const elLista = document.querySelector(`[data-nome="${imovelAlvo.nome}"]`);
+        if (elLista) elLista.classList.add('ativo');
+        
+        document.getElementById('cidade-titulo').innerText = nomeRegiao || imovelAlvo.regiao;
+        montarVitrine(imovelAlvo, DADOS_PLANILHA.filter(d => d.id_path === idNorm), nomeRegiao || imovelAlvo.regiao);
+    }
+}
+
+function navegarVitrine(nome, regiao) {
+    const imovel = DADOS_PLANILHA.find(i => i.nome === nome);
+    if (imovel) comandoSelecao(imovel.id_path, regiao, imovel);
+}
+
+function cliqueNoMapa(id, nome, tem) {
+    if (id.toLowerCase() === "grandesaopaulo") { trocarMapas(); return; }
+    if (tem) comandoSelecao(id, nome);
+}
+
+function trocarMapas() {
+    mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP';
+    desenharMapas();
+    limparInterface();
+}
+
+function limparInterface() {
+    document.getElementById('cidade-titulo').innerText = "Selecione uma região";
+    document.getElementById('ficha-tecnica').innerHTML = `<div style="text-align:center; color:#ccc; margin-top:100px;"><p style="font-size: 30px;">📍</p><p>Clique em algum Residencial ou em alguma região verde do mapa</p></div>`;
+}
+
+function hoverNoMapa(nome) { document.getElementById('cidade-titulo').innerText = nome; }
+function resetTitulo() { document.getElementById('cidade-titulo').innerText = "Selecione uma região"; }
+
+function obterHtmlEstoque(v) {
+    const n = parseInt(v);
+    if (isNaN(n) || n === 0) return `<span class="badge-estoque">VENDIDO</span>`;
+    return `<span class="badge-estoque" style="color:${n < 6 ? 'red' : '#666'}">RESTAM ${n} UN.</span>`;
+}
+
+// Inicializa
+iniciarApp();
