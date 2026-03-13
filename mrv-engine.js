@@ -113,13 +113,15 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull}</div>`;
         html += `<div class="box-complexo-full">
                     <label style="color:var(--mrv-preto); font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">Sobre o Complexo</label>
-                    <p>${selecionado.descLonga}</p>
+                    <div class="scroll-texto-complexo">
+                        <p>${selecionado.descLonga}</p>
+                    </div>
                  </div>`;
     }
     painel.innerHTML = html;
 }
 
-// Funções de mapa simplificadas para o exemplo
+// Mapas (Mantive a estrutura anterior)
 function desenharMapas() {
     renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
     renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
