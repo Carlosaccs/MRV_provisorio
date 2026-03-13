@@ -96,11 +96,8 @@ function renderizarNoContainer(id, dados, interativo) {
         const ativo = (pathAtivo === idNorm && interativo) ? 'ativo' : '';
         const isGSP = idNorm === "grandesaopaulo";
         const classe = (temMRV || isGSP) && interativo ? `commrv ${ativo}` : '';
-        
-        // Eventos de clique e hover
         const clique = interativo ? (isGSP ? `onclick="trocarMapas(true)"` : `onclick="comandoSelecao('${p.id}')"`) : "";
         const hover = interativo ? `onmouseover="document.getElementById('cidade-titulo').innerText='${p.name.toUpperCase()}'" onmouseout="resetarTitulo()"` : "";
-        
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${classe}" ${clique} ${hover}></path>`;
     }).join('');
     container.innerHTML = `<svg viewBox="${dados.viewBox}"><g transform="${dados.transform || ''}">${pathsHtml}</g></svg>`;
@@ -143,34 +140,39 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
+    
     if(outros.length > 0) {
-        html += `<div style="margin-bottom:8px;">${outros.map(i => `<button class="btRes" style="width:100%;" onclick="navegarVitrine('${i.nome}')"><strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}</button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">`;
+        html += `<div style="margin-bottom:8px;">${outros.map(i => `
+            <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
+                <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
+            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">`;
     }
 
     if (selecionado.tipo === 'R') {
-        html += `<div style="width:100%; height:32px; background:var(--mrv-laranja); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem; border-radius:4px; text-transform:uppercase;">RES. ${selecionado.nome}</div>`;
+        html += `<div class="titulo-res-vitrine">RES. ${selecionado.nome}</div>`;
         html += `<div style="padding: 6px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
-        // Linha 1: Entrega e Obra
-        html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+        // Fila 1: Entrega e Obra
+        html += `<div class="grid-infos">
                     <div class="box-argumento"><label>Entrega</label><strong>${selecionado.entrega}</strong></div>
                     <div class="box-argumento"><label>Obra</label><strong>${selecionado.obra}%</strong></div>
                  </div>`;
         
-        // Linha 2: Plantas e Estoque (NOVO CAMPO!)
-        html += `<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:4px; margin-top:4px;">
+        // Fila 2: Plantas e Estoque (ALINHADO 50/50)
+        html += `<div class="grid-infos">
                     <div class="box-argumento"><label>Plantas</label><strong>${selecionado.p_de} - ${selecionado.p_ate}</strong></div>
                     <div class="box-argumento"><label>Estoque</label><strong>${selecionado.estoque} UN.</strong></div>
                  </div>`;
         
-        // Linha 3: Limitador e C. Paulista
-        html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:4px;">
+        // Fila 3: Limitador e Casa Paulista
+        html += `<div class="grid-infos">
                     <div class="box-argumento"><label>Limitador</label><strong>${selecionado.limitador}</strong></div>
                     <div class="box-argumento"><label>C. Paulista</label><strong>${selecionado.casa_paulista}</strong></div>
                  </div>`;
     } else {
-        html += `<div class="separador-complexo-btn" style="width:100%;">${selecionado.nomeFull}</div>`;
-        html += `<div class="box-argumento" style="display:block !important;"><label>Sobre o Complexo</label><p style="margin-top:5px; font-size:0.75rem;">${selecionado.descLonga}</p></div>`;
+        // Título Complexo (Preto, mesmo tamanho do laranja)
+        html += `<div class="titulo-complexo-vitrine">${selecionado.nomeFull}</div>`;
+        html += `<div class="box-argumento" style="display:block !important; margin-top:8px;"><label>Sobre o Complexo</label><p style="margin-top:5px; font-size:0.75rem; color:#444; line-height:1.4;">${selecionado.descLonga}</p></div>`;
     }
     painel.innerHTML = html;
 }
