@@ -17,7 +17,7 @@ async function iniciarApp() {
     } catch (err) { console.error("Erro ao iniciar:", err); }
 }
 
-// --- CARREGAMENTO E FILTRO ---
+// --- CARREGAMENTO E FILTRO ANTI-INVASOR ---
 async function carregarPlanilha() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&v=${new Date().getTime()}`;
@@ -42,7 +42,7 @@ async function carregarPlanilha() {
             const nomeValido = colunas[COL.NOME] && colunas[COL.NOME].length > 2;
             const numOrdem = parseInt(colunas[COL.ORDEM]);
 
-            // Filtro rígido: descarta lixo da planilha e linhas sem ordem numérica
+            // Descarta linhas sem ordem numérica ou categorias inválidas (limpa invasores)
             if (!nomeValido || isNaN(numOrdem) || (!categoria.includes("RESIDENCIAL") && !categoria.includes("COMPLEXO"))) {
                 return null;
             }
@@ -74,7 +74,7 @@ async function carregarPlanilha() {
     } catch (e) { console.error("Erro CSV:", e); }
 }
 
-// --- FUNÇÕES DE AUXÍLIO DE NOME ---
+// --- AUXILIARES DE INTERFACE (NOMES E ESTOQUE) ---
 function buscarNomeNoMapa(idPath) {
     const idNorm = idPath.toLowerCase().replace(/\s/g, '');
     const localGSP = MAPA_GSP.paths.find(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
@@ -84,7 +84,26 @@ function buscarNomeNoMapa(idPath) {
     return idPath; 
 }
 
-// --- LOGICA DE SELEÇÃO E NAVEGAÇÃO ---
+function obterHtmlEstoque(valor, tipo) {
+    if (tipo === 'N') return "";
+    const clean = valor ? valor.toString().toUpperCase().trim() : "";
+    
+    if (clean === "VENDIDO" || clean === "0") {
+        return `<span class="badge-estoque" style="color:#999; text-decoration: line-through; font-size:9px;">VENDIDO</span>`;
+    }
+    if (clean === "" || clean === "CONSULTAR") {
+        return `<span class="badge-estoque" style="color:#666; font-size:9px;">CONSULTAR</span>`;
+    }
+    
+    const num = parseInt(clean);
+    if (!isNaN(num)) {
+        const cor = num < 6 ? '#e31010' : '#666';
+        return `<span class="badge-estoque" style="color:${cor}; font-size:9px; font-weight:bold;">RESTAM ${num} UN.</span>`;
+    }
+    return `<span class="badge-estoque" style="color:#666; font-size:9px;">${clean}</span>`;
+}
+
+// --- NAVEGAÇÃO E SELEÇÃO ---
 function navegarVitrine(nome, nomeRegiao) { 
     const imovel = DADOS_PLANILHA.find(i => i.nome === nome); 
     if (!imovel) return;
@@ -123,7 +142,7 @@ function comandoSelecao(idPath, nomePath, fonte) {
     }
 }
 
-// --- RENDERIZAÇÃO DOS MAPAS ---
+// --- RENDERIZAÇÃO ---
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
     if (!container || !dados) return;
@@ -157,7 +176,7 @@ function desenharMapas() {
     renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
 }
 
-// --- EVENTOS DE INTERFACE ---
+// --- HOVER E EVENTOS ---
 function hoverNoMapa(nome) {
     document.getElementById('cidade-titulo').innerText = nome.toUpperCase();
 }
@@ -196,13 +215,6 @@ function gerarListaLateral() {
                     ${obterHtmlEstoque(item.estoque, item.tipo)}
                 </div>`;
     }).join('');
-}
-
-function obterHtmlEstoque(valor, tipo) {
-    if (tipo === 'N') return "";
-    const clean = valor ? valor.toString().toUpperCase().trim() : "";
-    if (clean === "VENDIDO" || clean === "0") return `<span style="color:#999; font-size:9px">VENDIDO</span>`;
-    return `<span style="color:#666; font-size:9px">${clean}</span>`;
 }
 
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
