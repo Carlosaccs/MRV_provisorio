@@ -75,7 +75,7 @@ path.commrv:hover, path.ativo {
 
 .btn-maps { display: inline-flex; align-items: center; background: #4285F4; color: white !important; text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
 
-/* AJUSTE DAS CAIXAS CINZAS EM LINHA ÚNICA */
+/* DESIGN DAS CAIXAS CINZAS */
 .box-argumento { 
     margin-top: 6px; 
     padding: 8px 10px !important; 
@@ -91,7 +91,8 @@ path.commrv:hover, path.ativo {
     font-size: 0.52rem; 
     font-weight: bold; 
     text-transform: uppercase; 
-    margin-bottom: 0 !important; /* Remove o espaço para alinhar horizontalmente */
+    margin-bottom: 0 !important;
+    color: var(--mrv-verde); /* Rótulo Verde */
 }
 .box-argumento strong { font-size: 0.75rem; color: #333; text-align: right; }
 .box-argumento p { font-size: 0.72rem; color: #444; line-height: 1.4; }
