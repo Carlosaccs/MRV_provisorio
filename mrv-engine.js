@@ -64,7 +64,7 @@ async function carregarPlanilha() {
                 campanha: colunas[COL.CAMPANHA] || "",
                 descLonga: colunas[COL.DESC_LONGA] || ""
             };
-        }).filter(i => i.nome.length > 2);
+        }).filter(i => i.nome && i.nome.trim().length > 1); // Correção: Filtro suave para não perder o último
 
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         desenharMapas();
@@ -92,15 +92,14 @@ function navegarVitrine(nome, nomeRegiao) {
     const imovel = DADOS_PLANILHA.find(i => i.nome === nome); 
     if (!imovel) return;
 
-    // Lógica de Troca Automática de Mapa
     const idAlvo = imovel.id_path.toLowerCase().replace(/\s/g, '');
     const dadosMapaAtual = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
     const existeNoMapaAtual = dadosMapaAtual.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
 
-    if (!existeNoMapaAtual) {
-        trocarMapas(); 
-    }
-    comandoSelecao(imovel.id_path, nomeRegiao, imovel); 
+    if (!existeNoMapaAtual) { trocarMapas(); }
+    
+    // Força o nome da Cidade/Região para o título
+    comandoSelecao(imovel.id_path, imovel.cidade || nomeRegiao, imovel); 
 }
 
 function comandoSelecao(idPath, nomePath, fonte) {
@@ -112,7 +111,9 @@ function comandoSelecao(idPath, nomePath, fonte) {
         pathAtivo = idBusca;
         imovelAtivo = selecionado.nome;
 
-        // Limpeza e Aplicação de Destaque
+        // Título sempre será a Região/Cidade
+        const tituloParaExibir = (nomePath || selecionado.cidade || selecionado.regiao).toUpperCase();
+
         document.querySelectorAll('.ativo').forEach(el => el.classList.remove('ativo'));
         
         const elMapa = document.getElementById(`caixa-a-${idBusca}`);
@@ -122,14 +123,23 @@ function comandoSelecao(idPath, nomePath, fonte) {
         const elLista = document.getElementById(idBtn);
         if (elLista) elLista.classList.add('ativo');
 
-        document.getElementById('cidade-titulo').innerText = nomePath || selecionado.cidade;
-        montarVitrine(selecionado, imoveis, nomePath || selecionado.cidade);
+        document.getElementById('cidade-titulo').innerText = tituloParaExibir;
+        montarVitrine(selecionado, imoveis, tituloParaExibir);
     }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
     if (!container || !dados) return;
+
+    // Se for o mapa de baixo (caixa-b), a div inteira troca o mapa
+    if (!interativo) {
+        container.onclick = trocarMapas;
+        container.style.cursor = "pointer";
+    } else {
+        container.onclick = null;
+        container.style.cursor = "default";
+    }
     
     const pathsHtml = dados.paths.map(p => {
         const idPathNorm = p.id.toLowerCase().replace(/\s/g, '');
@@ -137,7 +147,7 @@ function renderizarNoContainer(id, dados, interativo) {
         const isGSP = idPathNorm === "grandesaopaulo";
         const ativo = (pathAtivo === idPathNorm && interativo) ? 'ativo' : '';
         const classe = (temMRV || isGSP) && interativo ? `commrv ${ativo}` : '';
-        const clique = interativo ? (isGSP ? `onclick="trocarMapas()"` : `onclick="cliqueNoMapa('${p.id}', '${p.name}', ${temMRV})"`) : `onclick="trocarMapas()"`;
+        const clique = interativo ? (isGSP ? `onclick="trocarMapas()"` : `onclick="cliqueNoMapa('${p.id}', '${p.name}', ${temMRV})"`) : "";
         
         return `<path id="${id}-${p.id}" name="${p.name}" d="${p.d}" class="${classe}" ${clique} onmouseover="hoverNoMapa('${p.name}')" onmouseout="resetTitulo()"></path>`;
     }).join('');
@@ -157,8 +167,16 @@ function trocarMapas() {
 }
 
 function cliqueNoMapa(id, nome, temMRV) { if (temMRV) comandoSelecao(id, nome); }
-function hoverNoMapa(nome) { document.getElementById('cidade-titulo').innerText = nome; }
-function resetTitulo() { document.getElementById('cidade-titulo').innerText = imovelAtivo || "Selecione uma região"; }
+function hoverNoMapa(nome) { document.getElementById('cidade-titulo').innerText = nome.toUpperCase(); }
+function resetTitulo() { 
+    // Volta para o nome da região selecionada, ou o padrão
+    if (pathAtivo) {
+        const item = DADOS_PLANILHA.find(d => d.id_path === pathAtivo);
+        document.getElementById('cidade-titulo').innerText = (item.cidade || item.regiao).toUpperCase();
+    } else {
+        document.getElementById('cidade-titulo').innerText = "SELECIONE UMA REGIÃO";
+    }
+}
 
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -174,7 +192,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     if(!painel) return;
     const listaSuperior = listaDaCidade.filter(i => i.nome !== selecionado.nome);
-    const urlMaps = `https://www.google.com/maps/search/${encodeURIComponent(selecionado.endereco)}`;
+    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao.toUpperCase()}</div>`;
     html += `<div style="margin-bottom:10px;">${listaSuperior.map(item => `<button class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" onclick="navegarVitrine('${item.nome}', '${nomeRegiao}')"><strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}</button>`).join('')}</div>`;
@@ -183,13 +201,21 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     if (selecionado.tipo === 'R') {
         html += `<div style="width:100%; border-radius:4px; height:36px; background-color: #ff8c00; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;">RES. ${selecionado.nome}</div>`;
         html += `<div style="padding: 10px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
-        html += `<div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <div style="flex: 1; background: #f2f2f2; padding: 6px; border-radius: 4px; text-align:center;"><label style="font-size:0.5rem; display:block; color:var(--mrv-verde)">ENTREGA</label><span style="font-size:0.7rem; font-weight:700;">${selecionado.entrega}</span></div>
-            <div style="flex: 1; background: #f2f2f2; padding: 6px; border-radius: 4px; text-align:center;"><label style="font-size:0.5rem; display:block; color:var(--mrv-verde)">OBRA</label><span style="font-size:0.7rem; font-weight:700;">${selecionado.obra}%</span></div>
+        
+        // Grid de informações
+        html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 5px;">
+            <div class="box-argumento" style="margin:0; padding:5px;"><label>Entrega</label><strong>${selecionado.entrega}</strong></div>
+            <div class="box-argumento" style="margin:0; padding:5px;"><label>Obra</label><strong>${selecionado.obra}%</strong></div>
+            <div class="box-argumento" style="margin:0; padding:5px;"><label>Plantas</label><strong>${selecionado.p_de} - ${selecionado.p_ate}</strong></div>
+            <div class="box-argumento" style="margin:0; padding:5px;"><label>Limitador</label><strong>${selecionado.limitador}</strong></div>
         </div>`;
+        
+        if(selecionado.campanha) {
+            html += `<div style="background:#fff1f1; border:1px solid #ffdada; padding:8px; border-radius:4px; text-align:center; color:#e31010; font-weight:800; font-size:0.75rem; margin-top:5px;">${selecionado.campanha}</div>`;
+        }
     } else {
         html += `<div class="separador-complexo-btn" style="width:100%">${selecionado.nomeFull}</div>`;
-        html += `<div class="box-argumento"><label>Sobre o Complexo</label><p style="font-size:0.7rem;">${selecionado.descLonga}</p></div>`;
+        html += `<div class="box-argumento"><label>Sobre o Complexo</label><p>${selecionado.descLonga}</p></div>`;
     }
     painel.innerHTML = html;
 }
