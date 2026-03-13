@@ -42,7 +42,6 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 .separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
 .btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: var(--texto-escuro); }
 
-/* Hover com contorno verde solicitado */
 .btRes:hover { 
     background-color: #f0f0f0 !important; 
     border: 1px solid var(--mrv-verde) !important; 
@@ -62,11 +61,8 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 /* MAPAS */
 path { fill: #777; stroke: #ffffff; stroke-width: 0.8; pointer-events: all; transition: 0.2s; }
 path.commrv { fill: var(--mrv-verde) !important; cursor: pointer; }
-
-/* Hover cinza mais claro */
 path:not(.commrv):hover { fill: #d0d0d0 !important; }
 
-/* Destaque Laranja no Mapa */
 path.commrv:hover, path.ativo { 
     fill: var(--mrv-laranja) !important; 
     stroke: #000 !important; 
