@@ -24,7 +24,6 @@ async function carregarPlanilha() {
         const response = await fetch(URL_CSV);
         let texto = await response.text();
         
-        // Garante que a última linha seja processada mesmo sem \n
         const linhasPuras = texto.split(/\r?\n/);
         
         DADOS_PLANILHA = linhasPuras.slice(1).map(linha => {
@@ -37,13 +36,17 @@ async function carregarPlanilha() {
                 else { campo += char; }
             }
             colunas.push(campo.trim());
+            
+            // Só processa se a coluna NOME tiver conteúdo real
+            if (!colunas[COL.NOME] || colunas[COL.NOME].length < 2) return null;
+
             return {
                 id_path: colunas[COL.ID] ? colunas[COL.ID].toLowerCase().replace(/\s/g, '') : "",
                 tipo: (colunas[COL.CATEGORIA] || "").toUpperCase().includes('COMPLEXO') ? 'N' : 'R',
                 ordem: parseInt(colunas[COL.ORDEM]) || 999,
                 nome: colunas[COL.NOME] || "",
                 nomeFull: colunas[COL.NOME_FULL] || colunas[COL.NOME] || "",
-                cidade: colunas[COL.ID] || "", // Esse ID costuma ser o nome da região simplificado
+                cidade: colunas[COL.ID] || "",
                 estoque: colunas[COL.ESTOQUE],
                 endereco: colunas[COL.END] || "",
                 entrega: colunas[COL.ENTREGA] || "---",
@@ -56,7 +59,7 @@ async function carregarPlanilha() {
                 campanha: colunas[COL.CAMPANHA] || "",
                 descLonga: colunas[COL.DESC_LONGA] || ""
             };
-        }).filter(i => i.nome && i.nome.length > 0); // Filtro relaxado para pegar TUDO
+        }).filter(i => i !== null); // Remove as linhas de "lixo"
 
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         desenharMapas();
@@ -73,7 +76,10 @@ function gerarListaLateral() {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
         const idBtn = `btn-list-${item.nome.replace(/[^a-zA-Z0-9]/g, '-')}`;
         
-        return `<div id="${idBtn}" class="${classeBase} ${ativo}" onclick="navegarVitrine('${item.nome}', '${item.regiao}')">
+        // Se for tipo N (Complexo), não tem clique de vitrine individual, apenas visual
+        const clique = item.tipo === 'N' ? '' : `onclick="navegarVitrine('${item.nome}', '${item.regiao}')"`;
+        
+        return `<div id="${idBtn}" class="${classeBase} ${ativo}" ${clique}>
                     <strong>${item.nome}</strong>
                     ${obterHtmlEstoque(item.estoque, item.tipo)}
                 </div>`;
@@ -85,14 +91,14 @@ function navegarVitrine(nome, nomeRegiao) {
     if (!imovel) return;
 
     const idAlvo = imovel.id_path.toLowerCase().replace(/\s/g, '');
-    const dadosMapaAtual = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
-    const existeNoMapaAtual = dadosMapaAtual.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
+    const mapaContexto = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
+    const existeNoMapaAtual = mapaContexto.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
 
     if (!existeNoMapaAtual) { trocarMapas(); }
     
-    // Tenta achar o nome "bonito" do path para o título
-    const mapaAlvo = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
-    const pathInfo = mapaAlvo.paths.find(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
+    // Busca o nome real da região no mrv-data.js para o título
+    const mapaAtualizado = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
+    const pathInfo = mapaAtualizado.paths.find(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
     
     comandoSelecao(imovel.id_path, pathInfo ? pathInfo.name : nomeRegiao, imovel); 
 }
@@ -108,16 +114,18 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
         document.querySelectorAll('.ativo').forEach(el => el.classList.remove('ativo'));
         
+        // Destaque no mapa
         const elMapa = document.getElementById(`caixa-a-${idBusca}`);
         if (elMapa) elMapa.classList.add('ativo');
 
+        // Destaque na lista
         const idBtn = `btn-list-${selecionado.nome.replace(/[^a-zA-Z0-9]/g, '-')}`;
         const elLista = document.getElementById(idBtn);
         if (elLista) elLista.classList.add('ativo');
 
-        // Atualiza título e Vitrine com o nome completo da região (ex: Ermelino Matarazzo - ZL)
-        document.getElementById('cidade-titulo').innerText = nomePath.toUpperCase();
-        montarVitrine(selecionado, imoveis, nomePath);
+        const tituloFinal = (nomePath || selecionado.cidade || selecionado.regiao).toUpperCase();
+        document.getElementById('cidade-titulo').innerText = tituloFinal;
+        montarVitrine(selecionado, imoveis, tituloFinal);
     }
 }
 
@@ -184,12 +192,17 @@ function obterHtmlEstoque(valor, tipo) {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     if(!painel) return;
-    const listaSuperior = listaDaCidade.filter(i => i.nome !== selecionado.nome);
+    
+    // Filtra apenas residenciais (tipo R) para a lista de botões superiores na vitrine
+    const listaSuperior = listaDaCidade.filter(i => i.nome !== selecionado.nome && i.tipo === 'R');
     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
-    let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao.toUpperCase()}</div>`;
-    html += `<div style="margin-bottom:10px;">${listaSuperior.map(item => `<button class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" onclick="navegarVitrine('${item.nome}', '${nomeRegiao}')"><strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}</button>`).join('')}</div>`;
-    html += `<hr style="border:0; border-top:1px solid #ddd; margin:15px 0 20px 0;">`;
+    let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
+    
+    if(listaSuperior.length > 0) {
+        html += `<div style="margin-bottom:10px;">${listaSuperior.map(item => `<button class="btRes" onclick="navegarVitrine('${item.nome}', '${nomeRegiao}')"><strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}</button>`).join('')}</div>`;
+        html += `<hr style="border:0; border-top:1px solid #ddd; margin:15px 0 20px 0;">`;
+    }
 
     if (selecionado.tipo === 'R') {
         html += `<div style="width:100%; border-radius:4px; height:36px; background-color: #ff8c00; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;">RES. ${selecionado.nome}</div>`;
