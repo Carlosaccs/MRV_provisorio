@@ -3,11 +3,14 @@ let pathSelecionado = null;
 let nomeSelecionado = ""; 
 let mapaAtivo = 'GSP'; 
 
+// MAPEAMENTO ATUALIZADO (A=0, B=1...)
 const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, NOME: 3, NOME_FULL: 4, 
-    ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, 
+    ESTOQUE: 5,   // Coluna F
+    END: 6, TIPOLOGIAS: 7, 
     ENTREGA: 8,   // Coluna I
-    P_DE: 9, P_ATE: 10, 
+    P_DE: 9,      // Coluna J
+    P_ATE: 10,    // Coluna K
     OBRA: 11,     // Coluna L
     REGIAO: 13,   // Coluna N
     DOCUMENTOS: 15, 
@@ -60,13 +63,13 @@ async function carregarPlanilha() {
                 nome: colunas[COL.NOME] || "",
                 nomeFull: colunas[COL.NOME_FULL] || colunas[COL.NOME] || "",
                 cidade: colunas[COL.ID] || "",
-                estoque: colunas[COL.ESTOQUE] || "",
+                estoque: colunas[COL.ESTOQUE] || "0",
                 endereco: colunas[COL.END] || "",
                 entrega: colunas[COL.ENTREGA] || "---",
                 obra: colunas[COL.OBRA] || "0",
                 regiao: colunas[COL.REGIAO] || "---",
-                preco: colunas[COL.P_DE] || "Consulte",
-                p_de: colunas[COL.P_DE] || "-",
+                p_de: colunas[COL.P_DE] || "---",
+                p_ate: colunas[COL.P_ATE] || "---",
                 documentos: colunas[COL.DOCUMENTOS] || "",
                 dica: colunas[COL.DICA] || "",
                 descLonga: colunas[COL.DESC_LONGA] || "",
@@ -137,8 +140,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </p>
                  </div>`;
 
-        // FILEIRA HORIZONTAL COMPACTA (TÍTULO E DADO NA MESMA LINHA)
-        html += `<div style="display: flex; gap: 5px; margin-bottom: 10px;">
+        // FILEIRA 1: REGIÃO | ENTREGA | OBRA
+        html += `<div style="display: flex; gap: 5px; margin-bottom: 5px;">
                     <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
                         <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Região</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.regiao}</span>
@@ -150,6 +153,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
                         <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Obra</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.obra}${isNaN(selecionado.obra) ? '' : '%'}</span>
+                    </div>
+                </div>`;
+
+        // FILEIRA 2: PLANTAS | ESTOQUE
+        html += `<div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <div style="flex: 2; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Plantas</span>
+                        <span style="font-size: 0.7rem; color: #333; font-weight: 700;">de ${selecionado.p_de} até ${selecionado.p_ate}</span>
+                    </div>
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Estoque</span>
+                        <span style="font-size: 0.7rem; color: #333; font-weight: 700;">restam ${selecionado.estoque} un.</span>
                     </div>
                 </div>`;
                 
