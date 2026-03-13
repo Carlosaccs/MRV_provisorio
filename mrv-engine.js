@@ -3,7 +3,6 @@ let pathSelecionado = null;
 let nomeSelecionado = ""; 
 let mapaAtivo = 'GSP'; 
 
-// MAPEAMENTO ATUALIZADO (A=0, B=1...)
 const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, NOME: 3, NOME_FULL: 4, 
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, 
@@ -127,8 +126,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     html += `<hr style="border:0; border-top:1px solid #ddd; margin:15px 0 20px 0;">`;
 
     if (selecionado.tipo === 'R') {
-        // FAIXA LARANJA
-        html += `<div style="width:100%; margin:0; border-radius:4px; height:36px; background-color: #ff8c00; color: #333; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; border: none;">RES. ${selecionado.nome}</div>`;
+        // FAIXA LARANJA COM TEXTO BRANCO
+        html += `<div style="width:100%; margin:0; border-radius:4px; height:36px; background-color: #ff8c00; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; border: none;">RES. ${selecionado.nome}</div>`;
         
         // ENDEREÇO E MAPS
         html += `<div style="padding: 10px 0;">
@@ -138,18 +137,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </p>
                  </div>`;
 
-        // FILEIRA HORIZONTAL: REGIÃO | ENTREGA | OBRA
+        // FILEIRA HORIZONTAL COMPACTA (TÍTULO E DADO NA MESMA LINHA)
         html += `<div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                    <div style="flex: 1; background: #f2f2f2; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e5e5e5;">
-                        <span style="display: block; color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase; margin-bottom: 2px;">Região</span>
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Região</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.regiao}</span>
                     </div>
-                    <div style="flex: 1; background: #f2f2f2; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e5e5e5;">
-                        <span style="display: block; color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase; margin-bottom: 2px;">Entrega</span>
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Entrega</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.entrega}</span>
                     </div>
-                    <div style="flex: 1; background: #f2f2f2; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e5e5e5;">
-                        <span style="display: block; color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase; margin-bottom: 2px;">Obra</span>
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Obra</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.obra}${isNaN(selecionado.obra) ? '' : '%'}</span>
                     </div>
                 </div>`;
