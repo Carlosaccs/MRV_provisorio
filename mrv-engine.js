@@ -12,7 +12,9 @@ const COL = {
     P_DE: 9,      // Coluna J
     P_ATE: 10,    // Coluna K
     OBRA: 11,     // Coluna L
+    LIMITADOR: 12, // Coluna M
     REGIAO: 13,   // Coluna N
+    CASA_PAULISTA: 14, // Coluna O
     DOCUMENTOS: 15, 
     DICA: 16, DESC_LONGA: 17, BK_CLI: 24
 };
@@ -70,6 +72,8 @@ async function carregarPlanilha() {
                 regiao: colunas[COL.REGIAO] || "---",
                 p_de: colunas[COL.P_DE] || "---",
                 p_ate: colunas[COL.P_ATE] || "---",
+                limitador: colunas[COL.LIMITADOR] || "---",
+                casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 documentos: colunas[COL.DOCUMENTOS] || "",
                 dica: colunas[COL.DICA] || "",
                 descLonga: colunas[COL.DESC_LONGA] || "",
@@ -140,7 +144,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </p>
                  </div>`;
 
-        // FILEIRA 1: REGIÃO | ENTREGA | OBRA
+        // FILEIRA 1: REGIÃO | ENTREGA | OBRA (1/3 cada)
         html += `<div style="display: flex; gap: 5px; margin-bottom: 5px;">
                     <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
                         <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Região</span>
@@ -156,15 +160,27 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </div>
                 </div>`;
 
-        // FILEIRA 2: PLANTAS | ESTOQUE
-        html += `<div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                    <div style="flex: 2; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+        // FILEIRA 2: PLANTAS | ESTOQUE (50% cada)
+        html += `<div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
                         <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Plantas</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">de ${selecionado.p_de} até ${selecionado.p_ate}</span>
                     </div>
                     <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
                         <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Estoque</span>
                         <span style="font-size: 0.7rem; color: #333; font-weight: 700;">restam ${selecionado.estoque} un.</span>
+                    </div>
+                </div>`;
+
+        // FILEIRA 3: LIMITADOR | CASA PAULISTA (50% cada)
+        html += `<div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Limitador</span>
+                        <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.limitador}</span>
+                    </div>
+                    <div style="flex: 1; background: #f2f2f2; padding: 4px 6px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e5e5;">
+                        <span style="color: #00713a; font-weight: bold; font-size: 0.55rem; text-transform: uppercase;">Casa Paulista</span>
+                        <span style="font-size: 0.7rem; color: #333; font-weight: 700;">${selecionado.casa_paulista}</span>
                     </div>
                 </div>`;
                 
