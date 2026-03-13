@@ -1,106 +1,97 @@
-/* Reset e Estrutura Base */
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #fff; }
+:root {
+    --mrv-verde: #00713a;
+    --mrv-laranja: #ff8c00;
+    --vermelho-mrv: #e31010;
+    --texto-escuro: #333;
+}
 
-/* Botões da Esquerda e Vitrine Superior */
-.btRes {
-    background-color: #f2f2f2;
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: white; }
+
+.header { 
+    background-color: var(--mrv-verde) !important; 
+    color: white !important; 
+    height: 56px !important; 
+    line-height: 56px !important; 
+    font-size: 1.4rem !important;
+    font-weight: bold !important; 
+    text-align: center !important;
+    width: 100%;
+}
+
+.wrapper { display: flex; flex: 1; height: calc(100vh - 56px); overflow: hidden; }
+
+/* Barra Lateral Esquerda */
+.sidebar-esq { width: 280px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
+
+.separador-complexo-btn, .btRes {
+    width: 92% !important;
+    margin: 4px auto !important;
+    min-height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 4px 8px !important;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    cursor: pointer;
     border: 1px solid #ddd;
-    color: #333;
-    padding: 8px 12px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.75rem;
+    transition: 0.2s;
     text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    transition: all 0.2s;
 }
 
-.btRes:hover { background-color: #e9e9e9; }
-.btRes.ativo { background-color: #ff8c00; color: #fff; border-color: #e67e00; }
-.btRes.ativo .badge-estoque { color: #fff !important; }
+.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; cursor: default; }
+.btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: var(--texto-escuro); }
 
-/* Complexos (Botões Pretos) */
-.separador-complexo-btn {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    margin: 15px 0 5px 0;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    text-align: center;
-    cursor: pointer;
-    border: none;
-    width: 100%;
+.btRes:hover { 
+    background-color: #f0f0f0 !important; 
+    border: 1px solid var(--mrv-verde) !important; 
+    transform: translateX(3px);
 }
 
-.separador-complexo-btn.ativo { background-color: #000; outline: 2px solid #ff8c00; }
+.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border: 1px solid var(--mrv-verde) !important; }
+.btRes.ativo strong { color: white !important; }
 
-/* Badge de Estoque */
-.badge-estoque {
-    font-size: 9px;
-    font-weight: bold;
-    margin-left: 10px;
+/* Área Central */
+.conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+#cidade-titulo { background: #eee; padding: 4px; text-align: center; font-weight: bold; font-size: 0.7rem; color: #555; height: 28px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
+
+#caixa-a { flex: 1.3; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
+#caixa-b { flex: 0.45; display: flex; align-items: center; justify-content: center; padding: 10px; background: white; overflow: hidden; border-top: 1px solid #eee; }
+
+/* MAPAS */
+path { fill: #777; stroke: #ffffff; stroke-width: 0.8; pointer-events: all; transition: 0.2s; }
+path.commrv { fill: var(--mrv-verde) !important; cursor: pointer; }
+path:not(.commrv):hover { fill: #d0d0d0 !important; }
+
+path.commrv:hover, path.ativo { 
+    fill: var(--mrv-laranja) !important; 
+    stroke: #000 !important; 
+    stroke-width: 1.2px !important; 
 }
 
-/* Informações em Linha Única (Ajuste novo) */
-.info-row {
-    background-color: #f2f2f2;
-    padding: 8px 10px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.72rem;
-    white-space: nowrap;
-    margin-bottom: 2px;
+/* Vitrine Direita */
+.sidebar-dir { width: 480px; border-left: 1px solid #ddd; overflow-y: auto; padding: 10px; flex-shrink: 0; background: #fff; }
+.vitrine-topo { background: var(--mrv-verde); color: white; padding: 8px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 10px; font-size: 0.75rem; text-transform: uppercase; }
+
+.btn-maps { display: inline-flex; align-items: center; background: #4285F4; color: white !important; text-decoration: none; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+
+/* AJUSTE DAS CAIXAS CINZAS EM LINHA ÚNICA */
+.box-argumento { 
+    margin-top: 6px; 
+    padding: 8px 10px !important; 
+    border-radius: 4px; 
+    border-left: 4px solid #ddd; 
+    background: #f9f9f9; 
+    display: flex !important; 
+    justify-content: space-between !important; 
+    align-items: center !important;
 }
-
-.info-row .label { font-weight: normal; color: #666; }
-.info-row .value { font-weight: bold; color: #000; text-align: right; }
-
-/* Título e Vitrine */
-.vitrine-topo {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    border-left: 4px solid #ff8c00;
-    padding-left: 10px;
+.box-argumento label { 
+    display: block; 
+    font-size: 0.52rem; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    margin-bottom: 0 !important; /* Remove o espaço para alinhar horizontalmente */
 }
-
-.btn-maps {
-    background: #444;
-    color: #fff;
-    text-decoration: none;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 9px;
-    font-weight: bold;
-}
-
-/* Mapa SVG */
-svg { width: 100%; height: auto; }
-path { fill: #e6e6e6; stroke: #fff; stroke-width: 1; transition: fill 0.2s; cursor: default; }
-path.commrv { fill: #a5d6a7; cursor: pointer; } /* Verde para quem tem MRV */
-path.commrv:hover { fill: #81c784; }
-path.ativo { fill: #ff8c00 !important; } /* Laranja para o selecionado */
-
-/* Grid Principal (Layout) */
-#main-container {
-    display: grid;
-    grid-template-columns: 280px 1fr 320px;
-    gap: 20px;
-    padding: 20px;
-    height: 100vh;
-    box-sizing: border-box;
-}
-
-#lista-imoveis { overflow-y: auto; padding-right: 10px; }
-#cidade-titulo { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; color: #222; }
+.box-argumento strong { font-size: 0.75rem; color: #333; text-align: right; }
+.box-argumento p { font-size: 0.72rem; color: #444; line-height: 1.4; }
