@@ -143,7 +143,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome}</div>`;
         html += `<div style="padding: 0 0 8px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
-        // Estrutura de Tabela para garantir 50/50
         html += `<div class="grid-infos">
                     <div class="row-infos">
                         <div class="box-argumento"><div class="box-inner"><label>Entrega</label><strong>${selecionado.entrega}</strong></div></div>
@@ -162,7 +161,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull}</div>`;
         html += `<div class="box-complexo-full">
                     <label style="color:var(--mrv-preto); font-size: 0.6rem; font-weight: bold; text-transform: uppercase;">Sobre o Complexo</label>
-                    <p style="margin-top:10px; font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</p>
+                    <div class="scroll-texto-complexo">
+                        <p>${selecionado.descLonga}</p>
+                    </div>
                  </div>`;
     }
     painel.innerHTML = html;
