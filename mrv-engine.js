@@ -77,11 +77,9 @@ function comandoSelecao(idPath, nomePath, fonte) {
     const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === pathAtivo);
     const selecionado = fonte || imoveisDaCidade[0];
     imovelAtivo = selecionado.nome;
-
     document.querySelectorAll('.ativo').forEach(el => el.classList.remove('ativo'));
     const elMapa = document.getElementById(`caixa-a-${pathAtivo}`);
     if (elMapa) elMapa.classList.add('ativo');
-    
     gerarListaLateral();
     const nomeOficial = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths).find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || pathAtivo;
     document.getElementById('cidade-titulo').innerText = nomeOficial.toUpperCase();
@@ -135,7 +133,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
-    // Lista de atalhos no topo da vitrine
     if(outros.length > 0) {
         html += `<div style="margin-bottom:10px;">${outros.map(i => `
             <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
@@ -144,7 +141,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
-        // Layout Residencial
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome}</div>`;
         html += `<div style="padding: 2px 0 8px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
@@ -157,11 +153,12 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     <div class="box-argumento"><label>C. Paulista</label><strong>${selecionado.casa_paulista}</strong></div>
                  </div>`;
     } else {
-        // Layout Complexo (Mesma faixa, mesma fonte, cor preta)
+        // Título do Complexo idêntico ao Residencial em tamanho e fonte
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull}</div>`;
-        html += `<div class="box-argumento" style="display:block !important; margin-top:8px; border-left:4px solid var(--mrv-preto);">
-                    <label style="color:var(--mrv-preto);">SOBRE O COMPLEXO</label>
-                    <p style="margin-top:8px; font-size:0.72rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</p>
+        // Container de info que cresce conforme o texto
+        html += `<div class="box-complexo-info">
+                    <label style="color:var(--mrv-preto); font-size: 0.6rem; font-weight: bold; text-transform: uppercase;">Sobre o Complexo</label>
+                    <p style="margin-top:8px; font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</p>
                  </div>`;
     }
     painel.innerHTML = html;
