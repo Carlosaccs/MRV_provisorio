@@ -3,6 +3,7 @@ let pathAtivo = null;
 let imovelAtivo = null;  
 let mapaAtivo = 'GSP'; 
 
+// Mapeamento das colunas da sua planilha Google
 const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, NOME: 3, NOME_FULL: 4, 
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
@@ -13,7 +14,7 @@ const COL = {
 async function iniciarApp() {
     try {
         await carregarPlanilha();
-    } catch (err) { console.error("Erro:", err); }
+    } catch (err) { console.error("Erro ao iniciar:", err); }
 }
 
 async function carregarPlanilha() {
@@ -36,19 +37,21 @@ async function carregarPlanilha() {
             }
             colunas.push(campo.trim());
             
-            // --- FILTRO ANTI-INVASOR ---
-            const categoria = (colunas[COL.CATEGORIA] || "").toUpperCase();
-            const nomeValido = colunas[COL.NOME] && colunas[COL.NOME].length > 2;
+            // --- VALIDAÇÃO RÍGIDA ANTI-INVASOR ---
+            // 1. A ordem precisa ser um número válido
+            const numOrdem = parseInt(colunas[COL.ORDEM]);
+            const ordemValida = !isNaN(numOrdem);
             
-            // Só aceita se tiver nome e se a categoria for estritamente Residencial ou Complexo
-            if (!nomeValido || (!categoria.includes("RESIDENCIAL") && !categoria.includes("COMPLEXO"))) {
-                return null;
-            }
+            // 2. A categoria precisa ser reconhecível
+            const categoria = (colunas[COL.CATEGORIA] || "").toUpperCase();
+            const eValido = categoria.includes("RESIDENCIAL") || categoria.includes("COMPLEXO");
+
+            if (!ordemValida || !eValido) return null;
 
             return {
                 id_path: colunas[COL.ID] ? colunas[COL.ID].toLowerCase().replace(/\s/g, '') : "",
                 tipo: categoria.includes('COMPLEXO') ? 'N' : 'R',
-                ordem: parseInt(colunas[COL.ORDEM]) || 999,
+                ordem: numOrdem,
                 nome: colunas[COL.NOME] || "",
                 nomeFull: colunas[COL.NOME_FULL] || colunas[COL.NOME] || "",
                 cidade: colunas[COL.ID] || "",
@@ -69,7 +72,7 @@ async function carregarPlanilha() {
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         desenharMapas();
         gerarListaLateral();
-    } catch (e) { console.error("Erro CSV:", e); }
+    } catch (e) { console.error("Erro no processamento do Google Sheets:", e); }
 }
 
 function gerarListaLateral() {
@@ -80,9 +83,8 @@ function gerarListaLateral() {
         const classeBase = item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes';
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
         const idBtn = `btn-list-${item.nome.replace(/[^a-zA-Z0-9]/g, '-')}`;
-        const clique = item.tipo === 'N' ? '' : `onclick="navegarVitrine('${item.nome}', '${item.regiao}')"`;
         
-        return `<div id="${idBtn}" class="${classeBase} ${ativo}" ${clique}>
+        return `<div id="${idBtn}" class="${classeBase} ${ativo}" onclick="navegarVitrine('${item.nome}', '${item.regiao}')">
                     <strong>${item.nome}</strong>
                     ${obterHtmlEstoque(item.estoque, item.tipo)}
                 </div>`;
@@ -97,9 +99,7 @@ function navegarVitrine(nome, nomeRegiao) {
     const mapaContexto = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
     const existeNoMapaAtual = mapaContexto.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
 
-    if (!existeNoMapaAtual) { 
-        trocarMapas(false); 
-    }
+    if (!existeNoMapaAtual) { trocarMapas(false); }
     
     const mapaAtualizado = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
     const pathInfo = mapaAtualizado.paths.find(p => p.id.toLowerCase().replace(/\s/g, '') === idAlvo);
@@ -157,25 +157,13 @@ function renderizarNoContainer(id, dados, interativo) {
     container.innerHTML = `<svg viewBox="${dados.viewBox}" style="width:100%; height:100%;"><g transform="${dados.transform || ''}">${pathsHtml}</g></svg>`;
 }
 
-function desenharMapas() {
-    renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
-    renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
-}
-
 function trocarMapas(completo = true) { 
     mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP'; 
-    
     if (completo) {
-        pathAtivo = null;
-        imovelAtivo = null;
+        pathAtivo = null; imovelAtivo = null;
         document.getElementById('cidade-titulo').innerText = "SELECIONE UMA REGIÃO NO MAPA";
-        document.getElementById('ficha-tecnica').innerHTML = `
-            <div style="text-align:center; color:#ccc; margin-top:100px;">
-                <p style="font-size: 30px;">📍</p>
-                <p>Clique em algum Residencial ou em alguma região verde do mapa</p>
-            </div>`;
+        document.getElementById('ficha-tecnica').innerHTML = `<div style="text-align:center; color:#ccc; margin-top:100px;"><p style="font-size: 30px;">📍</p><p>Clique em algum Residencial ou em alguma região verde do mapa</p></div>`;
     }
-
     desenharMapas(); 
     gerarListaLateral(); 
 }
@@ -207,13 +195,16 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     if(!painel) return;
     
-    const listaSuperior = listaDaCidade.filter(i => i.nome !== selecionado.nome && i.tipo === 'R');
+    const listaSuperior = listaDaCidade.filter(i => i.nome !== selecionado.nome);
     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if(listaSuperior.length > 0) {
-        html += `<div style="margin-bottom:10px;">${listaSuperior.map(item => `<button class="btRes" onclick="navegarVitrine('${item.nome}', '${nomeRegiao}')"><strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}</button>`).join('')}</div>`;
+        html += `<div style="margin-bottom:10px;">${listaSuperior.map(item => {
+            const btnClass = item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes';
+            return `<button class="${btnClass}" onclick="navegarVitrine('${item.nome}', '${nomeRegiao}')"><strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}</button>`;
+        }).join('')}</div>`;
         html += `<hr style="border:0; border-top:1px solid #ddd; margin:15px 0 20px 0;">`;
     }
 
@@ -232,7 +223,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             html += `<div style="background:#fff1f1; border:1px solid #ffdada; padding:8px; border-radius:4px; text-align:center; color:#e31010; font-weight:800; font-size:0.75rem; margin-top:5px;">${selecionado.campanha}</div>`;
         }
     } else {
-        html += `<div class="separador-complexo-btn" style="width:100%">${selecionado.nomeFull}</div>`;
+        html += `<div class="separador-complexo-btn" style="width:100%; cursor:default;">${selecionado.nomeFull}</div>`;
         html += `<div class="box-argumento"><label>Sobre o Complexo</label><p>${selecionado.descLonga}</p></div>`;
     }
     painel.innerHTML = html;
