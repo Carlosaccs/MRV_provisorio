@@ -40,11 +40,11 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
     color: #333; 
 }
 
-/* Hover solicitado: Borda Verde e Balanço Interno */
+/* Ajuste: Borda Verde no Hover e Balanço */
 .btRes:hover { 
     background-color: #f0f0f0 !important; 
-    border: 1px solid var(--mrv-verde) !important; /* Adicionado Borda Verde */
-    border-left: 4px solid var(--mrv-verde) !important;
+    border: 1px solid var(--mrv-verde) !important;
+    border-left-width: 4px !important;
     padding-left: 15px !important; 
 }
 
@@ -62,9 +62,7 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 
 svg { width: 100%; height: 100%; }
 path { fill: #777; stroke: #fff; stroke-width: 0.8; pointer-events: all; transition: 0.2s; }
-
 path:not(.commrv):hover { fill: var(--cinza-hover) !important; cursor: default; }
-
 path.commrv { fill: var(--mrv-verde) !important; cursor: pointer; }
 path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.2px !important; }
 
@@ -88,7 +86,7 @@ path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #00
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* Grid de Informações OTIMIZADO (Mais Estreito) */
+/* Grid de Informações - Caixas Estreitas */
 .grid-infos { 
     display: table !important;
     width: 100% !important; 
@@ -100,37 +98,35 @@ path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #00
 .box-argumento { 
     display: table-cell !important;
     width: 50% !important; 
-    padding: 2px 8px !important; /* Padding reduzido para estreitar */
+    padding: 0 8px !important; 
     border-radius: 4px; 
     border-left: 4px solid #ddd; 
     background: #f9f9f9; 
     vertical-align: middle;
-    height: 28px !important; /* Altura igual ao btRes */
+    height: 28px !important; /* Mesma altura do btRes */
 }
 .box-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.box-argumento label { font-size: 0.52rem; font-weight: bold; text-transform: uppercase; color: var(--mrv-verde); }
+.box-argumento strong { font-size: 0.65rem; color: #333; }
 
-/* Estilo para label e strong dentro das caixas estreitas */
-.box-argumento label { font-size: 0.52rem; font-weight: bold; text-transform: uppercase; color: var(--mrv-verde); margin-right: 5px; }
-.box-argumento strong { font-size: 0.62rem; color: #333; }
-
-/* Estilo para a Fila Nova (Única e Vermelha) */
+/* Estilo para a Fila de Campanha (Texto Vermelho) */
 .box-campanha {
     width: 100% !important;
     text-align: center !important;
     color: var(--vermelho-mrv) !important;
     font-weight: bold !important;
-    font-size: 0.68rem !important;
-    border-left: 4px solid var(--vermelho-mrv) !important; /* Borda vermelha para destacar */
+    font-size: 0.7rem !important;
+    border-left-color: var(--vermelho-mrv) !important;
 }
 
-/* Estilo para Texto do Complexo OTIMIZADO */
+/* Estilo para Texto do Complexo */
 .box-complexo-full {
     width: 100%;
     padding: 12px;
     background: #f9f9f9;
     border-left: 4px solid var(--mrv-preto);
-    border-radius: 0 0 4px 4px; /* Arredonda só embaixo para colar na faixa */
-    height: auto !important; /* Garante que o texto não seja cortado */
+    border-radius: 0 0 4px 4px;
+    height: auto !important;
     overflow: visible !important;
 }
 
