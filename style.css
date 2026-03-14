@@ -3,7 +3,7 @@
     --mrv-laranja: #ff8c00;
     --mrv-preto: #333;
     --vermelho-mrv: #e31010;
-    --cinza-hover: #aaa; /* Tom de cinza mais claro para o destaque */
+    --cinza-hover: #aaa;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -19,15 +19,39 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 
 /* Lateral Esquerda */
 .sidebar-esq { width: 280px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
+
 .btRes, .separador-complexo-btn {
     width: 92% !important; margin: 3px auto !important; min-height: 28px;
     display: flex !important; align-items: center !important; padding: 4px 8px !important;
-    border-radius: 4px; font-size: 0.72rem; cursor: pointer; border: 1px solid #ddd; transition: 0.2s;
+    border-radius: 4px; font-size: 0.72rem; cursor: pointer; border: 1px solid #ddd; 
+    transition: all 0.3s ease; /* Transição suave para todos os estados */
 }
-.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
-.btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: #333; }
-.btRes:hover { background-color: #f0f0f0 !important; transform: translateX(3px); }
-.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; }
+
+.separador-complexo-btn { 
+    background: #333 !important; color: white !important; 
+    justify-content: center !important; font-weight: bold; 
+    text-transform: uppercase; border: none !important; 
+}
+
+.btRes { 
+    background: #fff; 
+    border-left: 4px solid var(--mrv-verde) !important; 
+    justify-content: space-between; 
+    color: #333; 
+}
+
+/* Novo estilo de Hover solicitado: Balanço Interno */
+.btRes:hover { 
+    background-color: #f0f0f0 !important; 
+    border-left-color: transparent !important; /* Faz a faixinha sumir */
+    padding-left: 15px !important; /* Desloca o texto internamente */
+}
+
+.btRes.ativo { 
+    background-color: var(--mrv-laranja) !important; 
+    color: white !important; 
+    border-left-color: var(--mrv-laranja) !important;
+}
 
 /* Centro - Mapas */
 .conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
@@ -38,7 +62,7 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 svg { width: 100%; height: 100%; }
 path { fill: #777; stroke: #fff; stroke-width: 0.8; pointer-events: all; transition: 0.2s; }
 
-/* REGRA ADICIONADA: Destaque claro para paths cinzas (sem MRV) */
+/* Destaque claro para paths cinzas (sem MRV) */
 path:not(.commrv):hover { fill: var(--cinza-hover) !important; cursor: default; }
 
 /* Destaque para regiões com MRV */
