@@ -169,4 +169,54 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome}</div>`;
-        html += `<div style="padding:
+        html += `<div style="padding: 0 0 8px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        
+        // --- NOVA ORDEM: CAMPANHA AGORA É A PRIMEIRA ---
+        if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
+            html += `<div class="grid-infos" style="margin-bottom:4px;">
+                        <div class="row-infos">
+                            <div class="box-argumento box-campanha" style="width:100%; display:block; text-align:center;">
+                                ${selecionado.campanha}
+                            </div>
+                        </div>
+                     </div>`;
+        }
+
+        // Fila 2: Entrega e Obra
+        html += `<div class="grid-infos">
+                    <div class="row-infos">
+                        <div class="box-argumento"><div class="box-inner"><label>Entrega</label><strong>${selecionado.entrega}</strong></div></div>
+                        <div class="box-argumento"><div class="box-inner"><label>Obra</label><strong>${selecionado.obra}%</strong></div></div>
+                    </div>
+                 </div>`;
+        
+        // Fila 3: Plantas e Estoque
+        html += `<div class="grid-infos">
+                    <div class="row-infos">
+                        <div class="box-argumento"><div class="box-inner"><label>Plantas</label><strong>${selecionado.p_de} - ${selecionado.p_ate}</strong></div></div>
+                        <div class="box-argumento"><div class="box-inner"><label>Estoque</label><strong>${selecionado.estoque} UN.</strong></div></div>
+                    </div>
+                 </div>`;
+                 
+        // Fila 4: Limitador e C. Paulista
+        html += `<div class="grid-infos">
+                    <div class="row-infos">
+                        <div class="box-argumento"><div class="box-inner"><label>Limitador</label><strong>${selecionado.limitador}</strong></div></div>
+                        <div class="box-argumento"><div class="box-inner"><label>C. Paulista</label><strong>${selecionado.casa_paulista}</strong></div></div>
+                    </div>
+                 </div>`;
+        
+        if(selecionado.descLonga) {
+             html += `<div style="margin-top:10px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:5px;">${selecionado.descLonga}</div>`;
+        }
+
+    } else {
+        html += `<div class="titulo-vitrine-faixa faixa-preta" style="margin-bottom:0px;">${selecionado.nomeFull}</div>`;
+        html += `<div class="box-complexo-full" style="margin-top:0px;">
+                    <p style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</p>
+                 </div>`;
+    }
+    painel.innerHTML = html;
+}
+
+window.onload = iniciarApp;
