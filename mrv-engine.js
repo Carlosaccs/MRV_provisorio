@@ -32,7 +32,6 @@ async function carregarPlanilha() {
             colunas.push(campo.trim());
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
             if (!colunas[COL.NOME] || isNaN(parseInt(colunas[COL.ORDEM]))) return null;
-            
             return {
                 id_path: (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, ''),
                 tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
@@ -43,7 +42,7 @@ async function carregarPlanilha() {
                 endereco: colunas[COL.END] || "",
                 entrega: colunas[COL.ENTREGA] || "---",
                 obra: colunas[COL.OBRA] || "0",
-                tipologiasH: colunas[COL.TIPOLOGIAS] || "", // COLUNA H (ÍNDICE 7)
+                tipologiasH: colunas[COL.TIPOLOGIAS] || "", // Coluna H
                 regiao: colunas[COL.REGIAO] || "---",
                 p_de: colunas[COL.P_DE] || "---",
                 p_ate: colunas[COL.P_ATE] || "---",
@@ -114,11 +113,16 @@ function renderizarNoContainer(id, dados, interativo) {
         const temMRV = DADOS_PLANILHA.some(d => d.id_path === idNorm);
         const ativo = (pathAtivo === idNorm && interativo) ? 'ativo' : '';
         const isGSP = idNorm === "grandesaopaulo";
+        
         let eventos = "";
         if (interativo) {
-            if (isGSP) eventos = `onclick="trocarMapas(true)" onmouseover="atualizarTituloSuperior('GRANDE SÃO PAULO')" onmouseout="atualizarTituloSuperior()"`;
-            else eventos = `onclick="comandoSelecao('${p.id}')" onmouseover="atualizarTituloSuperior('${p.name}')" onmouseout="atualizarTituloSuperior()"`;
+            if (isGSP) {
+                eventos = `onclick="trocarMapas(true)" onmouseover="atualizarTituloSuperior('GRANDE SÃO PAULO')" onmouseout="atualizarTituloSuperior()"`;
+            } else {
+                eventos = `onclick="comandoSelecao('${p.id}')" onmouseover="atualizarTituloSuperior('${p.name}')" onmouseout="atualizarTituloSuperior()"`;
+            }
         }
+
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
     container.innerHTML = `<svg viewBox="${dados.viewBox}"><g transform="${dados.transform || ''}">${pathsHtml}</g></svg>`;
@@ -158,19 +162,19 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if(outros.length > 0) {
-        html += `<div style="margin-bottom:2px;">${outros.map(i => `
+        html += `<div style="margin-bottom:6px;">${outros.map(i => `
             <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
                 <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
-            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:2px 0;">`;
+            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome}</div>`;
-        html += `<div style="padding: 0 0 2px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        html += `<div style="padding: 0 0 4px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
-        // 1. CAMPANHA (SE EXISTIR)
+        // Fila 1: Campanha
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
-            html += `<div class="grid-infos" style="margin-bottom:2px;">
+            html += `<div class="grid-infos">
                         <div class="row-infos">
                             <div class="box-argumento box-campanha" style="width:100%; display:block; text-align:center;">
                                 ${selecionado.campanha}
@@ -179,7 +183,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                      </div>`;
         }
 
-        // 2. ENTREGA E OBRA
+        // Fila 2: Entrega e Obra
         html += `<div class="grid-infos">
                     <div class="row-infos">
                         <div class="box-argumento"><div class="box-inner"><label>Entrega</label><strong>${selecionado.entrega}</strong></div></div>
@@ -187,7 +191,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </div>
                  </div>`;
         
-        // 3. PLANTAS E ESTOQUE
+        // Fila 3: Plantas e Estoque
         html += `<div class="grid-infos">
                     <div class="row-infos">
                         <div class="box-argumento"><div class="box-inner"><label>Plantas</label><strong>${selecionado.p_de} - ${selecionado.p_ate}</strong></div></div>
@@ -195,7 +199,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </div>
                  </div>`;
                  
-        // 4. LIMITADOR E CASA PAULISTA
+        // Fila 4: Limitador e C. Paulista
         html += `<div class="grid-infos">
                     <div class="row-infos">
                         <div class="box-argumento"><div class="box-inner"><label>Limitador</label><strong>${selecionado.limitador}</strong></div></div>
@@ -203,8 +207,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </div>
                  </div>`;
 
-        // 5. NOVA TABELA DE PREÇOS (COLUNA H)
-        if(selecionado.tipologiasH && selecionado.tipologiasH !== "") {
+        // NOVA FILA: TABELA DE PREÇOS (Coluna H)
+        if(selecionado.tipologiasH) {
             const linhasPreco = selecionado.tipologiasH.split(',,;');
             html += `<div class="tabela-precos-container">
                         <div class="tabela-header">
@@ -215,12 +219,12 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                         <div class="tabela-divisor"></div>
                         <div class="tabela-corpo">
                             ${linhasPreco.map(linha => {
-                                const cols = linha.split('|');
+                                const cols = linha.split('|'); // Assume que dentro da linha você usa pipe ou algo similar para separar as 3 infos
                                 return `
                                 <div class="tabela-row">
-                                    <div class="col-tabela">${cols[0] || "---"}</div>
-                                    <div class="col-tabela col-laranja">${cols[1] || "---"}</div>
-                                    <div class="col-tabela">${cols[2] || "---"}</div>
+                                    <div class="col-tabela">${cols[0] || ""}</div>
+                                    <div class="col-tabela col-laranja">${cols[1] || ""}</div>
+                                    <div class="col-tabela">${cols[2] || ""}</div>
                                 </div>`;
                             }).join('')}
                         </div>
@@ -228,7 +232,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
         
         if(selecionado.descLonga) {
-             html += `<div style="margin-top:4px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:2px;">${selecionado.descLonga}</div>`;
+             html += `<div style="margin-top:6px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
 
     } else {
