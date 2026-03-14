@@ -11,17 +11,16 @@ const COL = {
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,   
-    BOOK_CLIENTE: 24, BOOK_CORRETOR: 25     
+    BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
+    MATERIAIS_EXTRAS: 26 // Coluna AA
 };
 
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
-// --- FUNÇÃO PARA SEGURANÇA ---
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "") return "";
-    // Se for link do Drive, garante que use o modo preview (sem ferramentas externas)
     if (url.includes('drive.google.com')) {
         return url.split('/view')[0] + '/preview';
     }
@@ -29,10 +28,9 @@ function formatarLinkSeguro(url) {
 }
 
 function copiarLink(url) {
-    // Garante que o link copiado também seja o seguro
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro (sem menus) copiado!");
+    alert("Link seguro copiado!");
 }
 
 async function carregarPlanilha() {
@@ -77,7 +75,8 @@ async function carregarPlanilha() {
                 comercio: colunas[COL.COMERCIO] || "",
                 saude: colunas[COL.SAUDE_EDUCACAO] || "",
                 linkCliente: colunas[COL.BOOK_CLIENTE] || "",
-                linkCorretor: colunas[COL.BOOK_CORRETOR] || ""
+                linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
+                materiaisExtras: colunas[COL.MATERIAIS_EXTRAS] || ""
             };
         }).filter(i => i !== null);
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
@@ -184,8 +183,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 
         const fila = (l1, v1, l2, v2) => `
             <div class="grid-infos"><div class="row-infos">
-                <div class="box-argumento"><div class="box-inner"><label>${l1}</label>strong>${v1}</strong></div></div>
-                <div class="box-argumento"><div class="box-inner"><label>${l2}</label>strong>${v2}</strong></div></div>
+                <div class="box-argumento"><div class="box-inner"><label>${l1}</label><strong>${v1}</strong></div></div>
+                <div class="box-argumento"><div class="box-inner"><label>${l2}</label><strong>${v2}</strong></div></div>
             </div></div>`;
 
         html += fila('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%');
@@ -198,88 +197,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
                 const dados = linhas.slice(1);
                 html += `
-                <div class="tabela-precos-container">
-                    <div class="tabela-header">
-                        ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}">${t}</div>`).join('')}
+                <div class="tabela-precos-container" style="border-radius: 4px 4px 0 0; border-bottom: none; margin-top:10px;">
+                    <div class="tabela-header" style="min-height: 34px;">
+                        ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 8px 4px;">${t}</div>`).join('')}
                     </div>
-                    <div class="tabela-divisor"></div>
                     <div class="tabela-corpo">
                         ${dados.map(linha => {
-                            const cols = linha.split(',').map(c => c.trim());
-                            if(cols.length <= 1) return "";
-                            return `<div class="tabela-row">
-                                ${cols.map((v, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            }
-        }
-
-        const criarBoxDestaque = (label, texto, corFundo, corBorda) => {
-            if(!texto || texto === "---" || texto === "") return "";
-            return `
-            <div style="background: ${corFundo}; border-left: 4px solid ${corBorda}; padding: 8px; border-radius: 4px; margin-bottom: 6px; width: 100%; box-sizing: border-box;">
-                <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:2px;">${label}</label>
-                <p style="margin:0; font-size:0.7rem; color:#444; line-height:1.4;">${texto}</p>
-            </div>`;
-        };
-
-        html += criarBoxDestaque('📍 Diferenciais de Localização', selecionado.localizacao, '#fdf2e9', '#f37021');
-        html += criarBoxDestaque('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32');
-        html += criarBoxDestaque('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0');
-        html += criarBoxDestaque('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828');
-        html += criarBoxDestaque('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a');
-
-        // --- MATERIAIS DE APOIO (ESTILO CARDS COM SEGURANÇA) ---
-        const criarCardMaterial = (titulo, url, icone) => {
-            if (!url || url === "" || url === "---") return "";
-            // Garante que o link seguro seja gerado para o iframe
-            const linkSeguro = formatarLinkSeguro(url);
-            
-            return `
-            <div class="card-material-item">
-                <div class="card-material-left">
-                    <span class="card-icon">${icone}</span>
-                    <span class="card-text">${titulo}</span>
-                    <div class="preview-hover-box">
-                        <iframe src="${linkSeguro}"></iframe>
-                    </div>
-                </div>
-                <div class="card-material-right">
-                    <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
-                    <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
-                </div>
-            </div>`;
-        };
-
-        let materiaisHtml = "";
-        materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
-        materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
-
-        if (materiaisHtml !== "") {
-            html += `
-            <div style="margin-top: 15px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px;">MATERIAIS DE APOIO</label>
-                ${materiaisHtml}
-            </div>`;
-        }
-
-        if(selecionado.descLonga) {
-             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
-        }
-    } else {
-        html += `<div class="titulo-vitrine-faixa faixa-preta" style="margin-bottom:0px;">${selecionado.nomeFull}</div>`;
-        html += `<div class="box-complexo-full" style="margin-top:0px;">
-                    <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
-                        <p style="font-size:0.7rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
-                            <span>📍 ${selecionado.endereco}</span>
-                            <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a>
-                        </p>
-                    </div>
-                    <p style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</p>
-                 </div>`;
-    }
-    painel.innerHTML = html;
-}
-window.onload = iniciarApp;
