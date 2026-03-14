@@ -20,7 +20,7 @@ async function iniciarApp() {
 }
 
 function formatarLinkSeguro(url) {
-    if (!url || url === "---" || url === "") return "";
+    if (!url || url === "---" || url.trim() === "") return "";
     if (url.includes('drive.google.com')) {
         return url.split('/view')[0] + '/preview';
     }
@@ -203,3 +203,88 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     </div>
                     <div class="tabela-corpo">
                         ${dados.map(linha => {
+                            const cols = linha.split(',').map(c => c.trim());
+                            if(cols.length <= 1) return "";
+                            return `<div class="tabela-row" style="min-height: 38px;">
+                                ${cols.map((v, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 10px 4px;">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }
+        }
+
+        const criarBoxDestaque = (label, texto, corFundo, corBorda) => {
+            if(!texto || texto === "---" || texto === "") return "";
+            return `
+            <div style="background: ${corFundo}; border-left: 4px solid ${corBorda}; padding: 8px; border-radius: 4px; margin-bottom: 6px; width: 100%; box-sizing: border-box;">
+                <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:2px;">${label}</label>
+                <p style="margin:0; font-size:0.7rem; color:#444; line-height:1.4;">${texto}</p>
+            </div>`;
+        };
+
+        html += criarBoxDestaque('📍 Diferenciais de Localização', selecionado.localizacao, '#fdf2e9', '#f37021');
+        html += criarBoxDestaque('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32');
+        html += criarBoxDestaque('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0');
+        html += criarBoxDestaque('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828');
+        html += criarBoxDestaque('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a');
+
+        const criarCardMaterial = (titulo, url, icone) => {
+            if (!url || url === "" || url === "---") return "";
+            const linkSeguro = formatarLinkSeguro(url);
+            return `
+            <div class="card-material-item">
+                <div class="card-material-left">
+                    <span class="card-icon">${icone}</span>
+                    <span class="card-text">${titulo}</span>
+                </div>
+                <div class="card-material-right">
+                    <div class="container-abrir-preview">
+                        <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
+                        <div class="preview-hover-box"><iframe src="${linkSeguro}" scrolling="no"></iframe></div>
+                    </div>
+                    <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
+                </div>
+            </div>`;
+        };
+
+        let materiaisHtml = "";
+        materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
+        materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
+
+        // Lógica Dinâmica Protegida
+        if (selecionado.materiaisExtras && selecionado.materiaisExtras !== "---" && selecionado.materiaisExtras.trim() !== "") {
+            const itens = selecionado.materiaisExtras.split(';').map(i => i.trim()).filter(i => i !== "");
+            itens.forEach(item => {
+                const dados = item.split(',');
+                if (dados.length >= 2) {
+                    const tit = dados[0].trim();
+                    const lnk = dados[1].trim();
+                    if(lnk !== "" && lnk !== "---") {
+                        const ico = tit.toLowerCase().includes('vídeo') ? '🎬' : '🔗';
+                        materiaisHtml += criarCardMaterial(tit, lnk, ico);
+                    }
+                }
+            });
+        }
+
+        if (materiaisHtml !== "") {
+            html += `<div style="margin-top: 15px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px;">MATERIAIS DE APOIO</label>
+                ${materiaisHtml}
+            </div>`;
+        }
+
+        if(selecionado.descLonga) {
+             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
+        }
+    } else {
+        html += `<div class="titulo-vitrine-faixa faixa-preta" style="margin-bottom:0px;">${selecionado.nomeFull}</div>`;
+        html += `<div class="box-complexo-full">
+                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px;">📍 ${selecionado.endereco}</p>
+                    <p style="font-size:0.75rem; color:#444; line-height:1.5;">${selecionado.descLonga}</p>
+                 </div>`;
+    }
+    painel.innerHTML = html;
+}
+window.onload = iniciarApp;
