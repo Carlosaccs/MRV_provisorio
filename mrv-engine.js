@@ -7,7 +7,8 @@ const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, NOME: 3, NOME_FULL: 4, 
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
-    REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, DESC_LONGA: 17
+    REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
+    DESC_LONGA: 17, LOCALIZACAO: 19 // Coluna T da Planilha
 };
 
 async function iniciarApp() {
@@ -49,7 +50,8 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
-                descLonga: colunas[COL.DESC_LONGA] || ""
+                descLonga: colunas[COL.DESC_LONGA] || "",
+                localizacao: colunas[COL.LOCALIZACAO] || "" 
             };
         }).filter(i => i !== null);
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
@@ -172,13 +174,14 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += fila('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', selecionado.estoque + ' UN.');
         html += fila('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista);
 
+        // --- TABELA DE PREÇOS ---
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
                 const dados = linhas.slice(1);
                 html += `
-                <div class="tabela-precos-container" style="border-radius: 4px 4px 0 0; border-bottom: none;">
+                <div class="tabela-precos-container" style="border-radius: 4px 4px 0 0; border-bottom: none; margin-top:10px;">
                     <div class="tabela-header" style="min-height: 34px;">
                         ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 8px 4px;">${t}</div>`).join('')}
                     </div>
@@ -199,6 +202,16 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 </div>`;
             }
         }
+
+        // --- CAIXA DE LOCALIZAÇÃO (AGORA ABAIXO DA TABELA) ---
+        if(selecionado.localizacao && selecionado.localizacao !== "---" && selecionado.localizacao !== "") {
+            html += `
+            <div style="margin-top:2px; background: #fdf2e9; border-left: 4px solid var(--mrv-laranja); padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                <label style="display:block; font-size:0.55rem; font-weight:bold; color:var(--mrv-laranja); text-transform:uppercase; margin-bottom:2px;">📍 Diferenciais de Localização</label>
+                <p style="margin:0; font-size:0.7rem; color:#444; line-height:1.4;">${selecionado.localizacao}</p>
+            </div>`;
+        }
+
         if(selecionado.descLonga) {
              html += `<div style="margin-top:6px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
