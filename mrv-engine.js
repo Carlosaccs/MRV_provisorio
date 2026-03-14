@@ -1,5 +1,5 @@
 let DADOS_PLANILHA = [];
-let pathAtivo = null;    
+let pathAtivo = null;  
 let imovelAtivo = null;  
 let mapaAtivo = 'GSP'; 
 
@@ -77,13 +77,34 @@ function comandoSelecao(idPath, nomePath, fonte) {
     const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === pathAtivo);
     const selecionado = fonte || imoveisDaCidade[0];
     imovelAtivo = selecionado.nome;
-    document.querySelectorAll('.ativo').forEach(el => el.classList.remove('ativo'));
+    
+    document.querySelectorAll('path').forEach(el => el.classList.remove('ativo'));
     const elMapa = document.getElementById(`caixa-a-${pathAtivo}`);
     if (elMapa) elMapa.classList.add('ativo');
+
     gerarListaLateral();
-    const nomeOficial = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths).find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || pathAtivo;
-    document.getElementById('cidade-titulo').innerText = nomeOficial.toUpperCase();
+    
+    const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
+    const nomeOficial = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || pathAtivo;
+    
+    atualizarTituloSuperior(nomeOficial);
     montarVitrine(selecionado, imoveisDaCidade, nomeOficial);
+}
+
+// --- NOVAS FUNÇÕES DE INTERAÇÃO DE TÍTULO ---
+
+function atualizarTituloSuperior(texto) {
+    const titulo = document.getElementById('cidade-titulo');
+    if (texto) {
+        titulo.innerText = texto.toUpperCase();
+    } else if (pathAtivo) {
+        // Se tirou o mouse, mas tem algo selecionado, volta o nome do selecionado
+        const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
+        const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
+        titulo.innerText = nomeFixo.toUpperCase();
+    } else {
+        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA";
+    }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
@@ -93,8 +114,17 @@ function renderizarNoContainer(id, dados, interativo) {
         const temMRV = DADOS_PLANILHA.some(d => d.id_path === idNorm);
         const ativo = (pathAtivo === idNorm && interativo) ? 'ativo' : '';
         const isGSP = idNorm === "grandesaopaulo";
-        const clique = interativo ? (isGSP ? `onclick="trocarMapas(true)"` : `onclick="comandoSelecao('${p.id}')"`) : "";
-        return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${clique}></path>`;
+        
+        let eventos = "";
+        if (interativo) {
+            if (isGSP) {
+                eventos = `onclick="trocarMapas(true)" onmouseover="atualizarTituloSuperior('GRANDE SÃO PAULO')" onmouseout="atualizarTituloSuperior()"`;
+            } else {
+                eventos = `onclick="comandoSelecao('${p.id}')" onmouseover="atualizarTituloSuperior('${p.name}')" onmouseout="atualizarTituloSuperior()"`;
+            }
+        }
+
+        return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
     container.innerHTML = `<svg viewBox="${dados.viewBox}"><g transform="${dados.transform || ''}">${pathsHtml}</g></svg>`;
 }
@@ -128,6 +158,7 @@ function gerarListaLateral() {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
+    // Correção da URL do Maps (syntax corrigida)
     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
@@ -143,7 +174,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome}</div>`;
         html += `<div style="padding: 0 0 8px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
-        // Estrutura de Tabela para garantir 50/50
         html += `<div class="grid-infos">
                     <div class="row-infos">
                         <div class="box-argumento"><div class="box-inner"><label>Entrega</label><strong>${selecionado.entrega}</strong></div></div>
@@ -158,6 +188,11 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                         <div class="box-argumento"><div class="box-inner"><label>C. Paulista</label><strong>${selecionado.casa_paulista}</strong></div></div>
                     </div>
                  </div>`;
+        
+        if(selecionado.descLonga) {
+             html += `<div style="margin-top:10px; font-size:0.7rem; color:#666; font-style:italic;">${selecionado.descLonga}</div>`;
+        }
+
     } else {
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull}</div>`;
         html += `<div class="box-complexo-full">
