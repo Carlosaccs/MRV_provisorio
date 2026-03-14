@@ -3,37 +3,46 @@
     --mrv-laranja: #ff8c00;
     --mrv-preto: #333;
     --vermelho-mrv: #e31010;
-    --cinza-fundo: #f4f4f4;
-    --cinza-borda: #ddd;
+    --cinza-claro: #f4f4f4;
+    --cinza-divisor: #ccc;
+    --cinza-mapa: #777;
 }
 
-/* Base */
+/* Reset e Layout Base */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: white; }
 
 .header { 
-    background-color: var(--mrv-verde); color: white; 
-    height: 60px; line-height: 60px; 
-    font-size: 1.6rem; font-weight: bold; text-align: center;
+    background-color: var(--mrv-verde) !important; color: white !important; 
+    height: 60px !important; line-height: 60px !important; 
+    font-size: 1.6rem !important; font-weight: bold !important; text-align: center;
     flex-shrink: 0;
 }
 
 .wrapper { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
 
 /* Lateral Esquerda - Lista */
-.sidebar-esq { width: 280px; border-right: 1px solid var(--cinza-borda); overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
+.sidebar-esq { width: 280px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
 
 .btRes, .separador-complexo-btn {
-    width: 92%; margin: 4px auto; min-height: 28px;
-    display: flex; align-items: center; padding: 4px 8px;
-    border-radius: 4px; font-size: 0.72rem; cursor: pointer; border: 1px solid var(--cinza-borda); 
-    transition: 0.1s;
+    width: 92% !important; margin: 4px auto !important; min-height: 28px;
+    display: flex !important; align-items: center !important; padding: 4px 8px !important;
+    border-radius: 4px; font-size: 0.72rem; cursor: pointer; border: 1px solid #ddd; 
+    text-decoration: none;
+    transition: background 0.1s ease;
 }
 
-.separador-complexo-btn { background: #333; color: white; justify-content: center; font-weight: bold; text-transform: uppercase; border: none; }
-.btRes { background: #fff; border-left: 4px solid var(--mrv-verde); justify-content: space-between; color: #333; }
-.btRes:hover { background-color: #f0f0f0; border: 1px solid var(--mrv-verde); }
-.btRes.ativo { background-color: var(--mrv-laranja); color: white; border: 1px solid var(--mrv-laranja); }
+.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
+
+.btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: #333; }
+
+.btRes:hover { 
+    background-color: #f0f0f0 !important; 
+    border: 1px solid var(--mrv-verde) !important; 
+    border-left: 4px solid var(--mrv-verde) !important; 
+}
+
+.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border: 1px solid var(--mrv-laranja) !important; }
 
 /* Centro - Mapas */
 .conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
@@ -42,48 +51,85 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 #caixa-b { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 5px; border-top: 2px solid #eee; cursor: pointer; background: #fff; min-height: 120px; }
 
 svg { width: 100%; height: 100%; }
-path { fill: #777; stroke: #fff; stroke-width: 0.8; transition: fill 0.1s; }
-path:hover { fill: #999; cursor: pointer; }
-path.commrv { fill: var(--mrv-verde); }
-path.commrv:hover, path.ativo { fill: var(--mrv-laranja); stroke: #000; stroke-width: 1.2px; }
+path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; transition: fill 0.1s; }
+
+path:hover { 
+    fill: #999 !important; 
+    cursor: pointer;
+}
+
+path.commrv { fill: var(--mrv-verde) !important; }
+
+path.commrv:hover, path.ativo { 
+    fill: var(--mrv-laranja) !important; 
+    stroke: #000 !important; 
+    stroke-width: 1.2px !important;
+}
 
 /* Lateral Direita - Vitrine */
-.sidebar-dir { width: 480px; border-left: 1px solid var(--cinza-borda); overflow-y: auto; padding: 10px; flex-shrink: 0; }
+.sidebar-dir { width: 480px; border-left: 1px solid #ddd; overflow-y: auto; padding: 10px; flex-shrink: 0; }
 .vitrine-topo { background: var(--mrv-verde); color: white; padding: 6px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; }
-.titulo-vitrine-faixa { display: block; width: 100%; height: 32px; line-height: 32px; font-weight: bold; font-size: 0.85rem; border-radius: 4px; text-transform: uppercase; color: #fff; text-align: center; margin-bottom: 6px; }
-.faixa-laranja { background: var(--mrv-laranja); }
 
-/* Grid de Informações (As caixinhas que sumiram) */
-.grid-infos { width: 100%; border-spacing: 2px; border-collapse: separate; margin-bottom: 4px; }
-.box-argumento { background: #f9f9f9; border-left: 4px solid #ddd; padding: 5px 8px; border-radius: 4px; width: 50%; }
-.box-inner { display: flex; justify-content: space-between; align-items: center; }
-.box-argumento label { font-size: 0.55rem; color: var(--mrv-verde); font-weight: bold; text-transform: uppercase; }
+.titulo-vitrine-faixa { display: block !important; width: 100% !important; height: 32px !important; line-height: 32px !important; font-weight: bold !important; font-size: 0.85rem !important; border-radius: 4px; text-transform: uppercase; color: #fff; text-align: center; margin-bottom: 6px; }
+.faixa-laranja { background: var(--mrv-laranja) !important; }
+.faixa-preta { background: var(--mrv-preto) !important; }
+
+/* Grid e Boxes de Diferenciais (Agora ocupando 100% em uma por linha via JS) */
+.grid-infos { display: table !important; width: 100% !important; table-layout: fixed !important; border-spacing: 2px !important; margin-bottom: 2px; }
+.row-infos { display: table-row; }
+.box-argumento { display: table-cell !important; width: 50% !important; padding: 4px 8px !important; border-radius: 4px; border-left: 4px solid #ddd; background: #f9f9f9; vertical-align: middle; height: 32px !important; }
+.box-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.box-argumento label { font-size: 0.55rem; font-weight: bold; text-transform: uppercase; color: var(--mrv-verde); }
 .box-argumento strong { font-size: 0.65rem; color: #333; }
-.box-campanha { background: #fff; color: var(--vermelho-mrv); font-weight: bold; font-size: 0.7rem; border: 1px solid var(--vermelho-mrv); text-align: center; padding: 5px; border-radius: 4px; margin-bottom: 5px; }
+.box-campanha { color: var(--vermelho-mrv) !important; font-weight: bold !important; font-size: 0.68rem !important; border-left: 4px solid var(--vermelho-mrv) !important; text-align: center; }
 
-/* Argumentos de Localização (Seção Colorida) */
-.box-colorida { padding: 8px; border-radius: 4px; margin-bottom: 4px; }
-.box-colorida label { display: block; font-size: 0.55rem; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-.box-colorida p { margin: 0; font-size: 0.7rem; color: #444; }
-
-/* Materiais e Miniaturas */
-.card-material-item { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 15px; margin-bottom: 8px; }
-.container-abrir-preview { position: relative; display: inline-block; }
-.preview-hover-box {
-    display: none; position: absolute; bottom: 120%; right: 0;
-    width: 280px; height: 190px; background: white;
-    border: 3px solid var(--mrv-verde); border-radius: 12px;
-    overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000;
+/* --- CARDS DE MATERIAIS (O ESTILO QUE VOCÊ GOSTOU) --- */
+.card-material-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-.card-btn-abrir:hover + .preview-hover-box { display: block; }
-.preview-hover-box iframe { width: 100%; height: 100%; border: none; }
-.card-btn-abrir, .card-btn-copiar { padding: 7px 16px; font-size: 0.7rem; font-weight: bold; border-radius: 6px; text-decoration: none; color: #fff; border: none; cursor: pointer; }
-.card-btn-abrir { background: var(--mrv-verde); }
-.card-btn-copiar { background: var(--mrv-laranja); }
 
-/* Tabela */
-.tabela-precos-container { width: 100%; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin: 8px 0; }
-.tabela-header { background: #eee; font-weight: bold; font-size: 0.6rem; display: flex; }
-.tabela-row { display: flex; border-top: 1px solid #eee; font-size: 0.65rem; }
-.col-tabela { flex: 1; padding: 6px; text-align: center; }
-.col-laranja { background: var(--mrv-laranja); color: #fff; font-weight: bold; }
+.card-material-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-icon { font-size: 1.1rem; }
+.card-text { font-size: 0.75rem; font-weight: 600; color: #333; }
+
+.card-material-right {
+    display: flex;
+    gap: 6px;
+}
+
+.card-btn-abrir, .card-btn-copiar {
+    padding: 5px 12px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.card-btn-abrir { background: var(--mrv-verde); color: #fff; } 
+.card-btn-copiar { background: var(--mrv-laranja); color: #fff; }
+
+/* Complexo e Mapas */
+.box-complexo-full { width: 100%; padding: 12px; background: #f9f9f9; border-left: 4px solid var(--mrv-preto); border-radius: 0 0 4px 4px; }
+.btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+
+/* Tabelas */
+.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 4px; margin-top: 8px; border: 1px solid #ddd; overflow: hidden; }
+.tabela-header { background: #eee; font-weight: bold; font-size: 0.6rem; min-height: 30px; display: flex; align-items: center; }
+.tabela-row { display: flex; background: #fff; font-size: 0.65rem; border-bottom: 1px solid #eee; min-height: 28px; align-items: center; }
+.col-tabela { flex: 1; padding: 4px; text-align: center; border-right: 1px solid #eee; }
+.col-laranja { background: var(--mrv-laranja) !important; color: #fff !important; font-weight: bold; }
