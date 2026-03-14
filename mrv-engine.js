@@ -18,21 +18,20 @@ async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
-// --- FUNÇÃO PARA SEGURANÇA ---
+// --- FUNÇÃO PARA SEGURANÇA (MODO PREVIEW) ---
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "") return "";
-    // Se for link do Drive, garante que use o modo preview (sem ferramentas externas)
     if (url.includes('drive.google.com')) {
-        return url.split('/view')[0] + '/preview';
+        // Remove parâmetros de edição e força o /preview
+        return url.split('/view')[0].split('/edit')[0] + '/preview';
     }
     return url;
 }
 
 function copiarLink(url) {
-    // Garante que o link copiado também seja o seguro
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro (sem menus) copiado!");
+    alert("Link seguro (modo preview) copiado!");
 }
 
 async function carregarPlanilha() {
@@ -184,8 +183,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 
         const fila = (l1, v1, l2, v2) => `
             <div class="grid-infos"><div class="row-infos">
-                <div class="box-argumento"><div class="box-inner"><label>${l1}</label>strong>${v1}</strong></div></div>
-                <div class="box-argumento"><div class="box-inner"><label>${l2}</label>strong>${v2}</strong></div></div>
+                <div class="box-argumento"><div class="box-inner"><label>${l1}</label><strong>${v1}</strong></div></div>
+                <div class="box-argumento"><div class="box-inner"><label>${l2}</label><strong>${v2}</strong></div></div>
             </div></div>`;
 
         html += fila('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%');
@@ -202,7 +201,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     <div class="tabela-header">
                         ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}">${t}</div>`).join('')}
                     </div>
-                    <div class="tabela-divisor"></div>
                     <div class="tabela-corpo">
                         ${dados.map(linha => {
                             const cols = linha.split(',').map(c => c.trim());
@@ -231,10 +229,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDestaque('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828');
         html += criarBoxDestaque('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a');
 
-        // --- MATERIAIS DE APOIO (ESTILO CARDS COM SEGURANÇA) ---
+        // --- MATERIAIS DE APOIO (ESTILO CARDS COM MINIATURA NO HOVER) ---
         const criarCardMaterial = (titulo, url, icone) => {
             if (!url || url === "" || url === "---") return "";
-            // Garante que o link seguro seja gerado para o iframe
             const linkSeguro = formatarLinkSeguro(url);
             
             return `
@@ -242,12 +239,12 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <div class="card-material-left">
                     <span class="card-icon">${icone}</span>
                     <span class="card-text">${titulo}</span>
+                </div>
+                <div class="card-material-right" style="position: relative;">
+                    <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
                     <div class="preview-hover-box">
                         <iframe src="${linkSeguro}"></iframe>
                     </div>
-                </div>
-                <div class="card-material-right">
-                    <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
                     <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
                 </div>
             </div>`;
