@@ -40,11 +40,10 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
     color: #333; 
 }
 
-/* Hover solicitado: Balanço Interno com Contorno Verde */
+/* Hover com Balanço e Contorno Verde solicitado */
 .btRes:hover { 
     background-color: #f0f0f0 !important; 
-    border: 1px solid var(--mrv-verde) !important; /* Volta o contorno verde */
-    border-left: 4px solid var(--mrv-verde) !important; /* Mantém a faixinha ativa */
+    border: 1px solid var(--mrv-verde) !important;
     padding-left: 15px !important; 
 }
 
@@ -66,19 +65,19 @@ path:not(.commrv):hover { fill: var(--cinza-hover) !important; cursor: default; 
 path.commrv { fill: var(--mrv-verde) !important; cursor: pointer; }
 path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.2px !important; }
 
-/* Lateral Direita - Vitrine OTIMIZADA PARA TEXTO LONGO */
+/* Lateral Direita - Vitrine com Scroll Corrigido */
 .sidebar-dir { 
     width: 480px; 
     border-left: 1px solid #ddd; 
-    overflow-y: scroll !important; /* Força scroll se necessário */
-    padding: 10px; 
+    overflow-y: scroll !important; /* Força a barra de scroll aparecer */
+    padding: 15px; 
     flex-shrink: 0;
-    display: block !important; /* Garante que se comporte como bloco */
+    background: #fff;
 }
 
+/* Container interno que segura a ficha técnica */
 #ficha-tecnica {
-    height: auto !important;
-    min-height: 100%;
+    width: 100%;
     display: block;
 }
 
@@ -100,50 +99,34 @@ path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #00
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-.grid-infos { 
-    display: table !important;
-    width: 100% !important; 
-    table-layout: fixed !important;
-    border-spacing: 4px !important;
-    margin-top: 0px;
-    margin-bottom: 10px;
-}
+/* Grid de Informações */
+.grid-infos { display: table; width: 100%; table-layout: fixed; border-spacing: 4px; margin-bottom: 10px; }
 .row-infos { display: table-row; }
 .box-argumento { 
-    display: table-cell !important;
-    width: 50% !important; 
-    padding: 8px 10px; 
-    border-radius: 4px; 
-    border-left: 4px solid #ddd; 
-    background: #f9f9f9; 
-    vertical-align: middle;
+    display: table-cell; width: 50%; padding: 8px 10px; border-radius: 4px; 
+    border-left: 4px solid #ddd; background: #f9f9f9; vertical-align: middle; 
 }
 .box-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-
 .box-argumento label { font-size: 0.55rem; font-weight: bold; text-transform: uppercase; color: var(--mrv-verde); }
 .box-argumento strong { font-size: 0.72rem; color: #333; }
 
-/* Estilo para Texto do Complexo - CORREÇÃO DE CORTE */
+/* Caixa do Complexo - Ajuste Definitivo de Visibilidade */
 .box-complexo-full {
-    width: 100% !important;
-    padding: 15px !important;
-    background: #f9f9f9 !important;
-    border-left: 4px solid var(--mrv-preto) !important;
-    border-radius: 0 0 4px 4px !important;
-    height: auto !important; 
-    min-height: 100px;
-    overflow: visible !important;
-    display: block !important;
-    margin-bottom: 20px; /* Espaço extra no final para não colar no fim da página */
+    width: 100%;
+    padding: 15px;
+    background: #f9f9f9;
+    border-left: 4px solid var(--mrv-preto);
+    border-radius: 0 0 4px 4px;
+    margin-top: -8px; /* Cola na faixa preta */
+    margin-bottom: 40px; /* Garante que o texto não "suma" no final do scroll */
 }
 
 .box-complexo-full p {
-    font-size: 0.75rem !important;
-    color: #444 !important;
-    line-height: 1.6 !important;
-    text-align: justify !important;
-    display: block !important;
-    height: auto !important;
+    font-size: 0.78rem;
+    color: #444;
+    line-height: 1.6;
+    text-align: justify;
+    white-space: normal; /* Garante que o texto quebre linhas normalmente */
 }
 
 .btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 3px 7px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
