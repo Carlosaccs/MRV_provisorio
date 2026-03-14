@@ -42,6 +42,7 @@ async function carregarPlanilha() {
                 endereco: colunas[COL.END] || "",
                 entrega: colunas[COL.ENTREGA] || "---",
                 obra: colunas[COL.OBRA] || "0",
+                tipologiasH: colunas[COL.TIPOLOGIAS] || "", // Coluna H
                 regiao: colunas[COL.REGIAO] || "---",
                 p_de: colunas[COL.P_DE] || "---",
                 p_ate: colunas[COL.P_ATE] || "---",
@@ -161,19 +162,19 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if(outros.length > 0) {
-        html += `<div style="margin-bottom:10px;">${outros.map(i => `
+        html += `<div style="margin-bottom:6px;">${outros.map(i => `
             <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
                 <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
-            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:10px 0;">`;
+            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome}</div>`;
-        html += `<div style="padding: 0 0 8px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        html += `<div style="padding: 0 0 4px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
-        // --- NOVA ORDEM: CAMPANHA AGORA É A PRIMEIRA ---
+        // Fila 1: Campanha
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
-            html += `<div class="grid-infos" style="margin-bottom:4px;">
+            html += `<div class="grid-infos">
                         <div class="row-infos">
                             <div class="box-argumento box-campanha" style="width:100%; display:block; text-align:center;">
                                 ${selecionado.campanha}
@@ -205,9 +206,33 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                         <div class="box-argumento"><div class="box-inner"><label>C. Paulista</label><strong>${selecionado.casa_paulista}</strong></div></div>
                     </div>
                  </div>`;
+
+        // NOVA FILA: TABELA DE PREÇOS (Coluna H)
+        if(selecionado.tipologiasH) {
+            const linhasPreco = selecionado.tipologiasH.split(',,;');
+            html += `<div class="tabela-precos-container">
+                        <div class="tabela-header">
+                            <div class="col-tabela">TIPOLOGIA</div>
+                            <div class="col-tabela col-laranja">MENOR PREÇO</div>
+                            <div class="col-tabela">AVALIAÇÃO CAIXA</div>
+                        </div>
+                        <div class="tabela-divisor"></div>
+                        <div class="tabela-corpo">
+                            ${linhasPreco.map(linha => {
+                                const cols = linha.split('|'); // Assume que dentro da linha você usa pipe ou algo similar para separar as 3 infos
+                                return `
+                                <div class="tabela-row">
+                                    <div class="col-tabela">${cols[0] || ""}</div>
+                                    <div class="col-tabela col-laranja">${cols[1] || ""}</div>
+                                    <div class="col-tabela">${cols[2] || ""}</div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                     </div>`;
+        }
         
         if(selecionado.descLonga) {
-             html += `<div style="margin-top:10px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:5px;">${selecionado.descLonga}</div>`;
+             html += `<div style="margin-top:6px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
 
     } else {
