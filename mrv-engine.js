@@ -11,15 +11,17 @@ const COL = {
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,   
-    BOOK_CLIENTE: 24, BOOK_CORRETOR: 25
+    BOOK_CLIENTE: 24, BOOK_CORRETOR: 25     
 };
 
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
+// --- FUNÇÃO PARA SEGURANÇA ---
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "") return "";
+    // Se for link do Drive, garante que use o modo preview (sem ferramentas externas)
     if (url.includes('drive.google.com')) {
         return url.split('/view')[0] + '/preview';
     }
@@ -27,9 +29,10 @@ function formatarLinkSeguro(url) {
 }
 
 function copiarLink(url) {
+    // Garante que o link copiado também seja o seguro
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link copiado!");
+    alert("Link seguro (sem menus) copiado!");
 }
 
 async function carregarPlanilha() {
@@ -167,7 +170,7 @@ function gerarListaLateral() {
 
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
-    const urlMaps = `http://maps.google.com/?q=${encodeURIComponent(selecionado.endereco)}`;
+    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
@@ -181,8 +184,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 
         const fila = (l1, v1, l2, v2) => `
             <div class="grid-infos"><div class="row-infos">
-                <div class="box-argumento"><div class="box-inner"><label>${l1}</label><strong>${v1}</strong></div></div>
-                <div class="box-argumento"><div class="box-inner"><label>${l2}</label><strong>${v2}</strong></div></div>
+                <div class="box-argumento"><div class="box-inner"><label>${l1}</label>strong>${v1}</strong></div></div>
+                <div class="box-argumento"><div class="box-inner"><label>${l2}</label>strong>${v2}</strong></div></div>
             </div></div>`;
 
         html += fila('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%');
@@ -195,16 +198,17 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
                 const dados = linhas.slice(1);
                 html += `
-                <div class="tabela-precos-container" style="border-radius: 4px 4px 0 0; border-bottom: none; margin-top:10px;">
-                    <div class="tabela-header" style="min-height: 34px;">
-                        ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 8px 4px;">${t}</div>`).join('')}
+                <div class="tabela-precos-container">
+                    <div class="tabela-header">
+                        ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}">${t}</div>`).join('')}
                     </div>
+                    <div class="tabela-divisor"></div>
                     <div class="tabela-corpo">
                         ${dados.map(linha => {
                             const cols = linha.split(',').map(c => c.trim());
                             if(cols.length <= 1) return "";
-                            return `<div class="tabela-row" style="min-height: 38px;">
-                                ${cols.map((v, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 10px 4px;">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}
+                            return `<div class="tabela-row">
+                                ${cols.map((v, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}
                             </div>`;
                         }).join('')}
                     </div>
@@ -227,33 +231,38 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDestaque('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828');
         html += criarBoxDestaque('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a');
 
-        const linkC = formatarLinkSeguro(selecionado.linkCliente);
-        const linkK = formatarLinkSeguro(selecionado.linkCorretor);
-
-        if (linkC || linkK) {
-            html += `<div style="margin-top: 15px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px;">MATERIAIS DE APOIO</label>
-                <div style="display: flex; gap: 8px; flex-direction: column;">`;
+        // --- MATERIAIS DE APOIO (ESTILO CARDS COM SEGURANÇA) ---
+        const criarCardMaterial = (titulo, url, icone) => {
+            if (!url || url === "" || url === "---") return "";
+            // Garante que o link seguro seja gerado para o iframe
+            const linkSeguro = formatarLinkSeguro(url);
             
-            if(linkC) {
-                html += `<div class="card-material" style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 4px;">
-                    <span style="font-size:0.75rem; font-weight:bold; color:#333;">📄 Book Cliente</span>
-                    <div style="display:flex; gap:4px;">
-                        <a href="${linkC}" target="_blank" style="background:var(--mrv-verde); color:white; padding:4px 8px; border-radius:3px; text-decoration:none; font-size:0.65rem; font-weight:bold;">Abrir</a>
-                        <button onclick="copiarLink('${selecionado.linkCliente}')" style="background:var(--mrv-laranja); color:white; border:none; padding:4px 8px; border-radius:3px; font-size:0.65rem; font-weight:bold; cursor:pointer;">Copiar</button>
+            return `
+            <div class="card-material-item">
+                <div class="card-material-left">
+                    <span class="card-icon">${icone}</span>
+                    <span class="card-text">${titulo}</span>
+                    <div class="preview-hover-box">
+                        <iframe src="${linkSeguro}"></iframe>
                     </div>
-                </div>`;
-            }
-            if(linkK) {
-                html += `<div class="card-material" style="display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 4px;">
-                    <span style="font-size:0.75rem; font-weight:bold; color:#333;">💼 Book Corretor</span>
-                    <div style="display:flex; gap:4px;">
-                        <a href="${linkK}" target="_blank" style="background:var(--mrv-verde); color:white; padding:4px 8px; border-radius:3px; text-decoration:none; font-size:0.65rem; font-weight:bold;">Abrir</a>
-                        <button onclick="copiarLink('${selecionado.linkCorretor}')" style="background:var(--mrv-laranja); color:white; border:none; padding:4px 8px; border-radius:3px; font-size:0.65rem; font-weight:bold; cursor:pointer;">Copiar</button>
-                    </div>
-                </div>`;
-            }
-            html += `</div></div>`;
+                </div>
+                <div class="card-material-right">
+                    <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
+                    <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
+                </div>
+            </div>`;
+        };
+
+        let materiaisHtml = "";
+        materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
+        materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
+
+        if (materiaisHtml !== "") {
+            html += `
+            <div style="margin-top: 15px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px;">MATERIAIS DE APOIO</label>
+                ${materiaisHtml}
+            </div>`;
         }
 
         if(selecionado.descLonga) {
@@ -261,9 +270,14 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `<div class="titulo-vitrine-faixa faixa-preta" style="margin-bottom:0px;">${selecionado.nomeFull}</div>`;
-        html += `<div class="box-complexo-full">
-                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px;">📍 ${selecionado.endereco}</p>
-                    <p style="font-size:0.75rem; color:#444; line-height:1.5;">${selecionado.descLonga}</p>
+        html += `<div class="box-complexo-full" style="margin-top:0px;">
+                    <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">
+                        <p style="font-size:0.7rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
+                            <span>📍 ${selecionado.endereco}</span>
+                            <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a>
+                        </p>
+                    </div>
+                    <p style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</p>
                  </div>`;
     }
     painel.innerHTML = html;
