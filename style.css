@@ -7,6 +7,7 @@
     --cinza-divisor: #ccc;
 }
 
+/* Reset e Layout Base */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: white; }
 
@@ -19,31 +20,47 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 
 .wrapper { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
 
-/* Lateral Esquerda */
+/* Lateral Esquerda - Botões e Lista */
 .sidebar-esq { width: 280px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
 
 .btRes, .separador-complexo-btn {
-    width: 92% !important; margin: 2px auto !important; min-height: 28px;
+    width: 92% !important; margin: 4px auto !important; min-height: 28px;
     display: flex !important; align-items: center !important; padding: 4px 8px !important;
     border-radius: 4px; font-size: 0.72rem; cursor: pointer; border: 1px solid #ddd; 
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
 }
 
 .separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
 
 .btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: #333; }
-.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border-left-color: var(--mrv-laranja) !important; }
 
-/* Centro */
+/* --- CORREÇÃO DO HOVER NOS BOTÕES --- */
+.btRes:hover { 
+    background-color: #f0f0f0 !important; 
+    border-left-color: var(--mrv-laranja) !important;
+    transform: translateX(2px);
+}
+
+.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border-left-color: #fff !important; }
+
+/* Centro - Mapas */
 .conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
 #cidade-titulo { background: #eee; padding: 4px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #555; height: 30px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
 #caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
 #caixa-b { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 5px; border-top: 2px solid #eee; cursor: pointer; background: #fff; min-height: 120px; }
 
 svg { width: 100%; height: 100%; }
-path { fill: #777; stroke: #fff; stroke-width: 0.8; transition: 0.2s; }
+path { fill: #777; stroke: #fff; stroke-width: 0.8; transition: fill 0.2s ease; }
+
+/* --- CORREÇÃO DO HOVER NO MAPA --- */
 path.commrv { fill: var(--mrv-verde) !important; cursor: pointer; }
-path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.2px !important; }
+path.commrv:hover, path.ativo { 
+    fill: var(--mrv-laranja) !important; 
+    stroke: #000 !important; 
+    stroke-width: 1.5px !important;
+    outline: none;
+}
 
 /* Lateral Direita - Vitrine */
 .sidebar-dir { width: 480px; border-left: 1px solid #ddd; overflow-y: auto; padding: 10px; flex-shrink: 0; }
@@ -53,24 +70,23 @@ path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #00
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* Grid Infos */
+/* Grid e Boxes de Informação */
 .grid-infos { display: table !important; width: 100% !important; table-layout: fixed !important; border-spacing: 2px !important; margin-bottom: 2px; }
 .row-infos { display: table-row; }
-.box-argumento { display: table-cell !important; width: 50% !important; padding: 0 8px !important; border-radius: 4px; border-left: 4px solid #ddd; background: #f9f9f9; vertical-align: middle; height: 28px !important; }
+.box-argumento { display: table-cell !important; width: 50% !important; padding: 4px 8px !important; border-radius: 4px; border-left: 4px solid #ddd; background: #f9f9f9; vertical-align: middle; height: 32px !important; }
 .box-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-.box-argumento label { font-size: 0.52rem; font-weight: bold; text-transform: uppercase; color: var(--mrv-verde); }
-.box-argumento strong { font-size: 0.62rem; color: #333; }
-.box-campanha { color: var(--vermelho-mrv) !important; font-weight: bold !important; font-size: 0.68rem !important; border-left: 4px solid var(--vermelho-mrv) !important; }
+.box-argumento label { font-size: 0.55rem; font-weight: bold; text-transform: uppercase; color: var(--mrv-verde); }
+.box-argumento strong { font-size: 0.65rem; color: #333; }
+.box-campanha { color: var(--vermelho-mrv) !important; font-weight: bold !important; font-size: 0.68rem !important; border-left: 4px solid var(--vermelho-mrv) !important; text-align: center; }
 
-/* Tabela de Preços Dinâmica */
-.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 4px; margin-top: 6px; border: 1px solid #ddd; overflow: hidden; }
-.tabela-header, .tabela-row { display: flex; width: 100%; text-align: center; }
-.tabela-header { background: #f0f0f0; font-weight: bold; font-size: 0.58rem; color: #333; min-height: 32px; text-transform: uppercase; }
-.tabela-row { font-size: 0.62rem; color: #444; min-height: 28px; border-bottom: 1px solid #eee; background: #fff; }
-.col-tabela { flex: 1; padding: 4px; display: flex; align-items: center; justify-content: center; border-right: 1px solid #f0f0f0; word-break: break-all; }
-.col-tabela:last-child { border-right: none; }
-.col-laranja { background: var(--mrv-laranja) !important; color: white !important; font-weight: bold; }
-.tabela-divisor { width: 100%; height: 1px; background: #ddd; }
-
+/* Estilo do Complexo Full */
 .box-complexo-full { width: 100%; padding: 12px; background: #f9f9f9; border-left: 4px solid var(--mrv-preto); border-radius: 0 0 4px 4px; }
-.btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
+.btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+.btn-maps:hover { background: #3367d6; }
+
+/* Tabelas Dinâmicas */
+.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 4px; margin-top: 8px; border: 1px solid #ddd; overflow: hidden; }
+.tabela-header { background: #eee; font-weight: bold; font-size: 0.6rem; min-height: 30px; display: flex; align-items: center; }
+.tabela-row { display: flex; background: #fff; font-size: 0.65rem; border-bottom: 1px solid #eee; min-height: 28px; align-items: center; }
+.col-tabela { flex: 1; padding: 4px; text-align: center; border-right: 1px solid #eee; }
+.col-laranja { background: var(--mrv-laranja) !important; color: #fff !important; font-weight: bold; }
