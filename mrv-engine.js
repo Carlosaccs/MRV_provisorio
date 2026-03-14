@@ -192,7 +192,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += fila('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', selecionado.estoque + ' UN.');
         html += fila('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista);
 
-        // --- TABELA DE PREÇOS ---
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
@@ -213,7 +212,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                         }).join('')}
                     </div>
                 </div>
-                <div style="background: #e9ecef; padding: 8px; text-align: center; border: 1px solid #ddd; border-top: 1px solid #eee; border-radius: 0 0 4px 4px; margin-bottom: 8px;">
+                <div style="background: #e9ecef; padding: 8px; text-align: center; border: 1px solid #ddd; border-radius: 0 0 4px 4px; margin-bottom: 8px;">
                     <p style="margin: 0; font-size: 0.55rem; color: #777; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">
                         * Valores para referência informativa. Favor validar condições e disponibilidade na tabela vigente.
                     </p>
@@ -236,7 +235,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDestaque('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828');
         html += criarBoxDestaque('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a');
 
-        // --- MATERIAIS DE APOIO (ESTILO LISTA CARD) ---
+        // --- MATERIAIS DE APOIO (ESTILO CARDS) ---
         const criarCardMaterial = (titulo, url, icone) => {
             if (!url || url === "" || url === "---") return "";
             return `
