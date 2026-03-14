@@ -22,6 +22,22 @@ async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
+// --- FUNÇÕES DE UTILIDADE PARA LINKS ---
+function formatarLinkSeguro(url) {
+    if (!url || url === "---" || url === "") return "";
+    // Remove interface do Drive para visualização limpa e miniatura
+    if (url.includes('drive.google.com')) {
+        return url.split('/view')[0] + '/preview';
+    }
+    return url;
+}
+
+function copiarLink(url) {
+    const linkSeguro = formatarLinkSeguro(url);
+    navigator.clipboard.writeText(linkSeguro);
+    alert("Link seguro copiado!");
+}
+
 async function carregarPlanilha() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&v=${new Date().getTime()}`;
@@ -70,11 +86,6 @@ async function carregarPlanilha() {
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         desenharMapas(); gerarListaLateral();
     } catch (e) { console.error(e); }
-}
-
-function copiarLink(url) {
-    navigator.clipboard.writeText(url);
-    alert("Link copiado!");
 }
 
 function obterHtmlEstoque(valor, tipo) {
@@ -235,9 +246,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDestaque('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828');
         html += criarBoxDestaque('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a');
 
-        // --- MATERIAIS DE APOIO (ESTILO CARDS) ---
+        // --- CARDS DE MATERIAIS COM MINIATURA NO HOVER ---
         const criarCardMaterial = (titulo, url, icone) => {
             if (!url || url === "" || url === "---") return "";
+            const linkSeguro = formatarLinkSeguro(url);
             return `
             <div class="card-material-item">
                 <div class="card-material-left">
@@ -245,7 +257,12 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     <span class="card-text">${titulo}</span>
                 </div>
                 <div class="card-material-right">
-                    <a href="${url}" target="_blank" class="card-btn-abrir">Abrir</a>
+                    <div class="container-abrir-preview">
+                        <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
+                        <div class="preview-hover-box">
+                            <iframe src="${linkSeguro}" scrolling="no"></iframe>
+                        </div>
+                    </div>
                     <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
                 </div>
             </div>`;
