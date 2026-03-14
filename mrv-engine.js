@@ -8,7 +8,12 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    DESC_LONGA: 17, LOCALIZACAO: 19 // Coluna T da Planilha
+    DESC_LONGA: 17, 
+    LOCALIZACAO: 19,      // T
+    MOBILIDADE: 20,       // U
+    CULTURA_LAZER: 21,    // V
+    COMERCIO: 22,         // W
+    SAUDE_EDUCACAO: 23    // X
 };
 
 async function iniciarApp() {
@@ -51,7 +56,11 @@ async function carregarPlanilha() {
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
                 descLonga: colunas[COL.DESC_LONGA] || "",
-                localizacao: colunas[COL.LOCALIZACAO] || "" 
+                localizacao: colunas[COL.LOCALIZACAO] || "",
+                mobilidade: colunas[COL.MOBILIDADE] || "",
+                lazer: colunas[COL.CULTURA_LAZER] || "",
+                comercio: colunas[COL.COMERCIO] || "",
+                saude: colunas[COL.SAUDE_EDUCACAO] || ""
             };
         }).filter(i => i !== null);
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
@@ -203,7 +212,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // --- CAIXA DE LOCALIZAÇÃO (AGORA ABAIXO DA TABELA) ---
+        // --- CAIXA DE LOCALIZAÇÃO (T) ---
         if(selecionado.localizacao && selecionado.localizacao !== "---" && selecionado.localizacao !== "") {
             html += `
             <div style="margin-top:2px; background: #fdf2e9; border-left: 4px solid var(--mrv-laranja); padding: 8px; border-radius: 4px; margin-bottom: 8px;">
@@ -212,8 +221,28 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         }
 
+        // --- GRID DE INFRAESTRUTURA (U, V, W, X) ---
+        const criarBoxInfra = (label, texto, cor) => {
+            if(!texto || texto === "---" || texto === "") return "";
+            return `
+            <div style="background: #f8f9fa; border-top: 2px solid ${cor}; padding: 6px; border-radius: 4px; margin-bottom: 4px;">
+                <label style="display:block; font-size:0.5rem; font-weight:bold; color:${cor}; text-transform:uppercase; margin-bottom:2px;">${label}</label>
+                <p style="margin:0; font-size:0.65rem; color:#555; line-height:1.2;">${texto}</p>
+            </div>`;
+        };
+
+        let infraHtml = "";
+        infraHtml += criarBoxInfra('🚍 Mobilidade', selecionado.mobilidade, '#2e7d32'); // Verde
+        infraHtml += criarBoxInfra('🎭 Cultura e Lazer', selecionado.lazer, '#1565c0');   // Azul
+        infraHtml += criarBoxInfra('🛒 Comércio', selecionado.comercio, '#c62828');       // Vermelho
+        infraHtml += criarBoxInfra('🏥 Saúde e Educação', selecionado.saude, '#6a1b9a'); // Roxo
+
+        if(infraHtml !== "") {
+            html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px;">${infraHtml}</div>`;
+        }
+
         if(selecionado.descLonga) {
-             html += `<div style="margin-top:6px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
+             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; font-style:italic; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
         html += `<div class="titulo-vitrine-faixa faixa-preta" style="margin-bottom:0px;">${selecionado.nomeFull}</div>`;
