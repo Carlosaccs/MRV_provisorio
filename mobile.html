@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRV Dashboard Mobile - v4.0</title>
+    <style>
+        :root {
+            --mrv-verde: rgb(6, 94, 3);
+            --mrv-laranja: #ff8c00;
+            --mrv-preto: #222;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body, html { height: 100vh; width: 100vw; overflow: hidden; background: #fff; display: flex; }
+
+        /* Aviso de Rotação */
+        #aviso-rotacao {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--mrv-verde); color: white; z-index: 9999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
+        }
+        @media (orientation: portrait) { #aviso-rotacao { display: flex; } }
+
+        /* Sidebar Título Vertical */
+        .sidebar-titulo {
+            background: var(--mrv-verde); width: 40px; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 15px 0; color: white; flex-shrink: 0; z-index: 30; cursor: pointer;
+        }
+        .titulo-vertical {
+            writing-mode: vertical-rl; transform: rotate(180deg);
+            text-transform: uppercase; font-size: 0.7rem; font-weight: bold;
+            letter-spacing: 1.2px; white-space: nowrap;
+        }
+        .icon-expand { width: 24px; height: 24px; fill: white; }
+
+        /* Estrutura Principal */
+        .main-wrapper { display: flex; flex: 1; height: 100vh; overflow: hidden; }
+        
+        /* Coluna Esquerda: Lista */
+        .col-lateral-esq { width: 22%; background: #fff; overflow-y: auto; padding: 5px; border-right: 1px solid #ddd; }
+        
+        /* Coluna Central: Mapas */
+        .col-central { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .centro-topo { height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.65rem; background: #f9f9f9; border-bottom: 1px solid #eee; text-transform: uppercase; }
+        .container-mapas { flex: 1; position: relative; }
+        .caixa-mapa { position: absolute; width: 100%; transition: all 0.4s ease; }
+        .caixa-a { height: 70%; top: 0; z-index: 10; transform: scale(1.1); } /* Mapa principal aumentado */
+        .caixa-b { height: 30%; bottom: 0; z-index: 20; border-top: 1px solid #eee; background: rgba(255,255,255,0.8); cursor: pointer; }
+
+        /* Coluna Direita: Vitrine */
+        .col-lateral-dir { width: 35%; background: #fff; overflow-y: auto; padding: 8px; border-left: 1px solid #ddd; }
+
+        /* Estilos de Botões e Cards (Baseados no Desktop) */
+        .btRes, .separador-complexo-btn { 
+            width: 100%; padding: 6px; margin-bottom: 4px; border: none; text-align: left; 
+            font-size: 0.6rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        }
+        .btRes { border-left: 4px solid var(--mrv-verde); background: #f4f4f4; }
+        .btRes.ativo { background: #fff5e6; border-left-color: var(--mrv-laranja); font-weight: bold; }
+        .separador-complexo-btn { background: #333; color: #fff; border-left: 4px solid #000; }
+
+        /* Vitrine e Faixas */
+        .faixa-vitrine { 
+            padding: 5px 8px; font-size: 0.65rem; font-weight: bold; color: white; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border-radius: 3px;
+        }
+        .laranja { background: var(--mrv-laranja); }
+        .preta { background: var(--mrv-preto); }
+        .regional-tag { background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; }
+
+        /* Grid de Info */
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: #ddd; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+        .grid-item { background: white; padding: 4px; display: flex; flex-direction: column; }
+        .grid-label { font-size: 0.45rem; color: var(--mrv-verde); font-weight: bold; text-transform: uppercase; }
+        .grid-val { font-size: 0.6rem; font-weight: bold; color: #333; }
+
+        /* Materiais */
+        .card-link { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 5px; background: #fff; border: 1px solid #eee; border-radius: 4px; margin-bottom: 3px;
+        }
+        .btn-acao { padding: 4px 8px; border: none; border-radius: 3px; color: white; font-size: 0.5rem; font-weight: bold; text-decoration: none; }
+        .bg-verde { background: var(--mrv-verde); }
+        .bg-laranja { background: var(--mrv-laranja); }
+
+        svg { width: 100%; height: 100%; }
+        path { fill: #ccc; stroke: #fff; stroke-width: 0.5; transition: 0.3s; }
+        path.commrv { fill: var(--mrv-verde); }
+        path.ativo { fill: var(--mrv-laranja); stroke: #000; stroke-width: 1px; }
+
+        #toast { 
+            visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 0.7rem; z-index: 1000;
+        }
+        #toast.show { visibility: visible; }
+    </style>
+</head>
+<body>
+
+    <div id="aviso-rotacao">
+        <div style="font-size: 40px;">🔄</div>
+        <h2>Gire o celular</h2>
+        <p>Use o modo horizontal para navegar no Dashboard.</p>
+    </div>
+
+    <div class="sidebar-titulo" onclick="toggleFullScreen()">
+        <svg class="icon-expand" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        <div class="titulo-vertical">DASHBOARD MRV SÃO PAULO</div>
+        <svg class="icon-expand" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+    </div>
+
+    <div class="main-wrapper">
+        <aside class="col-lateral-esq" id="lista-lateral"></aside>
+        
+        <main class="col-central">
+            <div class="centro-topo" id="nome-regiao">Selecione uma Região</div>
+            <div class="container-mapas">
+                <div id="caixa-a" class="caixa-mapa caixa-a"></div>
+                <div id="caixa-b" class="caixa-mapa caixa-b" onclick="trocarMapas()">
+                    <div style="position: absolute; top: 5px; left: 5px; font-size: 0.5rem; font-weight: bold; color: var(--mrv-verde); background: white; padding: 2px 5px; border-radius: 10px; border: 1px solid #eee;">↕ ALTERAR MAPA</div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="col-lateral-dir" id="vitrine-detalhes">
+            <div style="text-align: center; color: #999; margin-top: 50px; font-size: 0.6rem;">Clique em uma cidade ou residencial para carregar os dados.</div>
+        </aside>
+    </div>
+
+    <div id="toast">Copiado com sucesso!</div>
+
+    <script src="mrv-data.js"></script>
+    <script>
+        let DADOS_PLANILHA = [];
+        let mapaAtivo = 'GSP';
+        let itemSelecionado = null;
+
+        const COL = { ID: 0, CAT: 1, ORDEM: 2, NOME: 3, NOME_F: 4, ESTOQUE: 5, END: 6, TIPS: 7, ENT: 8, P_DE: 9, P_ATE: 10, OBRA: 11, LIM: 12, REG: 13, CP: 14, CAMP: 15, DESC: 17, AC: 28 };
+
+        async function carregarDados() {
+            const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
+            const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&v=${new Date().getTime()}`;
+            try {
+                const res = await fetch(URL);
+                const texto = await res.text();
+                const linhas = texto.split(/\r?\n/).slice(1);
+                
+                DADOS_PLANILHA = linhas.map(linha => {
+                    const c = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(i => i.trim().replace(/^"|"$/g, ''));
+                    if(!c[COL.NOME]) return null;
+                    return {
+                        id: c[COL.ID].toLowerCase().replace(/\s/g,''),
+                        tipo: c[COL.CAT].toUpperCase().includes('COMPLEXO') ? 'N' : 'R',
+                        nome: c[COL.NOME],
+                        nomeF: c[COL.NOME_F] || c[COL.NOME],
+                        estoque: c[COL.ESTOQUE],
+                        end: c[COL.END],
+                        entrega: c[COL.ENT],
+                        obra: c[COL.OBRA],
+                        plantas: `${c[COL.P_DE]} a ${c[COL.P_ATE]}`,
+                        regional: c[COL.REG],
+                        lim: c[COL.LIM],
+                        cp: c[COL.CP],
+                        desc: c[COL.DESC],
+                        implantacao: c[COL.AC] // Links de implantação para complexos
+                    };
+                }).filter(i => i !== null);
+                
+                renderLista();
+                renderMapas();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderLista() {
+            const container = document.getElementById('lista-lateral');
+            container.innerHTML = DADOS_PLANILHA.map(item => `
+                <div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${itemSelecionado?.nome === item.nome ? 'ativo' : ''}" 
+                     onclick="selecionar('${item.nome}')">
+                    <strong>${item.nome}</strong>
+                    <span style="font-size: 0.5rem; opacity: 0.8;">${item.tipo === 'R' ? item.estoque + 'un' : 'COMPLEXO'}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderMapas() {
+            const dadosA = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
+            const dadosB = (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP;
+            desenharSvg('caixa-a', dadosA);
+            desenharSvg('caixa-b', dadosB);
+        }
+
+        function desenharSvg(id, dados) {
+            const container = document.getElementById(id);
+            const paths = dados.paths.map(p => {
+                const idNorm = p.id.toLowerCase().replace(/\s/g,'');
+                const tem = DADOS_PLANILHA.some(d => d.id === idNorm);
+                return `<path id="${id}-${idNorm}" d="${p.d}" class="${(tem || idNorm==='grandesaopaulo') ? 'commrv' : ''}" onclick="cliqueMapa('${idNorm}', '${p.name}')"></path>`;
+            }).join('');
+            container.innerHTML = `<svg viewBox="${dados.viewBox}"><g transform="${dados.transform || ''}">${paths}</g></svg>`;
+        }
+
+        function cliqueMapa(id, nome) {
+            if(id === 'grandesaopaulo') { trocarMapas(); return; }
+            const primeiro = DADOS_PLANILHA.find(d => d.id === id);
+            if(primeiro) selecionar(primeiro.nome);
+            document.getElementById('nome-regiao').innerText = nome;
+        }
+
+        function selecionar(nome) {
+            const item = DADOS_PLANILHA.find(i => i.nome === nome);
+            itemSelecionado = item;
+            renderLista();
+            
+            // Destaque no mapa
+            document.querySelectorAll('path').forEach(p => p.classList.remove('ativo'));
+            const p = document.getElementById(`caixa-a-${item.id}`);
+            if(p) p.classList.add('ativo');
+
+            // Montar Vitrine
+            const vitrine = document.getElementById('vitrine-detalhes');
+            let html = "";
+            
+            if(item.tipo === 'R') {
+                html = `
+                    <div class="faixa-vitrine laranja"><span>RES. ${item.nome}</span> <span class="regional-tag">${item.regional}</span></div>
+                    <div style="font-size: 0.55rem; color: #666; margin-bottom: 5px;">📍 ${item.end}</div>
+                    <div class="grid-info">
+                        <div class="grid-item"><span class="grid-label">Entrega</span><span class="grid-val">${item.entrega}</span></div>
+                        <div class="grid-item"><span class="grid-label">Obra</span><span class="grid-val">${item.obra}%</span></div>
+                        <div class="grid-item"><span class="grid-label">Plantas</span><span class="grid-val">${item.plantas}</span></div>
+                        <div class="grid-item"><span class="grid-label">Estoque</span><span class="grid-val">${item.estoque} un</span></div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="faixa-vitrine preta"><span>${item.nomeF}</span> <span class="regional-tag">${item.regional}</span></div>
+                    <p style="font-size: 0.6rem; color: #444; line-height: 1.3; text-align: justify; margin-bottom: 8px;">${item.desc}</p>
+                `;
+            }
+            vitrine.innerHTML = html;
+        }
+
+        function trocarMapas() {
+            mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP';
+            renderMapas();
+            document.getElementById('nome-regiao').innerText = mapaAtivo === 'GSP' ? 'Grande São Paulo' : 'Interior / Litoral';
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        }
+
+        window.onload = carregarDados;
+    </script>
+</body>
+</html>
