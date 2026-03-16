@@ -11,7 +11,7 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, // Coluna S
+    OBSERVACOES: 18, 
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
@@ -86,7 +86,7 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
-                observacoes: colunas[COL.OBSERVACOES] || "", // Coluna S
+                observacoes: colunas[COL.OBSERVACOES] || "", 
                 descLonga: colunas[COL.DESC_LONGA] || "",
                 localizacao: colunas[COL.LOCALIZACAO] || "",
                 mobilidade: colunas[COL.MOBILIDADE] || "",
@@ -230,7 +230,6 @@ const criarCardMaterial = (titulo, url, icone) => {
         </div>
         <div class="card-material-right" style="position: relative; gap: 4px;">
             <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
-            <div class="preview-hover-box"><iframe src="${linkSeguro}"></iframe></div>
             <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
         </div>
     </div>`;
@@ -272,7 +271,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         
-        // --- FAIXA DE CAMPANHA (Manteve-se no topo da grid técnica se existir) ---
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
@@ -289,7 +287,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 </div>
             </div>`;
         html += linhaInfo('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%', true);
-        html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', selecionado.estoque + ' UN.', true);
+        html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', (selecionado.estoque || "---") + ' UN.', true);
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
@@ -316,7 +314,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // --- BLOCO DE DIFERENCIAIS (AGORA COM OBSERVAÇÃO NO TOPO) ---
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -327,10 +324,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         };
         
-        // 1. OBSERVAÇÕES (Coluna S) - Agora como destaque principal do bloco
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
-        
-        // 2. Localização, Mobilidade, etc.
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
         html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
@@ -375,5 +369,33 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
     painel.innerHTML = html;
 }
+
+/* ==========================================================================
+   LÓGICA DO MODAL (BOTAO SOBRE)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById("modal-sobre");
+    const btn = document.getElementById("btn-sobre");
+    const closeBtn = document.querySelector(".modal-close");
+    const closeBtnFooter = document.querySelector(".btn-fechar-modal");
+
+    if(btn) {
+        btn.onclick = () => { modal.style.display = "block"; };
+    }
+    
+    if(closeBtn) {
+        closeBtn.onclick = () => { modal.style.display = "none"; };
+    }
+
+    if(closeBtnFooter) {
+        closeBtnFooter.onclick = () => { modal.style.display = "none"; };
+    }
+
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+});
 
 window.onload = iniciarApp;
