@@ -35,54 +35,31 @@ body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; b
 .separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
 
 .btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: #333; }
+
 .btRes:hover { 
     background-color: #f0f0f0 !important; 
     border: 1px solid var(--mrv-verde) !important; 
     border-left: 4px solid var(--mrv-verde) !important; 
 }
+
 .btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border: 1px solid var(--mrv-laranja) !important; }
 
-/* Centro - Mapas (Ajustado para Centralização Perfeita) */
+/* Centro - Mapas */
 .conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
 #cidade-titulo { background: #eee; padding: 4px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #555; height: 30px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
+#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
+#caixa-b { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 5px; border-top: 2px solid #eee; cursor: pointer; background: #fff; min-height: 120px; }
 
-#caixa-a { 
-    flex: 2; 
-    display: flex;            /* Novo: Ativa alinhamento flexível */
-    align-items: center;      /* Novo: Centraliza o SVG verticalmente */
-    justify-content: center;   /* Novo: Centraliza o SVG horizontalmente */
-    padding: 20px; 
-    overflow: hidden; 
-    position: relative;
-}
-
-#caixa-b { 
-    flex: 0.8; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 5px; 
-    border-top: 2px solid #eee; 
-    cursor: pointer; 
-    background: #fff; 
-    min-height: 120px; 
-}
-
-/* O Segredo da Centralização e Zoom */
-svg { 
-    width: 100%; 
-    height: 100%; 
-    display: block;
-    transform-origin: center center; /* Zoom parte do meio do mapa */
-    transition: transform 0.3s ease;
-}
-
-#caixa-a svg { transform: scale(1.25); } /* Aumenta 25% mantendo o centro */
-#caixa-b svg { transform: scale(0.9); opacity: 0.6; }
-
+svg { width: 100%; height: 100%; }
 path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; transition: fill 0.1s; }
-path:hover { fill: #999 !important; cursor: pointer; }
+
+path:hover { 
+    fill: #999 !important; 
+    cursor: pointer;
+}
+
 path.commrv { fill: var(--mrv-verde) !important; }
+
 path.commrv:hover, path.ativo { 
     fill: var(--mrv-laranja) !important; 
     stroke: #000 !important; 
@@ -93,11 +70,11 @@ path.commrv:hover, path.ativo {
 .sidebar-dir { width: 480px; border-left: 1px solid #ddd; overflow-y: auto; padding: 10px; flex-shrink: 0; }
 .vitrine-topo { background: var(--mrv-verde); color: white; padding: 6px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; }
 
-.titulo-vitrine-faixa { display: flex !important; width: 100% !important; height: 38px !important; align-items: center; justify-content: center; font-weight: bold !important; font-size: 0.85rem !important; border-radius: 4px; text-transform: uppercase; color: #fff; margin-bottom: 6px; }
+.titulo-vitrine-faixa { display: block !important; width: 100% !important; height: 32px !important; line-height: 32px !important; font-weight: bold !important; font-size: 0.85rem !important; border-radius: 4px; text-transform: uppercase; color: #fff; text-align: center; margin-bottom: 6px; }
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* Grid e Boxes de Diferenciais */
+/* Grid e Boxes de Diferenciais (Agora ocupando 100% em uma por linha via JS) */
 .grid-infos { display: table !important; width: 100% !important; table-layout: fixed !important; border-spacing: 2px !important; margin-bottom: 2px; }
 .row-infos { display: table-row; }
 .box-argumento { display: table-cell !important; width: 50% !important; padding: 4px 8px !important; border-radius: 4px; border-left: 4px solid #ddd; background: #f9f9f9; vertical-align: middle; height: 32px !important; }
@@ -106,25 +83,28 @@ path.commrv:hover, path.ativo {
 .box-argumento strong { font-size: 0.65rem; color: #333; }
 .box-campanha { color: var(--vermelho-mrv) !important; font-weight: bold !important; font-size: 0.68rem !important; border-left: 4px solid var(--vermelho-mrv) !important; text-align: center; }
 
-/* CARDS DE MATERIAIS */
+/* --- CARDS DE MATERIAIS COM MINIATURA --- */
 .card-material-item {
     display: flex; justify-content: space-between; align-items: center;
     background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
     padding: 10px 15px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
+
 .card-material-left { display: flex; align-items: center; gap: 10px; flex: 1; }
 .card-icon { font-size: 1.1rem; }
 .card-text { font-size: 0.75rem; font-weight: 600; color: #333; }
 
-/* MINIATURA NO HOVER */
+/* LÓGICA DA MINIATURA NO HOVER DO BOTÃO ABRIR */
 .preview-hover-box {
-    display: none;
+    display: none; /* Escondida por padrão */
     position: absolute; bottom: 125%; right: 0;
     width: 250px; height: 180px; background: white;
-    border: 3px solid var(--mrv-verde);
+    border: 3px solid var(--mrv-verde); /* Contorno verde */
     border-radius: 12px; overflow: hidden;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000;
 }
+
+/* Mostra a miniatura ao passar o mouse no botão Abrir */
 .card-btn-abrir:hover + .preview-hover-box { display: block; }
 .preview-hover-box iframe { width: 100%; height: 100%; border: none; }
 
