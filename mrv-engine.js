@@ -249,14 +249,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 
     if (selecionado.tipo === 'R') {
         html += `
-        <div class="titulo-vitrine-faixa faixa-laranja" style="position: relative; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden;">
-            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: white;">
-                RES. ${selecionado.nome.toUpperCase()}
-            </div>
-            <div style="position: absolute; right: 6px; top: 0; height: 100%; display: flex; align-items: center;">
-                <span style="background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: bold;">
-                    ${selecionado.regiao}
-                </span>
+        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; padding: 0 10px;">
+            <div style="font-weight: bold; font-size: 0.85rem; color: white; text-align: center; line-height: 1;">
+                RES. ${selecionado.nome.toUpperCase()} &nbsp; — &nbsp; ${selecionado.regiao}
             </div>
         </div>`;
         
@@ -341,14 +336,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `
-        <div class="titulo-vitrine-faixa faixa-preta" style="position: relative; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden;">
-            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: white;">
-                ${selecionado.nomeFull.toUpperCase()}
-            </div>
-            <div style="position: absolute; right: 6px; top: 0; height: 100%; display: flex; align-items: center;">
-                <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: bold;">
-                    ${selecionado.regiao}
-                </span>
+        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; padding: 0 10px;">
+            <div style="font-weight: bold; font-size: 0.85rem; color: white; text-align: center; line-height: 1;">
+                ${selecionado.nomeFull.toUpperCase()} &nbsp; — &nbsp; ${selecionado.regiao}
             </div>
         </div>`;
         html += `<div class="box-complexo-full" style="padding: 5px 0;">
