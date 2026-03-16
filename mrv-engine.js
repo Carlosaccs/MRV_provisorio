@@ -11,7 +11,7 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, 
+    OBSERVACOES: 18, // Coluna S
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
@@ -61,12 +61,10 @@ async function carregarPlanilha() {
             }
             colunas.push(campo.trim());
 
-            // --- LÓGICA DE FILTRO PARA EVITAR REGISTROS INVASORES ---
             const nomeImovel = colunas[COL.NOME] || "";
             const idPath = (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, '');
             const ordem = parseInt(colunas[COL.ORDEM]);
 
-            // Descarta se o ID for vazio, se o nome for muito curto (ex: "4") ou se a ordem não for número
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
 
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
@@ -88,7 +86,7 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
-                observacoes: colunas[COL.OBSERVACOES] || "",
+                observacoes: colunas[COL.OBSERVACOES] || "", // Coluna S
                 descLonga: colunas[COL.DESC_LONGA] || "",
                 localizacao: colunas[COL.LOCALIZACAO] || "",
                 mobilidade: colunas[COL.MOBILIDADE] || "",
@@ -252,7 +250,6 @@ const extrairLinks = (campo, icone) => {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
-    // Link Corrigido do Google Maps
     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
@@ -275,10 +272,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         
-        if(selecionado.observacoes && selecionado.observacoes !== "---" && selecionado.observacoes !== "") {
-            html += `<div style="background: white; color: #e31010; font-weight: bold; font-size: 0.75rem; text-align: center; padding: 6px; border-bottom: 1px solid #ddd; text-transform: uppercase;">${selecionado.observacoes}</div>`;
-        }
-
+        // --- FAIXA DE CAMPANHA (Manteve-se no topo da grid técnica se existir) ---
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
@@ -322,6 +316,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
+        // --- BLOCO DE DIFERENCIAIS (AGORA COM OBSERVAÇÃO NO TOPO) ---
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -331,6 +326,11 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
             </div>`;
         };
+        
+        // 1. OBSERVAÇÕES (Coluna S) - Agora como destaque principal do bloco
+        html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
+        
+        // 2. Localização, Mobilidade, etc.
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
         html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
