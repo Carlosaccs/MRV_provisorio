@@ -10,26 +10,8 @@
 <body>
 
     <div class="header">
-        <span>RESIDENCIAIS MRV EM SÃO PAULO</span>
-        <button id="btn-sobre" class="btn-sobre">Sobre</button>
-    </div>
-
-    <div id="modal-sobre" class="modal-container">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2 style="color: #008d36; margin-top: 0; font-size: 1.4rem;">Sobre o Projeto</h2>
-            <p style="font-size: 0.9rem; color: #444; line-height: 1.4;">
-                Este dashboard foi desenvolvido para facilitar o acesso rápido a informações estratégicas e materiais dos residenciais MRV durante o atendimento.
-            </p>
-            
-            <div style="background: #fff9c4; border-left: 4px solid #fbc02d; padding: 12px; margin: 15px 0; font-size: 0.8rem; color: #555; text-align: left; border-radius: 0 4px 4px 0;">
-                <strong>Aviso:</strong> As informações podem sofrer alterações. Caso identifique erros ou tenha materiais para adicionar, envie pelo WhatsApp abaixo.
-            </div>
-
-            <a href="https://wa.me/551192617026" target="_blank" class="btn-whatsapp-modal">
-                <span>📱</span> Carlos Custódio - Enviar Feedback
-            </a>
-        </div>
+        RESIDENCIAIS MRV EM SÃO PAULO
+        <button id="btn-sobre">Sobre</button>
     </div>
 
     <div class="wrapper">
@@ -49,6 +31,24 @@
                 <p>Clique em algum Residencial ou em alguma região verde do mapa</p>
             </div>
         </aside>
+    </div>
+
+    <div id="modal-sobre" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Sobre o Dashboard</h2>
+            <hr>
+            <div class="modal-body">
+                <p>Este Dashboard foi desenvolvido para facilitar a consulta rápida ao estoque e materiais dos empreendimentos MRV na Grande São Paulo e Interior.</p>
+                <p><strong>Dicas:</strong></p>
+                <ul>
+                    <li>Clique nas regiões do mapa para filtrar por cidade.</li>
+                    <li>Utilize os botões de <strong>Copiar Link</strong> para enviar materiais rapidamente aos clientes.</li>
+                    <li>As informações de estoque são sincronizadas com a planilha mestre.</li>
+                </ul>
+            </div>
+            <button class="btn-fechar-modal">Entendido</button>
+        </div>
     </div>
 
     <script src="mrv-data.js"></script>
