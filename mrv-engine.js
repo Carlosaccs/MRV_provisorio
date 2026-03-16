@@ -11,15 +11,12 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, 
-    DESC_LONGA: 17, 
+    OBSERVACOES: 18, DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
-    LINKS_VIDEOS: 26,   
-    LINKS_PLANTAS: 27,  
-    LINKS_IMPLANT: 28,  
-    LINKS_DIVERSOS: 29  
+    LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
+    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29  
 };
 
 /* ==========================================================================
@@ -375,7 +372,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (BOTAO SOBRE)
+   LÓGICA DO MODAL (BOTAO SOBRE) COM BOTÃO VERDE ESTILIZADO E WHATSAPP
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
@@ -383,7 +380,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const span = document.querySelector(".modal-close");
 
     if(btn) {
-        btn.onclick = () => { if(modal) modal.style.display = "block"; };
+        btn.onclick = () => { 
+            if(modal) {
+                // Injeta o conteúdo com o botão verde estilizado e o ícone do WhatsApp
+                const modalBody = modal.querySelector('.modal-body') || modal;
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:10px;">
+                        <h2 style="color:#008d36; margin-top:0;">Sobre o Projeto</h2>
+                        <p style="font-size:0.85rem; color:#444; line-height:1.5;">Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.</p>
+                        
+                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin:15px 0; border:1px solid #fbc02d; text-align:left;">
+                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">As informações podem estar desatualizadas e até erradas, então caso encontre algum erro ou se você tiver algum material que está faltando nele como books ou vídeos, por favor, envie pra mim pelo whatsapp através do botão abaixo:</p>
+                        </div>
+
+                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; background-color:#25D366; color:white; text-decoration:none; padding:10px 25px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1); gap:10px;">
+                            <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                <path d="M12.031 6.172c-2.32 0-4.582.902-6.368 2.535a9.07 9.07 0 0 0-2.483 5.485c-.09 1.48.243 2.923.957 4.195l-.946 3.454 3.535-.927c1.233.673 2.62 1.028 4.025 1.03h.004c2.316 0 4.58-.901 6.367-2.534 1.787-1.632 2.77-3.805 2.77-6.12 0-2.314-.982-4.488-2.77-6.12a9.143 9.143 0 0 0-6.391-2.598zm4.61 11.53c-.198.558-1.157 1.066-1.597 1.127-.44.06-1.01.076-2.146-.35-1.135-.427-2.222-1.255-3.022-2.115-.8-.859-1.503-2.242-1.503-3.626 0-1.385.72-2.064 1-2.353.28-.29.613-.362.813-.362.2 0 .4-.002.573.006.182.008.428-.069.67.51.242.578.828 2.023.898 2.169.07.146.117.315.02.51-.097.193-.146.314-.29.485-.146.17-.306.383-.437.513-.145.146-.296.306-.128.598.168.29.743 1.226 1.594 1.983.85.757 1.564 1.016 1.86.136.296.118.572.118.773 0 .201-.118.573-.284.774-.2.2-.44.536-.66.797-.22.261-.264.445-.06.772.2.327 1.34 2.213 1.34 2.213.118.193.19.314.302.43.112.118.232.118.43.02.198-.098 1.137-.468 1.436-.628.298-.16.398-.13.548.118.15.248.57 1.26.65 1.42.08.16.08.31.02.43s-.32.26-.52.41z"/>
+                            </svg>
+                            Carlos Custódio
+                        </a>
+                    </div>`;
+                modal.style.display = "block"; 
+            }
+        };
     }
     if(span) {
         span.onclick = () => { if(modal) modal.style.display = "none"; };
