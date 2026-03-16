@@ -230,7 +230,6 @@ const criarCardMaterial = (titulo, url, icone) => {
         </div>
         <div class="card-material-right" style="position: relative; gap: 4px;">
             <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
-            <div class="preview-hover-box"><iframe src="${linkSeguro}"></iframe></div>
             <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
         </div>
     </div>`;
@@ -261,18 +260,17 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
+    const estiloFaixa = `display: flex; align-items: center; justify-content: center; width: 100%; text-align: center; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
 
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
-            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
+            RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}
         </div>`;
         
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         
-        // --- FAIXA DE CAMPANHA (Manteve-se no topo da grid técnica se existir) ---
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
@@ -316,7 +314,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // --- BLOCO DE DIFERENCIAIS (AGORA COM OBSERVAÇÃO NO TOPO) ---
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -327,10 +324,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         };
         
-        // 1. OBSERVAÇÕES (Coluna S) - Agora como destaque principal do bloco
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
-        
-        // 2. Localização, Mobilidade, etc.
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
         html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
@@ -358,7 +352,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `<div class="titulo-vitrine-faixa faixa-preta" style="${estiloFaixa}">
-            ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
+            ${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}
         </div>`;
         html += `<div class="box-complexo-full" style="padding: 5px 0;">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
@@ -375,5 +369,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
     painel.innerHTML = html;
 }
+
+/* ==========================================================================
+   LÓGICA DO MODAL SOBRE
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById("modal-sobre");
+    const btn = document.getElementById("btn-sobre");
+    const span = document.querySelector(".modal-close");
+
+    if(btn) btn.onclick = () => { modal.style.display = "block"; };
+    if(span) span.onclick = () => { modal.style.display = "none"; };
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
+});
 
 window.onload = iniciarApp;
