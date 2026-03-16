@@ -163,10 +163,8 @@ function atualizarTituloSuperior(texto) {
 
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
-    container.style.display = "flex";
-    container.style.alignItems = "center";
-    container.style.justifyContent = "center";
-    container.style.overflow = "hidden";
+    container.style.display = "flex"; container.style.alignItems = "center";
+    container.style.justifyContent = "center"; container.style.overflow = "hidden";
 
     const pathsHtml = dados.paths.map(p => {
         const idNorm = p.id.toLowerCase().replace(/\s/g, '');
@@ -267,15 +265,11 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
             RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
-        
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
-        
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
-        
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
-
         const linhaInfo = (l1, v1, l2, v2, borda) => `
             <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
                 <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
@@ -324,7 +318,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
             </div>`;
         };
-        
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
@@ -340,26 +333,21 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         materiaisHtml += extrairLinks(selecionado.linksPlantas, '📐');
         materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
         materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
-
         if (materiaisHtml !== "") {
             html += `<div style="margin-top: 10px;">
                 <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
                 ${materiaisHtml}
             </div>`;
         }
-
         if(selecionado.descLonga) {
              html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
-        html += `<div class="titulo-vitrine-faixa faixa-preta" style="${estiloFaixa}">
-            ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
-        </div>`;
-        html += `<div class="box-complexo-full" style="padding: 5px 0;">
+        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
+        html += `<div class="box-complexo-full">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
                  </div>`;
-        
         let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
         if (materiaisComplexo !== "") {
             html += `<div style="margin-top: 10px; padding: 0 5px;">
@@ -372,7 +360,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (BOTAO SOBRE) COM BOTÃO VERDE ESTILIZADO E WHATSAPP
+   LÓGICA DO MODAL (BOTÃO SOBRE) - CORREÇÃO DE DUPLICIDADE E BOTÃO LIMPO
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
@@ -382,21 +370,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if(btn) {
         btn.onclick = () => { 
             if(modal) {
-                // Injeta o conteúdo com o botão verde estilizado e o ícone do WhatsApp
-                const modalBody = modal.querySelector('.modal-body') || modal;
+                // Alvo: .modal-body ou o próprio conteúdo do modal
+                const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
+                
+                // Removemos os títulos verdes internos (h2) para não duplicar com o HTML original
                 modalBody.innerHTML = `
                     <div style="text-align:center; padding:10px;">
-                        <h2 style="color:#008d36; margin-top:0;">Sobre o Projeto</h2>
-                        <p style="font-size:0.85rem; color:#444; line-height:1.5;">Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.</p>
+                        <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
+                            Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
+                        </p>
                         
-                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin:15px 0; border:1px solid #fbc02d; text-align:left;">
-                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">As informações podem estar desatualizadas e até erradas, então caso encontre algum erro ou se você tiver algum material que está faltando nele como books ou vídeos, por favor, envie pra mim pelo whatsapp através do botão abaixo:</p>
+                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #fbc02d; text-align:left;">
+                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">
+                                As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais (books/vídeos), por favor, envie para mim:
+                            </p>
                         </div>
 
-                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-flex; align-items:center; justify-content:center; background-color:#25D366; color:white; text-decoration:none; padding:10px 25px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1); gap:10px;">
-                            <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
-                                <path d="M12.031 6.172c-2.32 0-4.582.902-6.368 2.535a9.07 9.07 0 0 0-2.483 5.485c-.09 1.48.243 2.923.957 4.195l-.946 3.454 3.535-.927c1.233.673 2.62 1.028 4.025 1.03h.004c2.316 0 4.58-.901 6.367-2.534 1.787-1.632 2.77-3.805 2.77-6.12 0-2.314-.982-4.488-2.77-6.12a9.143 9.143 0 0 0-6.391-2.598zm4.61 11.53c-.198.558-1.157 1.066-1.597 1.127-.44.06-1.01.076-2.146-.35-1.135-.427-2.222-1.255-3.022-2.115-.8-.859-1.503-2.242-1.503-3.626 0-1.385.72-2.064 1-2.353.28-.29.613-.362.813-.362.2 0 .4-.002.573.006.182.008.428-.069.67.51.242.578.828 2.023.898 2.169.07.146.117.315.02.51-.097.193-.146.314-.29.485-.146.17-.306.383-.437.513-.145.146-.296.306-.128.598.168.29.743 1.226 1.594 1.983.85.757 1.564 1.016 1.86.136.296.118.572.118.773 0 .201-.118.573-.284.774-.2.2-.44.536-.66.797-.22.261-.264.445-.06.772.2.327 1.34 2.213 1.34 2.213.118.193.19.314.302.43.112.118.232.118.43.02.198-.098 1.137-.468 1.436-.628.298-.16.398-.13.548.118.15.248.57 1.26.65 1.42.08.16.08.31.02.43s-.32.26-.52.41z"/>
-                            </svg>
+                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-block; background-color:#25D366; color:white; text-decoration:none; padding:12px 30px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
                             Carlos Custódio
                         </a>
                     </div>`;
