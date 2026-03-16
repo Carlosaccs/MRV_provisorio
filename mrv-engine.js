@@ -86,7 +86,7 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
-                observacoes: colunas[COL.OBSERVACOES] || "", // Coluna S
+                observacoes: colunas[COL.OBSERVACOES] || "",
                 descLonga: colunas[COL.DESC_LONGA] || "",
                 localizacao: colunas[COL.LOCALIZACAO] || "",
                 mobilidade: colunas[COL.MOBILIDADE] || "",
@@ -272,7 +272,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         
-        // --- FAIXA DE CAMPANHA (Manteve-se no topo da grid técnica se existir) ---
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
@@ -316,7 +315,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // --- BLOCO DE DIFERENCIAIS (AGORA COM OBSERVAÇÃO NO TOPO) ---
+        // --- BLOCO DE DIFERENCIAIS (OBSERVAÇÃO NO TOPO) ---
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -327,10 +326,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         };
         
-        // 1. OBSERVAÇÕES (Coluna S) - Agora como destaque principal do bloco
+        // 1. OBSERVAÇÕES (Prioridade Máxima)
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
         
-        // 2. Localização, Mobilidade, etc.
+        // 2. Outros Argumentos
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
         html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
@@ -374,6 +373,19 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     }
     painel.innerHTML = html;
+}
+
+/* ==========================================================================
+   CONTROLE DO MODAL "SOBRE"
+   ========================================================================== */
+function abrirSobre() {
+    document.getElementById('modal-sobre').style.display = 'flex';
+}
+
+function fecharSobre(event) {
+    if (event.target.id === 'modal-sobre' || event.target.className === 'close-modal') {
+        document.getElementById('modal-sobre').style.display = 'none';
+    }
 }
 
 window.onload = iniciarApp;
