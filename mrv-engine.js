@@ -11,7 +11,7 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, // Coluna S (índice 18)
+    OBSERVACOES: 18, 
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
@@ -50,6 +50,7 @@ async function carregarPlanilha() {
         const response = await fetch(URL_CSV);
         let texto = await response.text();
         const linhasPuras = texto.split(/\r?\n/);
+
         DADOS_PLANILHA = linhasPuras.slice(1).map(linha => {
             const colunas = []; let campo = "", aspas = false;
             for (let i = 0; i < linha.length; i++) {
@@ -59,14 +60,23 @@ async function carregarPlanilha() {
                 else { campo += char; }
             }
             colunas.push(campo.trim());
+
+            // --- LÓGICA DE FILTRO PARA EVITAR REGISTROS INVASORES ---
+            const nomeImovel = colunas[COL.NOME] || "";
+            const idPath = (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, '');
+            const ordem = parseInt(colunas[COL.ORDEM]);
+
+            // Descarta se o ID for vazio, se o nome for muito curto (ex: "4") ou se a ordem não for número
+            if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
+
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
-            if (!colunas[COL.NOME] || isNaN(parseInt(colunas[COL.ORDEM]))) return null;
+            
             return {
-                id_path: (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, ''),
+                id_path: idPath,
                 tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
-                ordem: parseInt(colunas[COL.ORDEM]),
-                nome: colunas[COL.NOME],
-                nomeFull: colunas[COL.NOME_FULL] || colunas[COL.NOME],
+                ordem: ordem,
+                nome: nomeImovel,
+                nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
                 estoque: colunas[COL.ESTOQUE],
                 endereco: colunas[COL.END] || "",
                 entrega: colunas[COL.ENTREGA] || "---",
@@ -78,7 +88,7 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
-                observacoes: colunas[COL.OBSERVACOES] || "", // Novo campo mapeado
+                observacoes: colunas[COL.OBSERVACOES] || "",
                 descLonga: colunas[COL.DESC_LONGA] || "",
                 localizacao: colunas[COL.LOCALIZACAO] || "",
                 mobilidade: colunas[COL.MOBILIDADE] || "",
@@ -93,6 +103,7 @@ async function carregarPlanilha() {
                 linksDiversos: colunas[COL.LINKS_DIVERSOS] || ""
             };
         }).filter(i => i !== null);
+
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         desenharMapas(); gerarListaLateral();
     } catch (e) { console.error(e); }
@@ -120,18 +131,23 @@ function comandoSelecao(idPath, nomePath, fonte) {
     const idNorm = idPath.toLowerCase().replace(/\s/g, '');
     const noGSP = MAPA_GSP.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
     const noInterior = MAPA_INTERIOR.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
+    
     if (noGSP && mapaAtivo !== 'GSP') trocarMapas(false);
     if (noInterior && mapaAtivo !== 'INTERIOR') trocarMapas(false);
+    
     pathAtivo = idNorm;
     const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === pathAtivo);
     const selecionado = fonte || imoveisDaCidade[0];
     imovelAtivo = selecionado.nome;
+
     document.querySelectorAll('path').forEach(el => el.classList.remove('ativo'));
     const elMapa = document.getElementById(`caixa-a-${pathAtivo}`);
     if (elMapa) elMapa.classList.add('ativo');
+
     gerarListaLateral();
     const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
     const nomeOficial = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || pathAtivo;
+    
     atualizarTituloSuperior(nomeOficial);
     montarVitrine(selecionado, imoveisDaCidade, nomeOficial);
 }
@@ -236,6 +252,7 @@ const extrairLinks = (campo, icone) => {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
+    // Link Corrigido do Google Maps
     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
@@ -250,28 +267,22 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
 
     if (selecionado.tipo === 'R') {
-        // TÍTULO DO RESIDENCIAL
         html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
-            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
+            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         
-        // ENDEREÇO E BOTÃO MAPS
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
-        // BLOCO DE INFORMAÇÕES CINZA
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         
-        // NOVA LINHA: OBSERVAÇÕES (COLUNA S) - APARECE NO TOPO DO BLOCO SE TIVER CONTEÚDO
         if(selecionado.observacoes && selecionado.observacoes !== "---" && selecionado.observacoes !== "") {
             html += `<div style="background: white; color: #e31010; font-weight: bold; font-size: 0.75rem; text-align: center; padding: 6px; border-bottom: 1px solid #ddd; text-transform: uppercase;">${selecionado.observacoes}</div>`;
         }
 
-        // LINHA: CAMPANHA (OPCIONAL)
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
 
-        // GRID DE INFOS TÉCNICAS
         const linhaInfo = (l1, v1, l2, v2, borda) => `
             <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
                 <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
@@ -288,7 +299,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
-        // TABELA DE TIPOLOGIAS/PREÇOS
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
@@ -312,7 +322,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // BLOCO DE ARGUMENTOS DE VENDA
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -329,7 +338,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
         html += `</div>`;
 
-        // MATERIAIS DE APOIO
         let materiaisHtml = "";
         materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
         materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
@@ -349,9 +357,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
              html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
-        // VISUAL PARA COMPLEXOS
         html += `<div class="titulo-vitrine-faixa faixa-preta" style="${estiloFaixa}">
-            ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
+            ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         html += `<div class="box-complexo-full" style="padding: 5px 0;">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
