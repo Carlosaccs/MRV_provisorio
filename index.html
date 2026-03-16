@@ -1,47 +1,41 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard MRV SP - V4.0</title>
-    <link rel="stylesheet" href="style.css">
+
+    <title>MRV SP - Carregando...</title>
+
+    <script>
+
+        function redirecionar() {
+
+            // Se a tela for menor que 1024px, assume que é mobile/tablet
+
+            if (window.innerWidth < 1024) {
+
+                window.location.href = "mobile.html";
+
+            } else {
+
+                window.location.href = "desktop.html";
+
+            }
+
+        }
+
+        window.onload = redirecionar;
+
+    </script>
+
 </head>
-<body>
 
-    <header class="header">
-        RESIDENCIAIS MRV EM SÃO PAULO
-        <button class="btn-header-sobre" onclick="abrirSobre()">Sobre</button>
-    </header>
+<body style="background:#065e03; display:flex; align-items:center; justify-content:center; height:100vh; color:white; font-family:sans-serif;">
 
-    <div class="wrapper">
-        <aside class="sidebar-esq" id="lista-imoveis">
-            <div style="text-align:center; padding:20px; color:#999;">Carregando...</div>
-        </aside>
+    <p>Detectando dispositivo...</p>
 
-        <main class="conteudo-centro">
-            <div id="cidade-titulo">SELECIONE UMA REGIÃO NO MAPA</div>
-            <div id="caixa-a"></div>
-            <div id="caixa-b"></div>
-        </main>
-
-        <aside class="sidebar-dir" id="ficha-tecnica">
-            <div style="text-align:center; color:#ccc; margin-top:80px;">
-                <p style="font-size:30px;">📍</p>
-                <p>Selecione um residencial para ver detalhes</p>
-            </div>
-        </aside>
-    </div>
-
-    <div id="modal-sobre" class="modal-overlay" onclick="fecharSobre(event)">
-        <div class="modal-content">
-            <span class="close-modal" onclick="document.getElementById('modal-sobre').style.display='none'">&times;</span>
-            <h2 style="color: var(--mrv-verde); margin-bottom: 15px;">Dashboard Carlos Custódio</h2>
-            <p style="font-size: 0.9rem; color: #555;">Consulta rápida de estoques e materiais MRV.</p>
-            <a href="https://wa.me/551192617026" target="_blank" class="btn-whatsapp-sobre">Falar no WhatsApp</a>
-        </div>
-    </div>
-
-    <script src="mapas-svg.js"></script>
-    <script src="mrv-engine.js"></script>
 </body>
+
+</html>
+
 </html>
