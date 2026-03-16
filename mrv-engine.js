@@ -249,9 +249,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 
     if (selecionado.tipo === 'R') {
         html += `
-        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; padding: 0 10px;">
-            <div style="font-weight: bold; font-size: 0.85rem; color: white; text-align: center; line-height: 1;">
-                RES. ${selecionado.nome.toUpperCase()} &nbsp; — &nbsp; ${selecionado.regiao}
+        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden; width: 100%;">
+            <div style="font-weight: bold; font-size: 0.82rem; color: white; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; width: 100%;">
+                RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
             </div>
         </div>`;
         
@@ -336,9 +336,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `
-        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; padding: 0 10px;">
-            <div style="font-weight: bold; font-size: 0.85rem; color: white; text-align: center; line-height: 1;">
-                ${selecionado.nomeFull.toUpperCase()} &nbsp; — &nbsp; ${selecionado.regiao}
+        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden; width: 100%;">
+            <div style="font-weight: bold; font-size: 0.82rem; color: white; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; width: 100%;">
+                ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
             </div>
         </div>`;
         html += `<div class="box-complexo-full" style="padding: 5px 0;">
