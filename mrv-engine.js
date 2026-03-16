@@ -245,18 +245,17 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    const larguraEtiqueta = "55px"; 
-    const alturaBarra = "32px"; // MESMA ALTURA DOS btRes
+    // ALTURA IGUAL AOS BOTOES (32px)
+    const alturaBarra = "32px"; 
 
     if (selecionado.tipo === 'R') {
         html += `
-        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; padding: 0 10px; box-sizing: border-box; margin-bottom: 4px; border-radius: 4px;">
-            <div style="width: ${larguraEtiqueta};"></div>
-            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.8rem; line-height: 1;">
+        <div class="titulo-vitrine-faixa faixa-laranja" style="position: relative; display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden; padding: 0 10px;">
+            <div style="font-weight: bold; font-size: 0.85rem; color: white; text-align: center; width: 100%; line-height: 1;">
                 RES. ${selecionado.nome.toUpperCase()}
             </div>
-            <div style="width: ${larguraEtiqueta}; display: flex; justify-content: flex-end;">
-                <span style="background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.4); color: white; white-space: nowrap;">
+            <div style="position: absolute; right: 8px; height: 100%; display: flex; align-items: center;">
+                <span style="background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.4); color: white; font-weight: bold; white-space: nowrap;">
                     ${selecionado.regiao}
                 </span>
             </div>
@@ -343,13 +342,12 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `
-        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; padding: 0 10px; box-sizing: border-box; margin-bottom: 4px; border-radius: 4px;">
-            <div style="width: ${larguraEtiqueta};"></div>
-            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.8rem; line-height: 1;">
+        <div class="titulo-vitrine-faixa faixa-preta" style="position: relative; display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden; padding: 0 10px;">
+            <div style="font-weight: bold; font-size: 0.85rem; color: white; text-align: center; width: 100%; line-height: 1;">
                 ${selecionado.nomeFull.toUpperCase()}
             </div>
-            <div style="width: ${larguraEtiqueta}; display: flex; justify-content: flex-end;">
-                <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.3); color: white;">
+            <div style="position: absolute; right: 8px; height: 100%; display: flex; align-items: center;">
+                <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.3); color: white; font-weight: bold; white-space: nowrap;">
                     ${selecionado.regiao}
                 </span>
             </div>
@@ -362,7 +360,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
         if (materiaisComplexo !== "") {
             html += `<div style="margin-top: 10px; padding: 0 5px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
+                <label style="displayblock; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
                 ${materiaisComplexo}
             </div>`;
         }
