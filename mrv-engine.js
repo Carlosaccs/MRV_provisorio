@@ -241,16 +241,25 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     if(outros.length > 0) {
         html += `<div style="margin-bottom:6px;">${outros.map(i => `
             <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
-                <strong>${i.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}
+                <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    // CORREÇÃO VERTICAL AQUI: display flex e min-height garantem o alinhamento
+    const larguraEtiqueta = "60px";
+
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="position: relative; display: flex; align-items: center; justify-content: center; min-height: 42px; padding: 5px 15px;">
-                    <span style="font-weight: bold; line-height: 1;">RES. ${selecionado.nome.toUpperCase()}</span>
-                    <span class="tag-regional" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.4); line-height: 1;">${selecionado.regiao}</span>
-                 </div>`;
+        html += `
+        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; min-height: 45px; padding: 0 10px; box-sizing: border-box;">
+            <div style="width: ${larguraEtiqueta};"></div>
+            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.85rem; line-height: 1.2;">
+                RES. ${selecionado.nome.toUpperCase()}
+            </div>
+            <div style="width: ${larguraEtiqueta}; display: flex; justify-content: flex-end;">
+                <span style="background: rgba(255,255,255,0.25); padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.4); color: white; white-space: nowrap;">
+                    ${selecionado.regiao}
+                </span>
+            </div>
+        </div>`;
         
         html += `<div style="padding: 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
@@ -332,11 +341,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
              html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
-        // CORREÇÃO VERTICAL TAMBÉM NO COMPLEXO
-        html += `<div class="titulo-vitrine-faixa faixa-preta" style="position: relative; display: flex; align-items: center; justify-content: center; min-height: 42px; padding: 5px 15px;">
-                    <span style="font-weight: bold; line-height: 1;">${selecionado.nomeFull.toUpperCase()}</span>
-                    <span class="tag-regional" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.3); line-height: 1;">${selecionado.regiao}</span>
-                 </div>`;
+        html += `
+        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; min-height: 45px; padding: 0 10px; box-sizing: border-box;">
+            <div style="width: ${larguraEtiqueta};"></div>
+            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.85rem; line-height: 1.2;">
+                ${selecionado.nomeFull.toUpperCase()}
+            </div>
+            <div style="width: ${larguraEtiqueta}; display: flex; justify-content: flex-end;">
+                <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.3); color: white;">
+                    ${selecionado.regiao}
+                </span>
+            </div>
+        </div>`;
         html += `<div class="box-complexo-full">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
