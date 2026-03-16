@@ -3,57 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard MRV</title>
+    <title>Dashboard MRV - GSP & Interior</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="header" style="position: relative;">
-        RESIDENCIAIS MRV EM SÃO PAULO
-        <button id="btn-sobre" onclick="abrirSobre()" style="position: absolute; right: 20px; top: 15px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 0 15px; height: 30px; line-height: 28px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Sobre</button>
-    </div>
+    <header class="header">
+        VITRINE DE VENDAS
+        <button class="btn-header-sobre" onclick="abrirSobre()">Sobre</button>
+    </header>
 
     <div class="wrapper">
-        <div class="sidebar-esq">
-            <div id="lista-imoveis"></div>
-        </div>
+        <aside class="sidebar-esq" id="lista-imoveis">
+            <div style="text-align:center; padding:20px; color:#999;">Carregando imóveis...</div>
+        </aside>
 
-        <div class="conteudo-centro">
+        <main class="conteudo-centro">
             <div id="cidade-titulo">SELECIONE UMA REGIÃO NO MAPA</div>
-            <div id="caixa-a"></div>
-            <div id="caixa-b"></div>
-        </div>
+            <div id="caixa-a"></div> <div id="caixa-b"></div> </main>
 
-        <div class="sidebar-dir">
-            <div id="ficha-tecnica">
-                <div style="text-align:center; color:#ccc; margin-top:80px;">
-                    <p style="font-size:30px;">📍</p>
-                    <p>Clique no mapa ou na lista</p>
-                </div>
+        <aside class="sidebar-dir" id="ficha-tecnica">
+            <div style="text-align:center; color:#ccc; margin-top:80px;">
+                <p style="font-size:30px;">📍</p>
+                <p>Selecione um residencial para ver os detalhes</p>
             </div>
-        </div>
+        </aside>
     </div>
 
     <div id="modal-sobre" class="modal-overlay" onclick="fecharSobre(event)">
         <div class="modal-content">
             <span class="close-modal" onclick="document.getElementById('modal-sobre').style.display='none'">&times;</span>
-            <h2 style="color: var(--mrv-verde); margin-top: 0;">Sobre o Projeto</h2>
-            <p style="font-size: 0.9rem; color: #444; line-height: 1.5; margin-top: 15px;">
-                Este dashboard foi desenvolvido para agilizar o acesso a informações e materiais dos residenciais <strong>MRV</strong> durante o atendimento aos seus leads.
+            <h2 style="color: var(--mrv-verde); margin-bottom: 15px;">Dashboard de Vendas</h2>
+            <p style="font-size: 0.9rem; color: #555; line-height: 1.5;">
+                Olá! Este dashboard foi desenvolvido para facilitar o acesso rápido aos materiais, 
+                estoques e localizações dos empreendimentos MRV na Grande São Paulo e Interior.
             </p>
-            <div style="background: #fff3e0; border-left: 4px solid var(--mrv-laranja); padding: 10px; margin: 15px 0; font-size: 0.85rem; color: #663c00; text-align: left;">
-                <strong>⚠️ Importante:</strong> Os dados (preços, estoque e prazos) são informativos. Sempre valide as disponibilidades oficiais no sistema.
-            </div>
-            <p style="font-size: 0.85rem; color: #666;">
-                Tem materiais novos ou encontrou algum erro? Envie para mim:
-            </p>
-            <a href="https://wa.me/551192617026?text=Oi%20Carlos,%20tenho%20materiais/correções%20para%20o%20Dashboard" target="_blank" class="btn-whatsapp-sobre">
-                💬 Carlos Custódio
-            </a>
+            <p style="margin-top: 15px; font-weight: bold; color: #333;">Dúvidas ou Sugestões?</p>
+            <a href="https://wa.me/SEUNUMERO" target="_blank" class="btn-whatsapp-sobre">Falar com Carlos no WhatsApp</a>
         </div>
     </div>
 
-    <script src="mrv-data.js"></script>
+    <script src="mapas-svg.js"></script>
     <script src="mrv-engine.js"></script>
 </body>
 </html>
