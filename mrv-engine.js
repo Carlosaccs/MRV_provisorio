@@ -11,6 +11,7 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
+    OBSERVACOES: 18, // Coluna S (índice 18)
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
@@ -77,6 +78,7 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
+                observacoes: colunas[COL.OBSERVACOES] || "", // Novo campo mapeado
                 descLonga: colunas[COL.DESC_LONGA] || "",
                 localizacao: colunas[COL.LOCALIZACAO] || "",
                 mobilidade: colunas[COL.MOBILIDADE] || "",
@@ -234,7 +236,7 @@ const extrairLinks = (campo, icone) => {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
-    const urlMaps = `https://www.google.com/maps/search/${encodeURIComponent(selecionado.endereco)}`;
+    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
@@ -245,21 +247,31 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    // AQUI O AJUSTE PARA FORÇAR A CENTRALIZAÇÃO IGNORANDO O CSS BLOCK
-    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important;`;
+    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
 
     if (selecionado.tipo === 'R') {
-        html += `
-        <div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
+        // TÍTULO DO RESIDENCIAL
+        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
             RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         
+        // ENDEREÇO E BOTÃO MAPS
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
+        // BLOCO DE INFORMAÇÕES CINZA
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
-        if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
-            html += `<div style="background: white; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 6px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
+        
+        // NOVA LINHA: OBSERVAÇÕES (COLUNA S) - APARECE NO TOPO DO BLOCO SE TIVER CONTEÚDO
+        if(selecionado.observacoes && selecionado.observacoes !== "---" && selecionado.observacoes !== "") {
+            html += `<div style="background: white; color: #e31010; font-weight: bold; font-size: 0.75rem; text-align: center; padding: 6px; border-bottom: 1px solid #ddd; text-transform: uppercase;">${selecionado.observacoes}</div>`;
         }
+
+        // LINHA: CAMPANHA (OPCIONAL)
+        if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
+            html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
+        }
+
+        // GRID DE INFOS TÉCNICAS
         const linhaInfo = (l1, v1, l2, v2, borda) => `
             <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
                 <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
@@ -276,6 +288,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
+        // TABELA DE TIPOLOGIAS/PREÇOS
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
@@ -299,6 +312,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
+        // BLOCO DE ARGUMENTOS DE VENDA
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -315,6 +329,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
         html += `</div>`;
 
+        // MATERIAIS DE APOIO
         let materiaisHtml = "";
         materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
         materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
@@ -334,8 +349,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
              html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
-        html += `
-        <div class="titulo-vitrine-faixa faixa-preta" style="${estiloFaixa}">
+        // VISUAL PARA COMPLEXOS
+        html += `<div class="titulo-vitrine-faixa faixa-preta" style="${estiloFaixa}">
             ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         html += `<div class="box-complexo-full" style="padding: 5px 0;">
