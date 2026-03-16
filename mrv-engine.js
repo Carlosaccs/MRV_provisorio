@@ -152,12 +152,16 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
 function atualizarTituloSuperior(texto) {
     const titulo = document.getElementById('cidade-titulo');
-    if (texto) { titulo.innerText = texto.toUpperCase(); } 
+    if (texto) { 
+        titulo.innerText = `MRV EM ${texto.toUpperCase()}`; 
+    } 
     else if (pathAtivo) {
         const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
         const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
-        titulo.innerText = nomeFixo.toUpperCase();
-    } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
+        titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
+    } else { 
+        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; 
+    }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
@@ -376,25 +380,16 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
     const btn = document.getElementById("btn-sobre");
-    const closeBtn = document.querySelector(".modal-close");
-    const closeBtnFooter = document.querySelector(".btn-fechar-modal");
+    const span = document.querySelector(".modal-close");
 
     if(btn) {
-        btn.onclick = () => { modal.style.display = "block"; };
+        btn.onclick = () => { if(modal) modal.style.display = "block"; };
     }
-    
-    if(closeBtn) {
-        closeBtn.onclick = () => { modal.style.display = "none"; };
+    if(span) {
+        span.onclick = () => { if(modal) modal.style.display = "none"; };
     }
-
-    if(closeBtnFooter) {
-        closeBtnFooter.onclick = () => { modal.style.display = "none"; };
-    }
-
     window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
+        if (event.target == modal) { modal.style.display = "none"; }
     };
 });
 
