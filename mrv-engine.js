@@ -234,7 +234,7 @@ const extrairLinks = (campo, icone) => {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
-    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
+    const urlMaps = `https://www.google.com/maps/search/${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
@@ -245,14 +245,13 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    const alturaBarra = "32px"; 
+    // AQUI O AJUSTE PARA FORÇAR A CENTRALIZAÇÃO IGNORANDO O CSS BLOCK
+    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important;`;
 
     if (selecionado.tipo === 'R') {
         html += `
-        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden; width: 100%;">
-            <div style="font-weight: bold; font-size: 0.82rem; color: white; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; width: 100%;">
-                RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
-            </div>
+        <div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
+            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
@@ -336,10 +335,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `
-        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; margin-bottom: 4px; border-radius: 4px; overflow: hidden; width: 100%;">
-            <div style="font-weight: bold; font-size: 0.82rem; color: white; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; width: 100%;">
-                ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
-            </div>
+        <div class="titulo-vitrine-faixa faixa-preta" style="${estiloFaixa}">
+            ${selecionado.nomeFull.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         html += `<div class="box-complexo-full" style="padding: 5px 0;">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
