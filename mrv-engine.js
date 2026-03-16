@@ -294,14 +294,22 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 html += `
                 <div class="tabela-precos-container" style="margin-top:2px; margin-bottom:8px;">
                     <div class="tabela-header" style="min-height: 28px;">
-                        ${titulos.map((t, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 4px;">${t}</div>`).join('')}
+                        ${titulos.map((t, idx) => {
+                            // Aplicando fundo laranja e texto branco no cabeçalho "Menor preço" (índice 1)
+                            const estiloCabecalho = idx === 1 ? 'background-color:#f37021; color:white; font-weight:bold;' : '';
+                            return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
+                        }).join('')}
                     </div>
                     <div class="tabela-corpo">
                         ${dados.map(linhaStr => {
                             const cols = linhaStr.split(',').map(c => c.trim());
                             if(cols.length <= 1) return "";
                             return `<div class="tabela-row" style="min-height: 28px;">
-                                ${cols.map((v, idx) => `<div class="col-tabela ${idx === 1 ? 'col-laranja' : ''}" style="padding: 4px;">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}
+                                ${cols.map((v, idx) => {
+                                    // Aplicando fundo laranja e texto branco nos valores da coluna (índice 1)
+                                    const estiloCelula = idx === 1 ? 'background-color:#f37021; color:white; font-weight:bold;' : '';
+                                    return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
+                                }).join('')}
                             </div>`;
                         }).join('')}
                     </div>
@@ -360,7 +368,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (BOTÃO SOBRE) - CORREÇÃO DE DUPLICIDADE E BOTÃO LIMPO
+   LÓGICA DO MODAL (BOTÃO SOBRE)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
@@ -370,10 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(btn) {
         btn.onclick = () => { 
             if(modal) {
-                // Alvo: .modal-body ou o próprio conteúdo do modal
                 const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
-                
-                // Removemos os títulos verdes internos (h2) para não duplicar com o HTML original
                 modalBody.innerHTML = `
                     <div style="text-align:center; padding:10px;">
                         <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
