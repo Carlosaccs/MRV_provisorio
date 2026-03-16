@@ -245,12 +245,13 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
+    // AJUSTE NA FAIXA: Adicionado container interno para centralizar título e jogar regional para a direita
     if (selecionado.tipo === 'R') {
-        // AJUSTADO: Nome à esquerda, Regional à direita
-        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;">
-                    <span style="flex: 1; text-align: left;">RES. ${selecionado.nome}</span>
-                    <span class="tag-regional" style="margin-left: 10px; white-space: nowrap;">${selecionado.regiao}</span>
+        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="position: relative; display: flex; align-items: center; justify-content: center; padding: 10px 15px;">
+                    <span style="font-weight: bold;">RES. ${selecionado.nome.toUpperCase()}</span>
+                    <span class="tag-regional" style="position: absolute; right: 10px; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.4);">${selecionado.regiao}</span>
                  </div>`;
+        
         html += `<div style="padding: 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
@@ -331,10 +332,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
              html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
-        // AJUSTADO: Nome à esquerda, Regional à direita para COMPLEXO
-        html += `<div class="titulo-vitrine-faixa faixa-preta" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px;">
-                    <span style="flex: 1; text-align: left;">${selecionado.nomeFull}</span>
-                    <span class="tag-regional" style="margin-left: 10px; white-space: nowrap;">${selecionado.regiao}</span>
+        // AJUSTE TAMBÉM NO COMPLEXO
+        html += `<div class="titulo-vitrine-faixa faixa-preta" style="position: relative; display: flex; align-items: center; justify-content: center; padding: 10px 15px;">
+                    <span style="font-weight: bold;">${selecionado.nomeFull.toUpperCase()}</span>
+                    <span class="tag-regional" style="position: absolute; right: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.3);">${selecionado.regiao}</span>
                  </div>`;
         html += `<div class="box-complexo-full">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
