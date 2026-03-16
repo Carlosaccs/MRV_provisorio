@@ -245,23 +245,24 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    const larguraEtiqueta = "60px";
+    const larguraEtiqueta = "55px"; 
+    const alturaBarra = "32px"; // MESMA ALTURA DOS btRes
 
     if (selecionado.tipo === 'R') {
         html += `
-        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; min-height: 45px; padding: 0 10px; box-sizing: border-box;">
+        <div class="titulo-vitrine-faixa faixa-laranja" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; padding: 0 10px; box-sizing: border-box; margin-bottom: 4px; border-radius: 4px;">
             <div style="width: ${larguraEtiqueta};"></div>
-            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.85rem; line-height: 1.2;">
+            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.8rem; line-height: 1;">
                 RES. ${selecionado.nome.toUpperCase()}
             </div>
             <div style="width: ${larguraEtiqueta}; display: flex; justify-content: flex-end;">
-                <span style="background: rgba(255,255,255,0.25); padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.4); color: white; white-space: nowrap;">
+                <span style="background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.4); color: white; white-space: nowrap;">
                     ${selecionado.regiao}
                 </span>
             </div>
         </div>`;
         
-        html += `<div style="padding: 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
@@ -342,18 +343,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
     } else {
         html += `
-        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; min-height: 45px; padding: 0 10px; box-sizing: border-box;">
+        <div class="titulo-vitrine-faixa faixa-preta" style="display: flex; align-items: center; justify-content: center; height: ${alturaBarra}; padding: 0 10px; box-sizing: border-box; margin-bottom: 4px; border-radius: 4px;">
             <div style="width: ${larguraEtiqueta};"></div>
-            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.85rem; line-height: 1.2;">
+            <div style="flex: 1; text-align: center; font-weight: bold; font-size: 0.8rem; line-height: 1;">
                 ${selecionado.nomeFull.toUpperCase()}
             </div>
             <div style="width: ${larguraEtiqueta}; display: flex; justify-content: flex-end;">
-                <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; border: 1px solid rgba(255,255,255,0.3); color: white;">
+                <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 0.55rem; border: 1px solid rgba(255,255,255,0.3); color: white;">
                     ${selecionado.regiao}
                 </span>
             </div>
         </div>`;
-        html += `<div class="box-complexo-full">
+        html += `<div class="box-complexo-full" style="padding: 5px 0;">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
                  </div>`;
