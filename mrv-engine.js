@@ -11,7 +11,7 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, // Coluna S
+    OBSERVACOES: 18, 
     DESC_LONGA: 17, 
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
@@ -86,7 +86,7 @@ async function carregarPlanilha() {
                 limitador: colunas[COL.LIMITADOR] || "---",
                 casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
                 campanha: colunas[COL.CAMPANHA] || "",
-                observacoes: colunas[COL.OBSERVACOES] || "", // Coluna S
+                observacoes: colunas[COL.OBSERVACOES] || "", 
                 descLonga: colunas[COL.DESC_LONGA] || "",
                 localizacao: colunas[COL.LOCALIZACAO] || "",
                 mobilidade: colunas[COL.MOBILIDADE] || "",
@@ -378,9 +378,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById("btn-sobre");
     const span = document.querySelector(".modal-close");
 
-    if(btn) btn.onclick = () => { modal.style.display = "block"; };
-    if(span) span.onclick = () => { modal.style.display = "none"; };
-    window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
+    // Abrir o modal
+    if(btn) {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            modal.style.display = "block";
+        };
+    }
+
+    // Fechar pelo "X"
+    if(span) {
+        span.onclick = () => {
+            modal.style.display = "none";
+        };
+    }
+
+    // Fechar clicando fora do modal
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
 });
 
 window.onload = iniciarApp;
