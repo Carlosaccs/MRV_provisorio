@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
+    CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
    ========================================================================== */
 let DADOS_PLANILHA = [];
 let pathAtivo = null;  
@@ -11,8 +11,8 @@ const COL = {
     ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
     P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
     REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, // Coluna S
     DESC_LONGA: 17, 
+    OBSERVACOES: 18, // Coluna S
     LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
@@ -23,7 +23,7 @@ const COL = {
 };
 
 /* ==========================================================================
-   INICIALIZAÇÃO E CARREGAMENTO
+    INICIALIZAÇÃO E CARREGAMENTO
    ========================================================================== */
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
@@ -108,7 +108,7 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   LÓGICA DO MAPA E SELEÇÃO
+    LÓGICA DO MAPA E SELEÇÃO
    ========================================================================== */
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -162,11 +162,6 @@ function atualizarTituloSuperior(texto) {
 
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
-    container.style.display = "flex";
-    container.style.alignItems = "center";
-    container.style.justifyContent = "center";
-    container.style.overflow = "hidden";
-
     const pathsHtml = dados.paths.map(p => {
         const idNorm = p.id.toLowerCase().replace(/\s/g, '');
         const temMRV = DADOS_PLANILHA.some(d => d.id_path === idNorm);
@@ -217,7 +212,7 @@ function gerarListaLateral() {
 }
 
 /* ==========================================================================
-   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
+    CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
    ========================================================================== */
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
@@ -256,7 +251,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     
     if(outros.length > 0) {
         html += `<div style="margin-bottom:6px;">${outros.map(i => `
-            <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
+            <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%; margin-bottom: 2px;" onclick="navegarVitrine('${i.nome}')">
                 <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
@@ -315,7 +310,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // --- BLOCO DE DIFERENCIAIS (OBSERVAÇÃO NO TOPO) ---
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
@@ -326,10 +320,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         };
         
-        // 1. OBSERVAÇÕES (Prioridade Máxima)
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
-        
-        // 2. Outros Argumentos
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
         html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
@@ -376,7 +367,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   CONTROLE DO MODAL "SOBRE"
+    CONTROLE DO MODAL "SOBRE"
    ========================================================================== */
 function abrirSobre() {
     document.getElementById('modal-sobre').style.display = 'flex';
