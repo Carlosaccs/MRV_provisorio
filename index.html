@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard MRV - GSP & Interior</title>
+    <title>Dashboard MRV SP - V4.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header class="header">
-        VITRINE DE VENDAS
+        RESIDENCIAIS MRV EM SÃO PAULO
         <button class="btn-header-sobre" onclick="abrirSobre()">Sobre</button>
     </header>
 
     <div class="wrapper">
         <aside class="sidebar-esq" id="lista-imoveis">
-            <div style="text-align:center; padding:20px; color:#999;">Carregando imóveis...</div>
+            <div style="text-align:center; padding:20px; color:#999;">Carregando...</div>
         </aside>
 
         <main class="conteudo-centro">
             <div id="cidade-titulo">SELECIONE UMA REGIÃO NO MAPA</div>
-            <div id="caixa-a"></div> <div id="caixa-b"></div> </main>
+            <div id="caixa-a"></div>
+            <div id="caixa-b"></div>
+        </main>
 
         <aside class="sidebar-dir" id="ficha-tecnica">
             <div style="text-align:center; color:#ccc; margin-top:80px;">
                 <p style="font-size:30px;">📍</p>
-                <p>Selecione um residencial para ver os detalhes</p>
+                <p>Selecione um residencial para ver detalhes</p>
             </div>
         </aside>
     </div>
@@ -33,13 +35,9 @@
     <div id="modal-sobre" class="modal-overlay" onclick="fecharSobre(event)">
         <div class="modal-content">
             <span class="close-modal" onclick="document.getElementById('modal-sobre').style.display='none'">&times;</span>
-            <h2 style="color: var(--mrv-verde); margin-bottom: 15px;">Dashboard de Vendas</h2>
-            <p style="font-size: 0.9rem; color: #555; line-height: 1.5;">
-                Olá! Este dashboard foi desenvolvido para facilitar o acesso rápido aos materiais, 
-                estoques e localizações dos empreendimentos MRV na Grande São Paulo e Interior.
-            </p>
-            <p style="margin-top: 15px; font-weight: bold; color: #333;">Dúvidas ou Sugestões?</p>
-            <a href="https://wa.me/SEUNUMERO" target="_blank" class="btn-whatsapp-sobre">Falar com Carlos no WhatsApp</a>
+            <h2 style="color: var(--mrv-verde); margin-bottom: 15px;">Dashboard Carlos Custódio</h2>
+            <p style="font-size: 0.9rem; color: #555;">Consulta rápida de estoques e materiais MRV.</p>
+            <a href="https://wa.me/551192617026" target="_blank" class="btn-whatsapp-sobre">Falar no WhatsApp</a>
         </div>
     </div>
 
