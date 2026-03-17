@@ -16,7 +16,8 @@ const COL = {
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
     LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
-    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29  
+    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
+    PLANTAO_VENDAS: 30 // Coluna AE (31ª coluna, índice 30)
 };
 
 /* ==========================================================================
@@ -95,7 +96,8 @@ async function carregarPlanilha() {
                 linksVideos: colunas[COL.LINKS_VIDEOS] || "",
                 linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
                 linksImplant: colunas[COL.LINKS_IMPLANT] || "",
-                linksDiversos: colunas[COL.LINKS_DIVERSOS] || ""
+                linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
+                plantaoVendas: colunas[COL.PLANTAO_VENDAS] || ""
             };
         }).filter(i => i !== null);
 
@@ -295,7 +297,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <div class="tabela-precos-container" style="margin-top:2px; margin-bottom:8px;">
                     <div class="tabela-header" style="min-height: 28px;">
                         ${titulos.map((t, idx) => {
-                            // Aplicando fundo laranja e texto branco no cabeçalho "Menor preço" (índice 1)
                             const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
                             return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
                         }).join('')}
@@ -306,7 +307,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                             if(cols.length <= 1) return "";
                             return `<div class="tabela-row" style="min-height: 28px;">
                                 ${cols.map((v, idx) => {
-                                    // Aplicando fundo laranja e texto branco nos valores da coluna (índice 1)
                                     const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
                                     return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
                                 }).join('')}
@@ -320,12 +320,24 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
+            
+            // Lógica para o botão de maps no plantão de vendas
+            let btnMapsExtra = "";
+            if (label === '📍 Plantão de Vendas') {
+                const urlMapsPlantao = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(texto)}`;
+                btnMapsExtra = `<a href="${urlMapsPlantao}" target="_blank" class="btn-maps" style="float: right; margin-top: -15px;">MAPS</a>`;
+            }
+
             return `
             <div style="background: ${corFundo}; border-left: 6px solid ${corBorda}; padding: 6px 10px; ${temBorda ? 'border-bottom: 1px solid #ddd;' : ''}">
                 <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:1px;">${label}</label>
+                ${btnMapsExtra}
                 <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
             </div>`;
         };
+        
+        // Novos campos e plantão de vendas
+        html += criarBoxDiferencial('📍 Plantão de Vendas', selecionado.plantaoVendas, '#f0f7ff', '#1a73e8', true);
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
@@ -351,9 +363,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
              html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
         }
     } else {
+        const urlMapsComplexo = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
         html += `<div class="box-complexo-full">
-                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
+                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMapsComplexo}" target="_blank" class="btn-maps">MAPS</a></p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
                  </div>`;
         let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
