@@ -17,7 +17,7 @@ const COL = {
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
     LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
     LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
-    PLANTAO_VENDAS: 30 // Coluna AE (31ª coluna, índice 30)
+    PLANTAO_VENDAS: 30 
 };
 
 /* ==========================================================================
@@ -27,18 +27,29 @@ async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
+/**
+ * TRAVA DE SEGURANÇA: Transforma links de visualização/edição do Drive 
+ * em links de PREVIEW (sem menus laterais ou acesso a pastas).
+ */
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "") return "";
-    if (url.includes('drive.google.com')) {
-        return url.split('/view')[0].split('/edit')[0] + '/preview';
+    let link = url.trim();
+    if (link.includes('drive.google.com')) {
+        // Remove tudo após /view ou /edit e força o /preview
+        if (link.includes('/view')) link = link.split('/view')[0] + '/preview';
+        else if (link.includes('/edit')) link = link.split('/edit')[0] + '/preview';
+        else if (!link.endsWith('/preview')) {
+            // Se for um link de compartilhamento puro, tenta garantir o preview
+            link = link.replace(/\/$/, "") + '/preview';
+        }
     }
-    return url;
+    return link;
 }
 
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro copiado!");
+    alert("Link seguro copiado com trava de visualização!");
 }
 
 async function carregarPlanilha() {
@@ -151,16 +162,12 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
 function atualizarTituloSuperior(texto) {
     const titulo = document.getElementById('cidade-titulo');
-    if (texto) { 
-        titulo.innerText = `MRV EM ${texto.toUpperCase()}`; 
-    } 
+    if (texto) { titulo.innerText = `MRV EM ${texto.toUpperCase()}`; } 
     else if (pathAtivo) {
         const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
         const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
         titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
-    } else { 
-        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; 
-    }
+    } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
@@ -321,7 +328,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
             
-            // Lógica para o botão de maps no plantão de vendas
             let btnMapsExtra = "";
             if (label === '📍 Plantão de Vendas') {
                 const urlMapsPlantao = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(texto)}`;
@@ -336,7 +342,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         };
         
-        // Novos campos e plantão de vendas
         html += criarBoxDiferencial('📍 Plantão de Vendas', selecionado.plantaoVendas, '#f0f7ff', '#1a73e8', true);
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
@@ -353,6 +358,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         materiaisHtml += extrairLinks(selecionado.linksPlantas, '📐');
         materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
         materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
+        
         if (materiaisHtml !== "") {
             html += `<div style="margin-top: 10px;">
                 <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
