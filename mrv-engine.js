@@ -296,7 +296,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     <div class="tabela-header" style="min-height: 28px;">
                         ${titulos.map((t, idx) => {
                             // Aplicando fundo laranja e texto branco no cabeçalho "Menor preço" (índice 1)
-                            const estiloCabecalho = idx === 1 ? 'background-color:#f37021; color:white; font-weight:bold;' : '';
+                            const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
                             return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
                         }).join('')}
                     </div>
