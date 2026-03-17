@@ -28,19 +28,20 @@ async function iniciarApp() {
 }
 
 /**
- * TRAVA DE SEGURANÇA: Transforma links de visualização/edição do Drive 
- * em links de PREVIEW (sem menus laterais ou acesso a pastas).
+ * BLINDAGEM DE LINKS: Extrai o ID do arquivo e reconstrói a URL para o modo Preview.
+ * Isso impede que o usuário veja menus de download, impressão ou navegação de pastas.
  */
 function formatarLinkSeguro(url) {
-    if (!url || url === "---" || url === "") return "";
-    let link = url.trim();
+    if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
+    
+    const link = url.trim();
+    
+    // Se for link do Google Drive
     if (link.includes('drive.google.com')) {
-        // Remove tudo após /view ou /edit e força o /preview
-        if (link.includes('/view')) link = link.split('/view')[0] + '/preview';
-        else if (link.includes('/edit')) link = link.split('/edit')[0] + '/preview';
-        else if (!link.endsWith('/preview')) {
-            // Se for um link de compartilhamento puro, tenta garantir o preview
-            link = link.replace(/\/$/, "") + '/preview';
+        // Regex para extrair o ID do arquivo entre /d/ e o próximo /
+        const match = link.match(/\/d\/(.*?)(\/|$|\?)/);
+        if (match && match[1]) {
+            return `https://drive.google.com/file/d/${match[1]}/preview`;
         }
     }
     return link;
@@ -49,7 +50,7 @@ function formatarLinkSeguro(url) {
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro copiado com trava de visualização!");
+    alert("Link seguro (TRAVADO) copiado com sucesso!");
 }
 
 async function carregarPlanilha() {
