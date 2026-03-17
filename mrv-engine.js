@@ -28,41 +28,34 @@ async function iniciarApp() {
 }
 
 /**
- * ULTRA-TRAVA DE SEGURANÇA: 
- * 1. Identifica se é Arquivo (/d/) ou Pasta (/folders/).
- * 2. Extrai o ID único.
- * 3. Reconstrói a URL forçando o modo Preview.
- * 4. Remove qualquer parâmetro que tente abrir o menu do Drive.
+ * FUNÇÃO DE TRATAMENTO DE LINKS:
+ * Garante que o link abra em modo preview e extrai ID para a miniatura.
  */
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
-    
     let link = url.trim();
-    
     if (link.includes('drive.google.com')) {
-        // Caso 1: É um ARQUIVO (PDF, Imagem, Doc)
-        if (link.includes('/d/')) {
-            const matchFile = link.match(/\/d\/(.*?)(\/|$|\?)/);
-            if (matchFile && matchFile[1]) {
-                return `https://drive.google.com/file/d/${matchFile[1]}/preview`;
-            }
-        }
-        // Caso 2: É uma PASTA
-        if (link.includes('/folders/')) {
-            const matchFolder = link.match(/\/folders\/(.*?)(\/|$|\?)/);
-            if (matchFolder && matchFolder[1]) {
-                // Pastas não aceitam /preview da mesma forma, mas o 'rm=minimal' ajuda a esconder menus
-                return `https://drive.google.com/embeddedfolderview?id=${matchFolder[1]}#grid`;
-            }
+        const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
+        if (match && match[1]) {
+            return `https://drive.google.com/file/d/${match[1]}/preview`;
         }
     }
     return link;
 }
 
+/**
+ * EXTRAÇÃO DE ID PARA MINIATURA
+ */
+function obterIdDrive(url) {
+    if (!url || !url.includes('drive.google.com')) return null;
+    const match = url.match(/\/d\/(.*?)(\/|$|\?)/) || url.match(/id=(.*?)($|&)/);
+    return match ? match[1] : null;
+}
+
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro (MODO PROTEGIDO) copiado!");
+    alert("Link seguro (TRAVADO) copiado com sucesso!");
 }
 
 async function carregarPlanilha() {
@@ -131,7 +124,7 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   LÓGICA DO MAPA E SELEÇÃO (Inalterada)
+   LÓGICA DO MAPA E SELEÇÃO
    ========================================================================== */
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -243,14 +236,22 @@ function gerarListaLateral() {
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
     const linkSeguro = formatarLinkSeguro(url);
+    const fileId = obterIdDrive(url);
+    
+    // URL da Miniatura (Thumbnail) do Google Drive
+    const thumbUrl = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w300` : "";
+
     return `
-    <div class="card-material-item" style="padding: 4px 8px; margin-bottom: 4px; min-height: 32px;">
+    <div class="card-material-item" style="padding: 4px 8px; margin-bottom: 4px; min-height: 32px; position: relative;">
         <div class="card-material-left" style="gap: 8px;">
             <span class="card-icon" style="font-size: 0.8rem;">${icone}</span>
             <span class="card-text" style="font-size: 0.65rem;">${titulo}</span>
         </div>
         <div class="card-material-right" style="position: relative; gap: 4px;">
-            <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
+            <div class="container-btn-abrir" style="position: relative; display: inline-block;">
+                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
+                ${thumbUrl ? `<div class="hover-preview"><img src="${thumbUrl}" alt="Preview"></div>` : ''}
+            </div>
             <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
         </div>
     </div>`;
@@ -400,7 +401,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (Inalterada)
+   LÓGICA DO MODAL (BOTÃO SOBRE)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
@@ -416,13 +417,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
                             Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
                         </p>
-                        
                         <div style="background:#fff9c4; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #fbc02d; text-align:left;">
                             <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">
                                 As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais (books/vídeos), por favor, envie para mim:
                             </p>
                         </div>
-
                         <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-block; background-color:#25D366; color:white; text-decoration:none; padding:12px 30px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
                             Carlos Custódio
                         </a>
