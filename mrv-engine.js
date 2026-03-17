@@ -307,7 +307,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                             return `<div class="tabela-row" style="min-height: 28px;">
                                 ${cols.map((v, idx) => {
                                     // Aplicando fundo laranja e texto branco nos valores da coluna (índice 1)
-                                    const estiloCelula = idx === 1 ? 'background-color:#f37021; color:white; font-weight:bold;' : '';
+                                    const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
                                     return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
                                 }).join('')}
                             </div>`;
