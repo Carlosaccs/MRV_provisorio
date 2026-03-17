@@ -28,20 +28,32 @@ async function iniciarApp() {
 }
 
 /**
- * BLINDAGEM DE LINKS: Extrai o ID do arquivo e reconstrói a URL para o modo Preview.
- * Isso impede que o usuário veja menus de download, impressão ou navegação de pastas.
+ * ULTRA-TRAVA DE SEGURANÇA: 
+ * 1. Identifica se é Arquivo (/d/) ou Pasta (/folders/).
+ * 2. Extrai o ID único.
+ * 3. Reconstrói a URL forçando o modo Preview.
+ * 4. Remove qualquer parâmetro que tente abrir o menu do Drive.
  */
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
     
-    const link = url.trim();
+    let link = url.trim();
     
-    // Se for link do Google Drive
     if (link.includes('drive.google.com')) {
-        // Regex para extrair o ID do arquivo entre /d/ e o próximo /
-        const match = link.match(/\/d\/(.*?)(\/|$|\?)/);
-        if (match && match[1]) {
-            return `https://drive.google.com/file/d/${match[1]}/preview`;
+        // Caso 1: É um ARQUIVO (PDF, Imagem, Doc)
+        if (link.includes('/d/')) {
+            const matchFile = link.match(/\/d\/(.*?)(\/|$|\?)/);
+            if (matchFile && matchFile[1]) {
+                return `https://drive.google.com/file/d/${matchFile[1]}/preview`;
+            }
+        }
+        // Caso 2: É uma PASTA
+        if (link.includes('/folders/')) {
+            const matchFolder = link.match(/\/folders\/(.*?)(\/|$|\?)/);
+            if (matchFolder && matchFolder[1]) {
+                // Pastas não aceitam /preview da mesma forma, mas o 'rm=minimal' ajuda a esconder menus
+                return `https://drive.google.com/embeddedfolderview?id=${matchFolder[1]}#grid`;
+            }
         }
     }
     return link;
@@ -50,7 +62,7 @@ function formatarLinkSeguro(url) {
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro (TRAVADO) copiado com sucesso!");
+    alert("Link seguro (MODO PROTEGIDO) copiado!");
 }
 
 async function carregarPlanilha() {
@@ -119,7 +131,7 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   LÓGICA DO MAPA E SELEÇÃO
+   LÓGICA DO MAPA E SELEÇÃO (Inalterada)
    ========================================================================== */
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -388,7 +400,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (BOTÃO SOBRE)
+   LÓGICA DO MODAL (Inalterada)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
