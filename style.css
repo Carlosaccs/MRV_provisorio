@@ -250,12 +250,6 @@ path.commrv:hover, path.ativo {
     border-right: 1px solid #eee; 
 }
 
-.col-laranja { 
-    background: #fff3e0 !important; 
-    color: var(--mrv-laranja) !important; 
-    font-weight: bold; 
-}
-
 /* 8. CARDS DE MATERIAIS */
 .card-material-item { 
     display: flex; 
@@ -308,7 +302,7 @@ path.commrv:hover, path.ativo {
     border-radius: 0 0 4px 4px; 
 }
 
-/* 10. MODAL DESIGN (AJUSTADO) */
+/* 10. MODAL DESIGN */
 .modal {
     display: none; 
     position: fixed; 
@@ -346,25 +340,36 @@ path.commrv:hover, path.ativo {
 
 .modal-close:hover { color: var(--vermelho-mrv); }
 
-#btn-whatsapp-feedback {
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    background-color: #25d366; 
-    color: white;
-    text-decoration: none; 
-    padding: 16px; 
-    border-radius: 10px;
-    font-weight: bold; 
-    font-size: 1.1rem; 
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-    margin-top: 10px;
+/* 11. MINIATURA NO HOVER (FIX DO BOTÃO ABRIR) */
+.container-btn-abrir {
+    position: relative;
+    display: inline-block;
 }
 
-#btn-whatsapp-feedback:hover { 
-    background-color: #128c7e; 
-    transform: scale(1.02); 
+.hover-preview {
+    display: none; /* Esconde por padrão */
+    position: absolute;
+    bottom: 125%; /* Aparece acima do botão */
+    right: 0;
+    z-index: 1000;
+    background: white;
+    padding: 4px;
+    border: 1px solid #ddd;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    border-radius: 6px;
+    width: 280px; /* Largura da miniatura */
+    pointer-events: none; /* Ignora o mouse para não atrapalhar */
+}
+
+.container-btn-abrir:hover .hover-preview {
+    display: block; /* Mostra apenas quando o mouse está sobre o container */
+}
+
+.hover-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
 }
 
 /* Scrollbar Personalizada */
