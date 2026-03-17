@@ -10,161 +10,190 @@
 
 /* 1. RESET E LAYOUT BASE */
 * { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
+    margin: 0; padding: 0; box-sizing: border-box; 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    -webkit-tap-highlight-color: transparent;
 }
 
 body { 
-    display: flex; 
-    flex-direction: column; 
-    height: 100vh; 
-    overflow: hidden; 
-    background: white; 
+    display: flex; flex-direction: row; 
+    height: 100vh; width: 100vw;
+    overflow: hidden; background: white; 
 }
 
-/* 2. HEADER - Reduzido levemente para mobile */
-.header { 
-    background-color: var(--mrv-verde) !important; 
-    color: white !important; 
-    height: 50px !important; 
-    line-height: 50px !important; 
-    font-size: 1.2rem !important; 
-    font-weight: bold !important; 
-    text-align: center; 
-    flex-shrink: 0; 
-    position: relative; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-    z-index: 10;
+/* 2. BARRA VERTICAL ESQUERDA (DESIGN MODERNO) */
+.barra-vertical { 
+    width: 45px; height: 100vh;
+    background-color: var(--mrv-verde); color: white; 
+    display: flex; flex-direction: column; 
+    align-items: center; justify-content: space-between; 
+    padding: 20px 0; flex-shrink: 0; z-index: 1000;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+}
+
+.logo-texto { 
+    font-size: 1.2rem; font-weight: 900; text-transform: uppercase; 
+    letter-spacing: 2px; writing-mode: vertical-rl; 
+    transform: rotate(180deg); white-space: nowrap;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 #btn-sobre {
-    position: absolute; 
-    right: 15px; 
-    top: 50%; 
-    transform: translateY(-50%); 
-    background: rgba(255,255,255,0.2);
-    border: 1px solid white; 
-    color: white; 
-    padding: 4px 12px; 
-    border-radius: 20px; 
-    cursor: pointer;
-    font-size: 0.75rem; 
-    font-weight: bold;
+    background: rgba(255,255,255,0.15); border: 1px solid white; 
+    color: white; padding: 8px 5px; border-radius: 5px; 
+    cursor: pointer; font-size: 0.65rem; font-weight: bold;
+    text-transform: uppercase; writing-mode: vertical-rl;
+    transform: rotate(180deg); transition: all 0.3s;
 }
+#btn-sobre:hover { background: white; color: var(--mrv-verde); }
 
-/* 3. ESTRUTURA DINÂMICA */
-.wrapper { 
-    display: flex; 
-    flex: 1; 
-    height: calc(100vh - 50px); 
-    overflow: hidden; 
-}
+/* 3. WRAPPER PRINCIPAL */
+.wrapper { display: flex; flex: 1; height: 100vh; overflow: hidden; min-width: 0; }
 
-/* 4. SIDEBAR ESQUERDA - Ajustada para % */
+/* 4. SIDEBAR ESQUERDA (LISTA DE IMÓVEIS) */
 .sidebar-esq { 
-    width: 22%; 
-    min-width: 170px; 
-    border-right: 1px solid #ddd; 
-    overflow-y: auto; 
-    padding: 10px 0; 
-    background: #f8f9fa; 
-    flex-shrink: 0; 
+    width: 22%; min-width: 180px; 
+    border-right: 1px solid #ddd; overflow-y: auto; 
+    padding: 10px 0; background: #fdfdfd; flex-shrink: 0; 
 }
 
 .btRes, .separador-complexo-btn {
-    width: 92% !important; 
-    margin: 4px auto !important; 
-    min-height: 28px; 
-    display: flex !important; 
-    align-items: center !important; 
-    padding: 6px 10px !important; 
-    border-radius: 4px; 
-    font-size: 0.7rem; 
-    cursor: pointer; 
-    border: 1px solid #ddd; 
-    text-decoration: none;
+    width: 94% !important; margin: 5px auto !important; 
+    min-height: 32px; display: flex !important; 
+    align-items: center !important; padding: 8px 12px !important; 
+    border-radius: 6px; font-size: 0.72rem; cursor: pointer; 
+    border: 1px solid #eee; text-decoration: none; 
+    transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
-.btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: #333; }
-.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border: 1px solid var(--mrv-laranja) !important; }
-
-/* 5. CENTRO - Onde o mapa mora */
-.conteudo-centro { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    background: #fff; 
-    overflow: hidden; 
-    min-width: 0;
+.separador-complexo-btn { 
+    background: var(--mrv-preto) !important; color: white !important; 
+    justify-content: center !important; font-weight: bold; 
+    text-transform: uppercase; border: none !important; 
 }
+
+.btRes { 
+    background: #fff; border-left: 4px solid var(--mrv-verde) !important; 
+    justify-content: space-between; color: #444; 
+}
+.btRes:hover { background-color: #f9f9f9 !important; transform: translateX(2px); border-color: var(--mrv-verde) !important; }
+.btRes.ativo { 
+    background-color: var(--mrv-laranja) !important; color: white !important; 
+    border: 1px solid var(--mrv-laranja) !important; transform: scale(1.02);
+}
+
+/* 5. ÁREA DO MAPA (CENTRO) */
+.conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; min-width: 0; }
 
 #cidade-titulo { 
-    background: #eee; 
-    padding: 4px; 
-    text-align: center; 
-    font-weight: bold; 
-    font-size: 0.75rem; 
-    color: #555; 
-    height: 28px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    text-transform: uppercase; 
+    background: #f4f4f4; padding: 6px; text-align: center; 
+    font-weight: 800; font-size: 0.75rem; color: #555; 
+    height: 30px; display: flex; align-items: center; 
+    justify-content: center; text-transform: uppercase;
+    border-bottom: 1px solid #e0e0e0;
 }
 
-#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
-#caixa-b { flex: 0.7; display: flex; align-items: center; justify-content: center; padding: 5px; border-top: 1px solid #eee; cursor: pointer; background: #fff; }
+#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 15px; overflow: hidden; }
+#caixa-b { 
+    flex: 0.7; display: flex; align-items: center; justify-content: center; 
+    padding: 8px; border-top: 2px solid #eee; cursor: pointer; 
+    background: #fafafa; transition: background 0.3s;
+}
+#caixa-b:hover { background: #f0f0f0; }
 
-svg { width: 100%; height: 100%; }
-path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; }
+svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; transition: all 0.3s; }
 path.commrv { fill: var(--mrv-verde) !important; }
-path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.2px !important; }
-
-/* 6. SIDEBAR DIREITA - Ajustada para % */
-.sidebar-dir { 
-    width: 35%; 
-    min-width: 280px; 
-    border-left: 1px solid #ddd; 
-    overflow-y: auto; 
-    padding: 10px; 
-    flex-shrink: 0; 
+path.commrv:hover, path.ativo { 
+    fill: var(--mrv-laranja) !important; stroke: #000 !important; 
+    stroke-width: 1.5px !important; cursor: pointer;
 }
 
-.vitrine-topo { background: var(--mrv-verde); color: white; padding: 6px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 6px; font-size: 0.75rem; text-transform: uppercase; }
-.titulo-vitrine-faixa { display: flex !important; align-items: center !important; justify-content: center !important; height: 30px !important; font-weight: bold !important; font-size: 0.75rem !important; border-radius: 4px; color: #fff; margin-bottom: 6px; }
+/* 6. SIDEBAR DIREITA (FICHA TÉCNICA) */
+.sidebar-dir { 
+    width: 38%; min-width: 320px; 
+    border-left: 1px solid #ddd; overflow-y: auto; 
+    padding: 15px; flex-shrink: 0; background: #fff;
+}
+
+.vitrine-topo { 
+    background: var(--mrv-verde); color: white; padding: 8px; 
+    text-align: center; font-weight: bold; border-radius: 4px; 
+    margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.titulo-vitrine-faixa { 
+    display: flex !important; align-items: center !important; 
+    justify-content: center !important; height: 36px !important; 
+    font-weight: bold !important; font-size: 0.8rem !important; 
+    border-radius: 4px; color: #fff; margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* 7. TABELAS COMPACTAS */
-.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 4px; margin: 8px 0; border: 1px solid #ddd; overflow: hidden; }
-.tabela-header { background: #eee; font-weight: bold; font-size: 0.6rem; min-height: 25px; display: flex; align-items: center; }
-.tabela-row { display: flex; background: #fff; font-size: 0.65rem; border-bottom: 1px solid #eee; min-height: 25px; align-items: center; }
-.col-tabela { flex: 1; padding: 4px; text-align: center; border-right: 1px solid #eee; }
+/* 7. TABELAS DE PREÇOS */
+.tabela-precos-container { 
+    width: 100%; background: var(--cinza-claro); 
+    border-radius: 6px; margin: 12px 0; border: 1px solid #ddd; 
+    overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.tabela-header { background: #eee; font-weight: bold; font-size: 0.65rem; min-height: 30px; display: flex; align-items: center; border-bottom: 1px solid #ddd; }
+.tabela-row { display: flex; background: #fff; font-size: 0.7rem; border-bottom: 1px solid #eee; min-height: 30px; align-items: center; }
+.col-tabela { flex: 1; padding: 6px; text-align: center; border-right: 1px solid #eee; }
 
-/* 8. CARDS DE MATERIAIS */
+/* 8. CARDS DE MATERIAIS COM HOVER PREVIEW */
 .card-material-item { 
-    display: flex; justify-content: space-between; align-items: center; background: #fff; 
-    border: 1px solid #e0e0e0; border-radius: 6px; padding: 6px 10px; margin-bottom: 5px; 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; 
+    padding: 8px 12px; margin-bottom: 8px; transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.card-text { font-size: 0.65rem; font-weight: 600; color: #333; }
+.card-material-item:hover { border-color: var(--mrv-laranja); transform: translateY(-1px); }
+
+.card-text { font-size: 0.7rem; font-weight: 700; color: #333; }
+
 .card-btn-abrir, .card-btn-copiar { 
-    width: 60px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0.6rem; font-weight: bold; border-radius: 4px; text-decoration: none; color: #fff; border: none;
+    width: 65px; height: 30px; display: inline-flex; 
+    align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: bold; border-radius: 5px; 
+    text-decoration: none; color: #fff; border: none; cursor: pointer;
 }
-.card-btn-abrir { background: var(--mrv-verde); }
+.card-btn-abrir { background: var(--mrv-verde); margin-right: 5px; }
 .card-btn-copiar { background: var(--mrv-laranja); }
 
+.container-btn-abrir { position: relative; display: inline-block; }
+.hover-preview { 
+    display: none; position: absolute; bottom: 125%; right: 0; 
+    z-index: 2000; background: white; padding: 5px; 
+    border: 1px solid #ddd; box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+    border-radius: 8px; width: 250px; pointer-events: none; 
+}
+.container-btn-abrir:hover .hover-preview { display: block; }
+.hover-preview img { width: 100%; height: auto; border-radius: 4px; }
+
 /* 9. BOTÕES MAPS */
-.btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
+.btn-maps { 
+    background: #4285F4; color: white !important; 
+    text-decoration: none; padding: 4px 10px; border-radius: 5px; 
+    font-size: 0.65rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
 /* 10. MODAL */
-.modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-.modal-content { background: white; margin: 5% auto; padding: 20px; border-radius: 12px; width: 85%; max-width: 450px; position: relative; }
-.modal-close { position: absolute; right: 15px; top: 10px; cursor: pointer; font-size: 24px; color: #999; }
+.modal { 
+    display: none; position: fixed; z-index: 10002; 
+    left: 0; top: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); 
+}
+.modal-content { 
+    background: white; margin: 5% auto; padding: 25px; 
+    border-radius: 15px; width: 80%; max-width: 450px; position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
 
-/* Scrollbar fina */
-::-webkit-scrollbar { width: 4px; }
+/* Scrollbar Personalizada */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--mrv-verde); }
