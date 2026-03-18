@@ -39,6 +39,12 @@ function formatarLinkSeguro(url) {
     return link;
 }
 
+function obterIdDrive(url) {
+    if (!url || !url.includes('drive.google.com')) return null;
+    const match = url.match(/\/d\/(.*?)(\/|$|\?)/) || url.match(/id=(.*?)($|&)/);
+    return match ? match[1] : null;
+}
+
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
@@ -158,7 +164,7 @@ function trocarMapas(completo) {
     desenharMapas(); gerarListaLateral(); 
 }
 
-/* FUNÇÃO ATUALIZADA: REMOVIDO O TEXTO DO ESTOQUE */
+/* LISTA LATERAL SEM ESTOQUE */
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
@@ -170,22 +176,105 @@ function gerarListaLateral() {
 }
 
 /* ==========================================================================
-   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) - MANTIDA ORIGINAL
+   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) - COMPLETA
    ========================================================================== */
+const criarCardMaterial = (titulo, url, icone) => {
+    if (!url || url === "" || url === "---") return "";
+    const linkSeguro = formatarLinkSeguro(url);
+    const fileId = obterIdDrive(url);
+    const thumbUrl = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w300` : "";
+
+    return `
+    <div class="card-material-item">
+        <div class="card-material-left">
+            <span class="card-icon">${icone}</span>
+            <span class="card-text">${titulo}</span>
+        </div>
+        <div class="card-material-right">
+            <div class="container-btn-abrir">
+                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
+                ${thumbUrl ? `<div class="hover-preview"><img src="${thumbUrl}" alt="Preview"></div>` : ''}
+            </div>
+            <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
+        </div>
+    </div>`;
+};
+
+const extrairLinks = (campo, icone) => {
+    if(!campo || campo === "---") return "";
+    let htmlTemp = "";
+    const grupos = campo.split(';').map(g => g.trim()).filter(g => g !== "");
+    grupos.forEach(g => {
+        const partes = g.split(',').map(p => p.trim());
+        if(partes.length >= 2) htmlTemp += criarCardMaterial(partes[0], partes[1], icone);
+    });
+    return htmlTemp;
+};
+
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
+    const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
+    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
+    
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
+    if(outros.length > 0) {
+        html += `<div style="margin-bottom:6px;">${outros.map(i => `
+            <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%; height:40px; margin-bottom:4px;" onclick="navegarVitrine('${i.nome}')">
+                <strong>${i.nome}</strong>
+            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
+    }
+
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()}</div>`;
-        html += `<div style="padding: 10px; background:#f9f9f9; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;">
-                    <p style="font-size:0.8rem;">📍 <strong>Endereço:</strong> ${selecionado.endereco}</p>
-                    <p style="font-size:0.8rem; color:var(--mrv-verde); margin-top:5px;">🏗️ <strong>Obra:</strong> ${selecionado.obra}% | 🗓️ <strong>Entrega:</strong> ${selecionado.entrega}</p>
-                    <p style="font-size:0.9rem; color:var(--mrv-laranja); font-weight:bold; margin-top:5px;">📊 Estoque: ${selecionado.estoque || "---"} UN.</p>
-                 </div>`;
-        // Restante da ficha técnica...
+        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
+        html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
+        
+        const linhaInfo = (l1, v1, l2, v2, borda) => `
+            <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
+                <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l1}</label>
+                    <strong style="font-size: 0.65rem; color: #333;">${v1}</strong>
+                </div>
+                <div style="flex: 1; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l2}</label>
+                    <strong style="font-size: 0.65rem; color: #333;">${v2}</strong>
+                </div>
+            </div>`;
+        html += linhaInfo('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%', true);
+        html += linhaInfo('Estoque', (selecionado.estoque || "---") + ' UN.', 'C. Paulista', selecionado.casa_paulista, false);
+        html += `</div>`;
+
+        if(selecionado.tipologiasH) {
+            const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
+            if(linhas.length > 0) {
+                const titulos = linhas[0].split(',').map(t => t.trim());
+                html += `<div class="tabela-precos-container"><div class="tabela-header">${titulos.map((t, idx) => `<div class="col-tabela" style="${idx === 1 ? 'background:#ff8c00;color:white;' : ''}">${t}</div>`).join('')}</div>
+                <div class="tabela-corpo">${linhas.slice(1).map(lStr => {
+                    const cs = lStr.split(',').map(c => c.trim()); if(cs.length <= 1) return "";
+                    return `<div class="tabela-row">${cs.map((v, i) => `<div class="col-tabela" style="${i === 1 ? 'background:#ff8c00;color:white;' : ''}">${i === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}</div>`;
+                }).join('')}</div></div>`;
+            }
+        }
+
+        const boxDif = (lb, tx, cf, cb, bd) => {
+            if(!tx || tx === "---") return "";
+            return `<div style="background:${cf}; border-left:6px solid ${cb}; padding:6px 10px; ${bd ? 'border-bottom:1px solid #ddd;' : ''}"><label style="display:block; font-size:0.55rem; font-weight:bold; color:${cb}; text-transform:uppercase;">${lb}</label><p style="margin:0; font-size:0.68rem; color:#444;">${tx}</p></div>`;
+        };
+        html += `<div style="border:1px solid #ddd; border-radius:4px; overflow:hidden;">${boxDif('💡 Observação', selecionado.observacoes, '#fff9c4', '#fbc02d', true)}${boxDif('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true)}</div>`;
+
+        let mat = criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄') + criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼') + extrairLinks(selecionado.linksVideos, '🎬');
+        if(mat) html += `<div style="margin-top:10px;"><label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; border-bottom:1px solid #eee; margin-bottom:4px;">MATERIAIS</label>${mat}</div>`;
     }
     painel.innerHTML = html;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById("modal-sobre");
+    const btn = document.getElementById("btn-sobre");
+    const span = document.querySelector(".modal-close");
+    if(btn) btn.onclick = () => { if(modal) modal.style.display = "block"; };
+    if(span) span.onclick = () => { if(modal) modal.style.display = "none"; };
+});
 
 window.onload = iniciarApp;
