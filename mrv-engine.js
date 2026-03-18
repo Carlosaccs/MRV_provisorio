@@ -21,33 +21,40 @@ const COL = {
 };
 
 /* ==========================================================================
-   TRATAMENTO DE LINKS E UTILITÁRIOS
+   INICIALIZAÇÃO E CARREGAMENTO
    ========================================================================== */
+async function iniciarApp() {
+    try { await carregarPlanilha(); } catch (err) { console.error(err); }
+}
+
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
     let link = url.trim();
 
     if (link.includes('drive.google.com')) {
+        // Extrai o ID do arquivo e força o preview minimalista (limpa a interface)
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
         if (match && match[1]) {
-            // ?rm=minimal limpa a interface do Drive nas miniaturas
             return `https://drive.google.com/file/d/${match[1]}/preview?rm=minimal`;
         }
     }
     return link;
 }
 
-function copiarTexto(texto, mensagem = "Link copiado!") {
+function copiarTexto(texto, msg = "Link copiado!") {
+    if (!texto || texto === "") return;
     navigator.clipboard.writeText(texto).then(() => {
-        alert(mensagem);
+        alert(msg);
+    }).catch(err => {
+        console.error('Erro ao copiar: ', err);
     });
 }
 
-/* ==========================================================================
-   CARREGAMENTO E LÓGICA DE DADOS
-   ========================================================================== */
-async function iniciarApp() {
-    try { await carregarPlanilha(); } catch (err) { console.error(err); }
+// Mantendo sua função original de copiar link dos materiais
+function copiarLink(url) {
+    const linkSeguro = formatarLinkSeguro(url);
+    navigator.clipboard.writeText(linkSeguro);
+    alert("Link seguro copiado!");
 }
 
 async function carregarPlanilha() {
@@ -73,24 +80,40 @@ async function carregarPlanilha() {
             const ordem = parseInt(colunas[COL.ORDEM]);
 
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
+
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
             
             return {
-                id_path: idPath, tipo: cat.includes('COMPLEXO') ? 'N' : 'R', ordem: ordem,
-                nome: nomeImovel, nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
-                estoque: colunas[COL.ESTOQUE], endereco: colunas[COL.END] || "",
-                entrega: colunas[COL.ENTREGA] || "---", obra: colunas[COL.OBRA] || "0",
-                tipologiasH: colunas[COL.TIPOLOGIAS] || "", regiao: colunas[COL.REGIAO] || "---",
-                p_de: colunas[COL.P_DE] || "---", p_ate: colunas[COL.P_ATE] || "---",
-                limitador: colunas[COL.LIMITADOR] || "---", casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
-                campanha: colunas[COL.CAMPANHA] || "", observacoes: colunas[COL.OBSERVACOES] || "", 
-                descLonga: colunas[COL.DESC_LONGA] || "", localizacao: colunas[COL.LOCALIZACAO] || "",
-                mobilidade: colunas[COL.MOBILIDADE] || "", lazer: colunas[COL.CULTURA_LAZER] || "",
-                comercio: colunas[COL.COMERCIO] || "", saude: colunas[COL.SAUDE_EDUCACAO] || "",
-                linkCliente: colunas[COL.BOOK_CLIENTE] || "", linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
-                linksVideos: colunas[COL.LINKS_VIDEOS] || "", linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
-                linksImplant: colunas[COL.LINKS_IMPLANT] || "", linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
-                estande: colunas[COL.ESTANDE] || ""
+                id_path: idPath,
+                tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
+                ordem: ordem,
+                nome: nomeImovel,
+                nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
+                estoque: colunas[COL.ESTOQUE],
+                endereco: colunas[COL.END] || "",
+                entrega: colunas[COL.ENTREGA] || "---",
+                obra: colunas[COL.OBRA] || "0",
+                tipologiasH: colunas[COL.TIPOLOGIAS] || "", 
+                regiao: colunas[COL.REGIAO] || "---",
+                p_de: colunas[COL.P_DE] || "---",
+                p_ate: colunas[COL.P_ATE] || "---",
+                limitador: colunas[COL.LIMITADOR] || "---",
+                casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
+                campanha: colunas[COL.CAMPANHA] || "",
+                observacoes: colunas[COL.OBSERVACOES] || "", 
+                descLonga: colunas[COL.DESC_LONGA] || "",
+                localizacao: colunas[COL.LOCALIZACAO] || "",
+                mobilidade: colunas[COL.MOBILIDADE] || "",
+                lazer: colunas[COL.CULTURA_LAZER] || "",
+                comercio: colunas[COL.COMERCIO] || "",
+                saude: colunas[COL.SAUDE_EDUCACAO] || "",
+                linkCliente: colunas[COL.BOOK_CLIENTE] || "",
+                linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
+                linksVideos: colunas[COL.LINKS_VIDEOS] || "",
+                linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
+                linksImplant: colunas[COL.LINKS_IMPLANT] || "",
+                linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
+                estande: colunas[COL.ESTANDE] || "" // Novo campo
             };
         }).filter(i => i !== null);
 
@@ -100,7 +123,7 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   FUNÇÕES DE MAPA E INTERFACE (Mantendo sua lógica de 215 linhas)
+   LÓGICA DO MAPA E SELEÇÃO
    ========================================================================== */
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -119,9 +142,16 @@ function navegarVitrine(nome) {
 
 function comandoSelecao(idPath, nomePath, fonte) {
     const idNorm = idPath.toLowerCase().replace(/\s/g, '');
-    const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === idNorm);
+    const noGSP = MAPA_GSP.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
+    const noInterior = MAPA_INTERIOR.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
+    
+    if (noGSP && mapaAtivo !== 'GSP') trocarMapas(false);
+    if (noInterior && mapaAtivo !== 'INTERIOR') trocarMapas(false);
+    
+    pathAtivo = idNorm;
+    const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === pathAtivo);
     const selecionado = fonte || imoveisDaCidade[0];
-    pathAtivo = idNorm; imovelAtivo = selecionado.nome;
+    imovelAtivo = selecionado.nome;
 
     document.querySelectorAll('path').forEach(el => el.classList.remove('ativo'));
     const elMapa = document.getElementById(`caixa-a-${pathAtivo}`);
@@ -137,21 +167,44 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
 function atualizarTituloSuperior(texto) {
     const titulo = document.getElementById('cidade-titulo');
-    if (texto) titulo.innerText = `MRV EM ${texto.toUpperCase()}`;
+    if (texto) { 
+        titulo.innerText = `MRV EM ${texto.toUpperCase()}`; 
+    } 
+    else if (pathAtivo) {
+        const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
+        const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
+        titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
+    } else { 
+        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; 
+    }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
+    container.style.display = "flex"; container.style.alignItems = "center";
+    container.style.justifyContent = "center"; container.style.overflow = "hidden";
+
     const pathsHtml = dados.paths.map(p => {
         const idNorm = p.id.toLowerCase().replace(/\s/g, '');
         const temMRV = DADOS_PLANILHA.some(d => d.id_path === idNorm);
         const ativo = (pathAtivo === idNorm && interativo) ? 'ativo' : '';
         const isGSP = idNorm === "grandesaopaulo";
-        let eventos = interativo ? `onclick="${isGSP ? 'trocarMapas(true)' : `comandoSelecao('${p.id}')`}" onmouseover="atualizarTituloSuperior('${p.name}')" onmouseout="atualizarTituloSuperior()"` : "";
+        let eventos = "";
+        if (interativo) {
+            if (isGSP) { eventos = `onclick="trocarMapas(true)" onmouseover="atualizarTituloSuperior('GRANDE SÃO PAULO')" onmouseout="atualizarTituloSuperior()"`; } 
+            else { eventos = `onclick="comandoSelecao('${p.id}')" onmouseover="atualizarTituloSuperior('${p.name}')" onmouseout="atualizarTituloSuperior()"`; }
+        }
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
 
-    container.innerHTML = `<svg viewBox="${dados.viewBox}" style="width:100%; height:100%;"><g transform="${dados.transform || ''}">${pathsHtml}</g></svg>`;
+    const escala = (mapaAtivo === 'GSP' && interativo) ? 'transform: scale(1.25); transform-origin: center;' : '';
+
+    container.innerHTML = `
+        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%; ${escala}">
+            <g transform="${dados.transform || ''}">
+                ${pathsHtml}
+            </g>
+        </svg>`;
 }
 
 function desenharMapas() {
@@ -162,7 +215,11 @@ function desenharMapas() {
 
 function trocarMapas(completo) { 
     mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP'; 
-    if (completo) { pathAtivo = null; imovelAtivo = null; }
+    if (completo) { 
+        pathAtivo = null; imovelAtivo = null; 
+        document.getElementById('ficha-tecnica').innerHTML = `<div style="text-align:center; color:#ccc; margin-top:80px;"><p style="font-size:30px;">📍</p><p>Clique no mapa ou na lista</p></div>`;
+        document.getElementById('cidade-titulo').innerText = "SELECIONE UMA REGIÃO NO MAPA";
+    }
     desenharMapas(); gerarListaLateral(); 
 }
 
@@ -183,43 +240,115 @@ const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
     const linkSeguro = formatarLinkSeguro(url);
     return `
-    <div class="card-material-item">
-        <div class="card-material-left"><span class="card-icon">${icone}</span><span class="card-text">${titulo}</span></div>
-        <div class="card-material-right">
-            <div class="btn-com-preview">
-                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
-                <div class="preview-container"><iframe src="${linkSeguro}"></iframe></div>
-            </div>
-            <button onclick="copiarTexto('${linkSeguro}')" class="card-btn-copiar">Copiar</button>
+    <div class="card-material-item" style="padding: 4px 8px; margin-bottom: 4px; min-height: 32px;">
+        <div class="card-material-left" style="gap: 8px;">
+            <span class="card-icon" style="font-size: 0.8rem;">${icone}</span>
+            <span class="card-text" style="font-size: 0.65rem;">${titulo}</span>
+        </div>
+        <div class="card-material-right" style="position: relative; gap: 4px; display: flex;">
+            <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
+            <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
         </div>
     </div>`;
 };
 
+const extrairLinks = (campo, icone) => {
+    if(!campo || campo === "---") return "";
+    let htmlTemp = "";
+    const grupos = campo.split(';').map(g => g.trim()).filter(g => g !== "");
+    grupos.forEach(g => {
+        const partes = g.split(',').map(p => p.trim());
+        if(partes.length >= 2) htmlTemp += criarCardMaterial(partes[0], partes[1], icone);
+    });
+    return htmlTemp;
+};
+
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
+    const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
     const urlMapsResidencial = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
+    
+    if(outros.length > 0) {
+        html += `<div style="margin-bottom:6px;">${outros.map(i => `
+            <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
+                <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
+            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
+    }
+
+    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
 
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
-        
-        // Endereço Residencial com os dois botões
-        html += `<div style="padding: 2px 0 8px 0;">
-            <p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;">
-                <span style="flex:1;">📍 ${selecionado.endereco}</span>
-                <span style="display:flex; gap:4px;">
-                    <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
-                    <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none; cursor:pointer;">LINK</button>
-                </span>
-            </p>
+        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
+            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
 
-        // ... [Bloco de tabelas de preço e informações técnicas permanecem iguais] ...
+        // Endereço Residencial com os dois botões (MAPS e LINK)
+        html += `
+        <div style="padding: 2px 0 5px 0;">
+            <div style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;">
+                <span style="flex:1;">📍 ${selecionado.endereco}</span>
+                <div style="display:flex; gap:3px; margin-left:5px;">
+                    <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
+                    <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none; cursor:pointer;">LINK</button>
+                </div>
+            </div>
+        </div>`;
 
-        // SEÇÃO DE DIFERENCIAIS COM ESTANDE NO TOPO
+        html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
+        if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
+            html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
+        }
+        const linhaInfo = (l1, v1, l2, v2, borda) => `
+            <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
+                <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l1}</label>
+                    <strong style="font-size: 0.65rem; color: #333;">${v1}</strong>
+                </div>
+                <div style="flex: 1; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l2}</label>
+                    <strong style="font-size: 0.65rem; color: #333;">${v2}</strong>
+                </div>
+            </div>`;
+        html += linhaInfo('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%', true);
+        html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', (selecionado.estoque || "---") + ' UN.', true);
+        html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
+        html += `</div>`;
+
+        if(selecionado.tipologiasH) {
+            const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
+            if(linhas.length > 0) {
+                const titulos = linhas[0].split(',').map(t => t.trim());
+                const dados = linhas.slice(1);
+                html += `
+                <div class="tabela-precos-container" style="margin-top:2px; margin-bottom:8px;">
+                    <div class="tabela-header" style="min-height: 28px;">
+                        ${titulos.map((t, idx) => {
+                            const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
+                            return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
+                        }).join('')}
+                    </div>
+                    <div class="tabela-corpo">
+                        ${dados.map(linhaStr => {
+                            const cols = linhaStr.split(',').map(c => c.trim());
+                            if(cols.length <= 1) return "";
+                            return `<div class="tabela-row" style="min-height: 28px;">
+                                ${cols.map((v, idx) => {
+                                    const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
+                                    return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
+                                }).join('')}
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }
+        }
+
+        // --- SEÇÃO DE DIFERENCIAIS COM ESTANDE NO TOPO ---
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         
+        // NOVO: Bloco do Estande de Vendas (Coluna AE)
         if(selecionado.estande && selecionado.estande !== "---" && selecionado.estande !== "") {
             const urlMapsEstande = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.estande)}`;
             html += `
@@ -227,7 +356,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <label style="display:block; font-size:0.55rem; font-weight:bold; color:#2e7d32; text-transform:uppercase; margin-bottom:1px;">📍 Estande de Vendas</label>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3; flex:1;">${selecionado.estande}</p>
-                    <div style="display:flex; gap:4px; margin-left:8px;">
+                    <div style="display:flex; gap:3px; margin-left:5px;">
                         <a href="${urlMapsEstande}" target="_blank" class="btn-maps">MAPS</a>
                         <button onclick="copiarTexto('${urlMapsEstande}')" class="btn-maps" style="background:#444; border:none; cursor:pointer;">LINK</button>
                     </div>
@@ -235,23 +364,99 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         }
 
-        // Outros diferenciais (Observação, Localização, etc.)
-        const criarBox = (label, texto, corF, corB, borda) => {
-            if(!texto || texto === "---") return "";
-            return `<div style="background:${corF}; border-left:6px solid ${corB}; padding:6px 10px; ${borda ? 'border-bottom:1px solid #ddd;' : ''}">
-                <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corB}; text-transform:uppercase;">${label}</label>
-                <p style="margin:0; font-size:0.68rem; color:#444;">${texto}</p>
+        const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
+            if(!texto || texto === "---" || texto === "") return "";
+            return `
+            <div style="background: ${corFundo}; border-left: 6px solid ${corBorda}; padding: 6px 10px; ${temBorda ? 'border-bottom: 1px solid #ddd;' : ''}">
+                <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:1px;">${label}</label>
+                <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
             </div>`;
         };
-        html += criarBox('💡 Observação', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
-        html += criarBox('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
-        html += criarBox('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', false);
+        html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
+        html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
+        html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
+        html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
+        html += criarBoxDiferencial('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828', true);
+        html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
         html += `</div>`;
 
-        // Materiais de Apoio
-        html += `<div style="margin-top:10px;">${criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄')}${criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼')}</div>`;
+        let materiaisHtml = "";
+        materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
+        materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
+        materiaisHtml += extrairLinks(selecionado.linksVideos, '🎬');
+        materiaisHtml += extrairLinks(selecionado.linksPlantas, '📐');
+        materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
+        materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
+        
+        if (materiaisHtml !== "") {
+            html += `<div style="margin-top: 10px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
+                ${materiaisHtml}
+            </div>`;
+        }
+        if(selecionado.descLonga) {
+             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
+        }
+    } else {
+        // Complexos permanecem iguais
+        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
+        html += `<div class="box-complexo-full">
+                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>📍 ${selecionado.endereco}</span> 
+                        <span style="display:flex; gap:3px;">
+                            <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
+                            <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none;">LINK</button>
+                        </span>
+                    </p>
+                    <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
+                 </div>`;
+        let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
+        if (materiaisComplexo !== "") {
+            html += `<div style="margin-top: 10px; padding: 0 5px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
+                ${materiaisComplexo}
+            </div>`;
+        }
     }
     painel.innerHTML = html;
 }
+
+/* ==========================================================================
+   LÓGICA DO MODAL (BOTÃO SOBRE)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById("modal-sobre");
+    const btn = document.getElementById("btn-sobre");
+    const span = document.querySelector(".modal-close");
+
+    if(btn) {
+        btn.onclick = () => { 
+            if(modal) {
+                const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:10px;">
+                        <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
+                            Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
+                        </p>
+                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #fbc02d; text-align:left;">
+                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">
+                                As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais (books/vídeos), por favor, envie para mim:
+                            </p>
+                        </div>
+                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-block; background-color:#25D366; color:white; text-decoration:none; padding:12px 30px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                            Carlos Custódio
+                        </a>
+                    </div>`;
+                modal.style.display = "block"; 
+            }
+        };
+    }
+    if(span) {
+        span.onclick = () => { if(modal) modal.style.display = "none"; };
+    }
+    window.onclick = (event) => {
+        if (event.target == modal) { modal.style.display = "none"; }
+    };
+});
 
 window.onload = iniciarApp;
