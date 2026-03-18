@@ -17,24 +17,26 @@ const COL = {
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
     LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
     LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
-    ESTANDE: 30 // Coluna AE - Endereço do Plantão
+    ESTANDE: 30 // Coluna AE - Endereço do Plantão de Vendas
 };
 
 /* ==========================================================================
-   INICIALIZAÇÃO E CARREGAMENTO
+   INICIALIZAÇÃO E UTILITÁRIOS
    ========================================================================== */
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
+// Formata links do Drive para Preview Limpo (essencial para as miniaturas)
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
     let link = url.trim();
 
     if (link.includes('drive.google.com')) {
-        // Extrai o ID do arquivo e força o preview minimalista (limpa a interface)
+        // Extrai o ID do arquivo (funciona com link de compartilhamento ou visualização)
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
         if (match && match[1]) {
+            // rm=minimal remove as bordas e menus do Google Drive no iframe
             return `https://drive.google.com/file/d/${match[1]}/preview?rm=minimal`;
         }
     }
@@ -50,13 +52,15 @@ function copiarTexto(texto, msg = "Link copiado!") {
     });
 }
 
-// Mantendo sua função original de copiar link dos materiais
+// Atalho para copiar o link seguro gerado
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
-    navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro copiado!");
+    copiarTexto(linkSeguro, "Link seguro copiado!");
 }
 
+/* ==========================================================================
+   CARREGAMENTO DE DADOS (GOOGLE SHEETS)
+   ========================================================================== */
 async function carregarPlanilha() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&v=${new Date().getTime()}`;
@@ -113,7 +117,7 @@ async function carregarPlanilha() {
                 linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
                 linksImplant: colunas[COL.LINKS_IMPLANT] || "",
                 linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
-                estande: colunas[COL.ESTANDE] || "" // Novo campo
+                estande: colunas[COL.ESTANDE] || ""
             };
         }).filter(i => i !== null);
 
@@ -167,16 +171,12 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
 function atualizarTituloSuperior(texto) {
     const titulo = document.getElementById('cidade-titulo');
-    if (texto) { 
-        titulo.innerText = `MRV EM ${texto.toUpperCase()}`; 
-    } 
+    if (texto) { titulo.innerText = `MRV EM ${texto.toUpperCase()}`; } 
     else if (pathAtivo) {
         const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
         const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
         titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
-    } else { 
-        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; 
-    }
+    } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
@@ -234,20 +234,28 @@ function gerarListaLateral() {
 }
 
 /* ==========================================================================
-   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
+   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) E MINIATURAS
    ========================================================================== */
+
+// Geração do Card com a estrutura de Preview que o seu CSS exige
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
     const linkSeguro = formatarLinkSeguro(url);
+    
     return `
-    <div class="card-material-item" style="padding: 4px 8px; margin-bottom: 4px; min-height: 32px;">
-        <div class="card-material-left" style="gap: 8px;">
-            <span class="card-icon" style="font-size: 0.8rem;">${icone}</span>
-            <span class="card-text" style="font-size: 0.65rem;">${titulo}</span>
+    <div class="card-material-item">
+        <div class="card-material-left">
+            <span class="card-icon">${icone}</span>
+            <span class="card-text">${titulo}</span>
         </div>
-        <div class="card-material-right" style="position: relative; gap: 4px; display: flex;">
-            <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
-            <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
+        <div class="card-material-right">
+            <div class="btn-com-preview">
+                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
+                <div class="preview-container">
+                    <iframe src="${linkSeguro}"></iframe>
+                </div>
+            </div>
+            <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
         </div>
     </div>`;
 };
@@ -277,17 +285,13 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
-
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
-            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
-        </div>`;
+        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
 
         // Endereço Residencial com os dois botões (MAPS e LINK)
         html += `
         <div style="padding: 2px 0 5px 0;">
-            <div style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;">
+            <div style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
                 <span style="flex:1;">📍 ${selecionado.endereco}</span>
                 <div style="display:flex; gap:3px; margin-left:5px;">
                     <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
@@ -300,6 +304,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
+        
         const linhaInfo = (l1, v1, l2, v2, borda) => `
             <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
                 <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
@@ -316,27 +321,28 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
+        // Tabela de Preços (Com correção para "Menor valor")
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
                 const dados = linhas.slice(1);
                 html += `
-                <div class="tabela-precos-container" style="margin-top:2px; margin-bottom:8px;">
-                    <div class="tabela-header" style="min-height: 28px;">
+                <div class="tabela-precos-container">
+                    <div class="tabela-header">
                         ${titulos.map((t, idx) => {
                             const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                            return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
+                            return `<div class="col-tabela" style="${estiloCabecalho}">${t}</div>`;
                         }).join('')}
                     </div>
                     <div class="tabela-corpo">
                         ${dados.map(linhaStr => {
                             const cols = linhaStr.split(',').map(c => c.trim());
                             if(cols.length <= 1) return "";
-                            return `<div class="tabela-row" style="min-height: 28px;">
+                            return `<div class="tabela-row">
                                 ${cols.map((v, idx) => {
                                     const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                                    return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
+                                    return `<div class="col-tabela" style="${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
                                 }).join('')}
                             </div>`;
                         }).join('')}
@@ -345,10 +351,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // --- SEÇÃO DE DIFERENCIAIS COM ESTANDE NO TOPO ---
+        // Diferenciais e Estande de Vendas
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
         
-        // NOVO: Bloco do Estande de Vendas (Coluna AE)
+        // Estande de Vendas (Coluna AE)
         if(selecionado.estande && selecionado.estande !== "---" && selecionado.estande !== "") {
             const urlMapsEstande = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.estande)}`;
             html += `
@@ -380,6 +386,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
         html += `</div>`;
 
+        // Seção de Materiais
         let materiaisHtml = "";
         materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
         materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
@@ -394,11 +401,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 ${materiaisHtml}
             </div>`;
         }
-        if(selecionado.descLonga) {
-             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
-        }
     } else {
-        // Complexos permanecem iguais
+        // Layout para Complexos (Categoria N)
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
         html += `<div class="box-complexo-full">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -422,37 +426,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (BOTÃO SOBRE)
+   LÓGICA DO MODAL (SOBRE)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
     const btn = document.getElementById("btn-sobre");
     const span = document.querySelector(".modal-close");
 
-    if(btn) {
-        btn.onclick = () => { 
-            if(modal) {
-                const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
-                modalBody.innerHTML = `
-                    <div style="text-align:center; padding:10px;">
-                        <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
-                            Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
-                        </p>
-                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #fbc02d; text-align:left;">
-                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">
-                                As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais (books/vídeos), por favor, envie para mim:
-                            </p>
-                        </div>
-                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-block; background-color:#25D366; color:white; text-decoration:none; padding:12px 30px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-                            Carlos Custódio
-                        </a>
-                    </div>`;
-                modal.style.display = "block"; 
-            }
-        };
+    if(btn && modal) {
+        btn.onclick = () => { modal.style.display = "block"; };
     }
-    if(span) {
-        span.onclick = () => { if(modal) modal.style.display = "none"; };
+    if(span && modal) {
+        span.onclick = () => { modal.style.display = "none"; };
     }
     window.onclick = (event) => {
         if (event.target == modal) { modal.style.display = "none"; }
