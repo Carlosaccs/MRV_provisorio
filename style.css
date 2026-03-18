@@ -208,24 +208,33 @@ path.commrv:hover, path.ativo {
     flex-shrink: 0; 
 }
 
-/* 6.1 - CORREÇÃO TOPO: Volta as infos de Plantas/Limitador ao normal */
+/* 6.1 - CABEÇALHO DO IMÓVEL (PROTEÇÃO) */
+/* Mantém as tabelas de Entrega, Obra, etc. pequenas */
 .sidebar-dir table:first-of-type b, 
-.sidebar-dir table:first-of-type span {
+.sidebar-dir table:first-of-type span,
+.sidebar-dir table:first-of-type td {
     font-size: 0.75rem !important;
 }
 
-/* 6.2 - ALVO ESPECÍFICO: Aumenta apenas os textos das caixas coloridas descritivas */
-/* Usamos a borda esquerda grossa que você tem nelas como identificador */
-.sidebar-dir div[style*="border-left: 5px solid"] {
+/* 6.2 - CAIXAS COLORIDAS (LOCALIZAÇÃO, MOBILIDADE, ETC) */
+/* Alvo: Qualquer div que tenha uma borda lateral (as caixas coloridas) */
+.sidebar-dir div[style*="border-left"] {
     font-size: 16px !important; 
-    line-height: 1.5 !important;
+    line-height: 1.4 !important;
 }
 
-/* Ajuste nos títulos em negrito dentro dessas caixas (LOCALIZAÇÃO, MOBILIDADE...) */
-.sidebar-dir div[style*="border-left: 5px solid"] strong {
+/* Alvo Universal Interno: Garante que o texto dentro de spans ou p também mude */
+.sidebar-dir div[style*="border-left"] *,
+.sidebar-dir div[style*="border-left"] span,
+.sidebar-dir div[style*="border-left"] p {
+    font-size: 16px !important;
+}
+
+/* Ajuste apenas para os títulos em negrito dentro das caixas ficarem um pouco menores */
+.sidebar-dir div[style*="border-left"] strong {
     font-size: 14px !important;
-    display: block;
-    margin-bottom: 2px;
+    display: inline-block;
+    margin-bottom: 3px;
 }
 
 .vitrine-topo { 
@@ -258,7 +267,7 @@ path.commrv:hover, path.ativo {
 .faixa-preta { background: var(--mrv-preto) !important; }
 
 /* ==========================================================================
-   7. TABELAS DE PREÇOS E INFOS (MANTIDO COMPACTO)
+   7. TABELAS DE PREÇOS (MANTIDO COMPACTO)
    ========================================================================== */
 .tabela-precos-container { 
     width: 100%; 
