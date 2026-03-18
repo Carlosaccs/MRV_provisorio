@@ -16,8 +16,7 @@ const COL = {
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
     LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
-    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
-    PLANTAO_VENDAS: 30 
+    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29  
 };
 
 /* ==========================================================================
@@ -28,27 +27,17 @@ async function iniciarApp() {
 }
 
 function formatarLinkSeguro(url) {
-    if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
-    let link = url.trim();
-    if (link.includes('drive.google.com')) {
-        const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
-        if (match && match[1]) {
-            return `https://drive.google.com/file/d/${match[1]}/preview`;
-        }
+    if (!url || url === "---" || url === "") return "";
+    if (url.includes('drive.google.com')) {
+        return url.split('/view')[0].split('/edit')[0] + '/preview';
     }
-    return link;
-}
-
-function obterIdDrive(url) {
-    if (!url || !url.includes('drive.google.com')) return null;
-    const match = url.match(/\/d\/(.*?)(\/|$|\?)/) || url.match(/id=(.*?)($|&)/);
-    return match ? match[1] : null;
+    return url;
 }
 
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link copiado com sucesso!");
+    alert("Link seguro copiado!");
 }
 
 async function carregarPlanilha() {
@@ -74,24 +63,39 @@ async function carregarPlanilha() {
             const ordem = parseInt(colunas[COL.ORDEM]);
 
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
+
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
             
             return {
-                id_path: idPath, tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
-                ordem: ordem, nome: nomeImovel, nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
-                estoque: colunas[COL.ESTOQUE], endereco: colunas[COL.END] || "",
-                entrega: colunas[COL.ENTREGA] || "---", obra: colunas[COL.OBRA] || "0",
-                tipologiasH: colunas[COL.TIPOLOGIAS] || "", regiao: colunas[COL.REGIAO] || "---",
-                p_de: colunas[COL.P_DE] || "---", p_ate: colunas[COL.P_ATE] || "---",
-                limitador: colunas[COL.LIMITADOR] || "---", casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
-                campanha: colunas[COL.CAMPANHA] || "", observacoes: colunas[COL.OBSERVACOES] || "", 
-                descLonga: colunas[COL.DESC_LONGA] || "", localizacao: colunas[COL.LOCALIZACAO] || "",
-                mobilidade: colunas[COL.MOBILIDADE] || "", lazer: colunas[COL.CULTURA_LAZER] || "",
-                comercio: colunas[COL.COMERCIO] || "", saude: colunas[COL.SAUDE_EDUCACAO] || "",
-                linkCliente: colunas[COL.BOOK_CLIENTE] || "", linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
-                linksVideos: colunas[COL.LINKS_VIDEOS] || "", linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
-                linksImplant: colunas[COL.LINKS_IMPLANT] || "", linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
-                plantaoVendas: colunas[COL.PLANTAO_VENDAS] || ""
+                id_path: idPath,
+                tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
+                ordem: ordem,
+                nome: nomeImovel,
+                nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
+                estoque: colunas[COL.ESTOQUE],
+                endereco: colunas[COL.END] || "",
+                entrega: colunas[COL.ENTREGA] || "---",
+                obra: colunas[COL.OBRA] || "0",
+                tipologiasH: colunas[COL.TIPOLOGIAS] || "", 
+                regiao: colunas[COL.REGIAO] || "---",
+                p_de: colunas[COL.P_DE] || "---",
+                p_ate: colunas[COL.P_ATE] || "---",
+                limitador: colunas[COL.LIMITADOR] || "---",
+                casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
+                campanha: colunas[COL.CAMPANHA] || "",
+                observacoes: colunas[COL.OBSERVACOES] || "", 
+                descLonga: colunas[COL.DESC_LONGA] || "",
+                localizacao: colunas[COL.LOCALIZACAO] || "",
+                mobilidade: colunas[COL.MOBILIDADE] || "",
+                lazer: colunas[COL.CULTURA_LAZER] || "",
+                comercio: colunas[COL.COMERCIO] || "",
+                saude: colunas[COL.SAUDE_EDUCACAO] || "",
+                linkCliente: colunas[COL.BOOK_CLIENTE] || "",
+                linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
+                linksVideos: colunas[COL.LINKS_VIDEOS] || "",
+                linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
+                linksImplant: colunas[COL.LINKS_IMPLANT] || "",
+                linksDiversos: colunas[COL.LINKS_DIVERSOS] || ""
             };
         }).filter(i => i !== null);
 
@@ -114,7 +118,8 @@ function obterHtmlEstoque(valor, tipo) {
 
 function navegarVitrine(nome) { 
     const imovel = DADOS_PLANILHA.find(i => i.nome === nome);
-    if (imovel) comandoSelecao(imovel.id_path, null, imovel); 
+    if (!imovel) return;
+    comandoSelecao(imovel.id_path, null, imovel); 
 }
 
 function comandoSelecao(idPath, nomePath, fonte) {
@@ -144,12 +149,16 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
 function atualizarTituloSuperior(texto) {
     const titulo = document.getElementById('cidade-titulo');
-    if (texto) { titulo.innerText = `MRV EM ${texto.toUpperCase()}`; } 
+    if (texto) { 
+        titulo.innerText = `MRV EM ${texto.toUpperCase()}`; 
+    } 
     else if (pathAtivo) {
         const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
         const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
         titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
-    } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
+    } else { 
+        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; 
+    }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
@@ -171,7 +180,13 @@ function renderizarNoContainer(id, dados, interativo) {
     }).join('');
 
     const escala = (mapaAtivo === 'GSP' && interativo) ? 'transform: scale(1.25); transform-origin: center;' : '';
-    container.innerHTML = `<svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%; ${escala}"><g transform="${dados.transform || ''}">${pathsHtml}</g></svg>`;
+
+    container.innerHTML = `
+        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%; ${escala}">
+            <g transform="${dados.transform || ''}">
+                ${pathsHtml}
+            </g>
+        </svg>`;
 }
 
 function desenharMapas() {
@@ -206,21 +221,15 @@ function gerarListaLateral() {
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
     const linkSeguro = formatarLinkSeguro(url);
-    const fileId = obterIdDrive(url);
-    const thumbUrl = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w300` : "";
-
     return `
-    <div class="card-material-item">
-        <div class="card-material-left">
-            <span class="card-icon">${icone}</span>
-            <span class="card-text">${titulo}</span>
+    <div class="card-material-item" style="padding: 4px 8px; margin-bottom: 4px; min-height: 32px;">
+        <div class="card-material-left" style="gap: 8px;">
+            <span class="card-icon" style="font-size: 0.8rem;">${icone}</span>
+            <span class="card-text" style="font-size: 0.65rem;">${titulo}</span>
         </div>
-        <div class="card-material-right">
-            <div class="container-btn-abrir">
-                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
-                ${thumbUrl ? `<div class="hover-preview"><img src="${thumbUrl}" alt="Preview"></div>` : ''}
-            </div>
-            <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
+        <div class="card-material-right" style="position: relative; gap: 4px;">
+            <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
+            <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
         </div>
     </div>`;
 };
@@ -250,11 +259,15 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
+    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
+
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
+        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
+            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
+        </div>`;
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
-        if(selecionado.campanha && selecionado.campanha !== "---") {
+        if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
         }
         const linhaInfo = (l1, v1, l2, v2, borda) => `
@@ -277,39 +290,121 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
-                html += `<div class="tabela-precos-container"><div class="tabela-header">${titulos.map((t, idx) => `<div class="col-tabela" style="${idx === 1 ? 'background:#ff8c00;color:white;' : ''}">${t}</div>`).join('')}</div>
-                <div class="tabela-corpo">${linhas.slice(1).map(lStr => {
-                    const cs = lStr.split(',').map(c => c.trim()); if(cs.length <= 1) return "";
-                    return `<div class="tabela-row">${cs.map((v, i) => `<div class="col-tabela" style="${i === 1 ? 'background:#ff8c00;color:white;' : ''}">${i === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}</div>`;
-                }).join('')}</div></div>`;
+                const dados = linhas.slice(1);
+                html += `
+                <div class="tabela-precos-container" style="margin-top:2px; margin-bottom:8px;">
+                    <div class="tabela-header" style="min-height: 28px;">
+                        ${titulos.map((t, idx) => {
+                            // Aplicando fundo laranja e texto branco no cabeçalho "Menor preço" (índice 1)
+                            const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
+                            return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
+                        }).join('')}
+                    </div>
+                    <div class="tabela-corpo">
+                        ${dados.map(linhaStr => {
+                            const cols = linhaStr.split(',').map(c => c.trim());
+                            if(cols.length <= 1) return "";
+                            return `<div class="tabela-row" style="min-height: 28px;">
+                                ${cols.map((v, idx) => {
+                                    // Aplicando fundo laranja e texto branco nos valores da coluna (índice 1)
+                                    const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
+                                    return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
+                                }).join('')}
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
             }
         }
 
-        const boxDif = (lb, tx, cf, cb, bd) => {
-            if(!tx || tx === "---") return "";
-            let btn = lb === '📍 Plantão de Vendas' ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tx)}" target="_blank" class="btn-maps" style="float:right; margin-top:-15px;">MAPS</a>` : "";
-            return `<div style="background:${cf}; border-left:6px solid ${cb}; padding:6px 10px; ${bd ? 'border-bottom:1px solid #ddd;' : ''}"><label style="display:block; font-size:0.55rem; font-weight:bold; color:${cb}; text-transform:uppercase;">${lb}</label>${btn}<p style="margin:0; font-size:0.68rem; color:#444;">${tx}</p></div>`;
+        html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
+        const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
+            if(!texto || texto === "---" || texto === "") return "";
+            return `
+            <div style="background: ${corFundo}; border-left: 6px solid ${corBorda}; padding: 6px 10px; ${temBorda ? 'border-bottom: 1px solid #ddd;' : ''}">
+                <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:1px;">${label}</label>
+                <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
+            </div>`;
         };
-        html += `<div style="border:1px solid #ddd; border-radius:4px; overflow:hidden;">${boxDif('📍 Plantão de Vendas', selecionado.plantaoVendas, '#f0f7ff', '#1a73e8', true)}${boxDif('💡 Observação', selecionado.observacoes, '#fff9c4', '#fbc02d', true)}${boxDif('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true)}${boxDif('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true)}${boxDif('🎭 Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true)}${boxDif('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828', true)}${boxDif('🏥 Saúde', selecionado.saude, '#f3e5f5', '#6a1b9a', false)}</div>`;
+        html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
+        html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
+        html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
+        html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
+        html += criarBoxDiferencial('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828', true);
+        html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
+        html += `</div>`;
 
-        let mat = criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄') + criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼') + extrairLinks(selecionado.linksVideos, '🎬') + extrairLinks(selecionado.linksPlantas, '📐') + extrairLinks(selecionado.linksImplant, '📍') + extrairLinks(selecionado.linksDiversos, '✨');
-        if(mat) html += `<div style="margin-top:10px;"><label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; border-bottom:1px solid #eee; margin-bottom:4px;">MATERIAIS DE APOIO</label>${mat}</div>`;
-        if(selecionado.descLonga) html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
+        let materiaisHtml = "";
+        materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
+        materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
+        materiaisHtml += extrairLinks(selecionado.linksVideos, '🎬');
+        materiaisHtml += extrairLinks(selecionado.linksPlantas, '📐');
+        materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
+        materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
+        if (materiaisHtml !== "") {
+            html += `<div style="margin-top: 10px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
+                ${materiaisHtml}
+            </div>`;
+        }
+        if(selecionado.descLonga) {
+             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
+        }
     } else {
-        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div><div class="box-complexo-full"><p style="font-size:0.7rem; color:#444; margin-bottom:10px;">📍 ${selecionado.endereco} <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}" target="_blank" class="btn-maps">MAPS</a></p><div style="font-size:0.75rem;">${selecionado.descLonga}</div></div>`;
-        let matC = extrairLinks(selecionado.linksImplant, '📍');
-        if(matC) html += `<div style="margin-top:10px; padding:0 5px;"><label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; border-bottom:1px solid #eee;">MATERIAIS</label>${matC}</div>`;
+        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
+        html += `<div class="box-complexo-full">
+                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
+                    <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
+                 </div>`;
+        let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
+        if (materiaisComplexo !== "") {
+            html += `<div style="margin-top: 10px; padding: 0 5px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
+                ${materiaisComplexo}
+            </div>`;
+        }
     }
     painel.innerHTML = html;
 }
 
+/* ==========================================================================
+   LÓGICA DO MODAL (BOTÃO SOBRE)
+   ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
     const btn = document.getElementById("btn-sobre");
     const span = document.querySelector(".modal-close");
-    if(btn) btn.onclick = () => { if(modal) modal.style.display = "block"; };
-    if(span) span.onclick = () => { if(modal) modal.style.display = "none"; };
-    window.onclick = (e) => { if(e.target == modal) modal.style.display = "none"; };
+
+    if(btn) {
+        btn.onclick = () => { 
+            if(modal) {
+                const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
+                modalBody.innerHTML = `
+                    <div style="text-align:center; padding:10px;">
+                        <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
+                            Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
+                        </p>
+                        
+                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #fbc02d; text-align:left;">
+                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">
+                                As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais (books/vídeos), por favor, envie para mim:
+                            </p>
+                        </div>
+
+                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-block; background-color:#25D366; color:white; text-decoration:none; padding:12px 30px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                            Carlos Custódio
+                        </a>
+                    </div>`;
+                modal.style.display = "block"; 
+            }
+        };
+    }
+    if(span) {
+        span.onclick = () => { if(modal) modal.style.display = "none"; };
+    }
+    window.onclick = (event) => {
+        if (event.target == modal) { modal.style.display = "none"; }
+    };
 });
 
 window.onload = iniciarApp;
