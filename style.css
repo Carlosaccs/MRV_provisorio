@@ -11,10 +11,10 @@
     --cinza-mapa: #777;
 
     /* Cores das Zonas (Padrão MRV SP) */
-    --mrv-zo: #f37021; /* Laranja */
-    --mrv-zl: #002060; /* Azul Marinho */
-    --mrv-zn: #ffc000; /* Amarelo/Ouro */
-    --mrv-zs: #ec008c; /* Rosa/Pink */
+    --mrv-zo: #f37021; 
+    --mrv-zl: #002060; 
+    --mrv-zn: #ffc000; 
+    --mrv-zs: #ec008c; 
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -208,15 +208,18 @@ path.commrv:hover, path.ativo {
     flex-shrink: 0; 
 }
 
-/* AJUSTE SOLICITADO: Aumenta apenas o texto descritivo das caixas coloridas */
+/* AJUSTE FINAL: Aumenta o texto das caixas coloridas e força a prioridade */
 .sidebar-dir div[style*="padding: 10px;"] {
-    font-size: 0.95rem !important; 
-    line-height: 1.4 !important;
+    font-size: 16px !important; 
+    line-height: 1.5 !important;
+    color: #333 !important;
 }
 
-/* Mantém o título dentro das caixas (como "LOCALIZAÇÃO") com tamanho equilibrado */
-.sidebar-dir strong {
-    font-size: 0.85rem !important;
+/* Mantém o título da caixa (ex: LOCALIZAÇÃO) em destaque */
+.sidebar-dir div[style*="padding: 10px;"] strong {
+    font-size: 14px !important;
+    display: block;
+    margin-bottom: 4px;
 }
 
 .vitrine-topo { 
@@ -249,7 +252,7 @@ path.commrv:hover, path.ativo {
 .faixa-preta { background: var(--mrv-preto) !important; }
 
 /* ==========================================================================
-   7. TABELAS DE PREÇOS E INFOS (MANTIDO ORIGINAL)
+   7. TABELAS DE PREÇOS E INFOS (MANTIDO COMPACTO)
    ========================================================================== */
 .tabela-precos-container { 
     width: 100%; 
@@ -292,7 +295,7 @@ path.commrv:hover, path.ativo {
 }
 
 /* ==========================================================================
-   8. CARDS DE MATERIAIS E PREVIEW (MINIATURAS APROVADAS)
+   8. CARDS DE MATERIAIS E PREVIEW
    ========================================================================== */
 .card-material-item { 
     display: flex; 
