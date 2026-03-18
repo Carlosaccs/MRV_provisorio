@@ -1,6 +1,3 @@
-/* ==========================================================================
-   CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
-   ========================================================================== */
 let DADOS_PLANILHA = [];
 let pathAtivo = null;  
 let imovelAtivo = null;  
@@ -24,6 +21,22 @@ async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
+function formatarLinkSeguro(url) {
+    if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
+    let link = url.trim();
+    if (link.includes('drive.google.com')) {
+        const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
+        if (match && match[1]) return `https://drive.google.com/file/d/${match[1]}/preview`;
+    }
+    return link;
+}
+
+function copiarLink(url) {
+    const linkSeguro = formatarLinkSeguro(url);
+    navigator.clipboard.writeText(linkSeguro);
+    alert("Link copiado!");
+}
+
 async function carregarPlanilha() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&v=${new Date().getTime()}`;
@@ -41,27 +54,24 @@ async function carregarPlanilha() {
                 else { campo += char; }
             }
             colunas.push(campo.trim());
-            const nomeImovel = colunas[COL.NOME] || "";
+
             const idPath = (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, '');
-            const ordem = parseInt(colunas[COL.ORDEM]);
-            if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
-            
+            if (!idPath || (colunas[COL.NOME] || "").length <= 1) return null;
+
             return {
                 id_path: idPath, tipo: (colunas[COL.CATEGORIA] || "").toUpperCase().includes('COMPLEXO') ? 'N' : 'R',
-                ordem: ordem, nome: nomeImovel, nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
-                estoque: colunas[COL.ESTOQUE], endereco: colunas[COL.END] || "",
-                entrega: colunas[COL.ENTREGA] || "---", obra: colunas[COL.OBRA] || "0",
-                tipologiasH: colunas[COL.TIPOLOGIAS] || "", regiao: colunas[COL.REGIAO] || "---",
-                p_de: colunas[COL.P_DE] || "---", p_ate: colunas[COL.P_ATE] || "---",
-                limitador: colunas[COL.LIMITADOR] || "---", casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
-                campanha: colunas[COL.CAMPANHA] || "", observacoes: colunas[COL.OBSERVACOES] || "", 
-                descLonga: colunas[COL.DESC_LONGA] || "", localizacao: colunas[COL.LOCALIZACAO] || "",
-                mobilidade: colunas[COL.MOBILIDADE] || "", lazer: colunas[COL.CULTURA_LAZER] || "",
-                comercio: colunas[COL.COMERCIO] || "", saude: colunas[COL.SAUDE_EDUCACAO] || "",
-                linkCliente: colunas[COL.BOOK_CLIENTE] || "", linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
-                linksVideos: colunas[COL.LINKS_VIDEOS] || "", linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
-                linksImplant: colunas[COL.LINKS_IMPLANT] || "", linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
-                plantaoVendas: colunas[COL.PLANTAO_VENDAS] || ""
+                ordem: parseInt(colunas[COL.ORDEM]), nome: colunas[COL.NOME], nomeFull: colunas[COL.NOME_FULL],
+                estoque: colunas[COL.ESTOQUE], endereco: colunas[COL.END], entrega: colunas[COL.ENTREGA],
+                obra: colunas[COL.OBRA], tipologiasH: colunas[COL.TIPOLOGIAS], regiao: colunas[COL.REGIAO],
+                p_de: colunas[COL.P_DE], p_ate: colunas[COL.P_ATE], limitador: colunas[COL.LIMITADOR],
+                casa_paulista: colunas[COL.CASA_PAULISTA], campanha: colunas[COL.CAMPANHA],
+                observacoes: colunas[COL.OBSERVACOES], descLonga: colunas[COL.DESC_LONGA],
+                localizacao: colunas[COL.LOCALIZACAO], mobilidade: colunas[COL.MOBILIDADE],
+                lazer: colunas[COL.CULTURA_LAZER], comercio: colunas[COL.COMERCIO],
+                saude: colunas[COL.SAUDE_EDUCACAO], linkCliente: colunas[COL.BOOK_CLIENTE],
+                linkCorretor: colunas[COL.BOOK_CORRETOR], linksVideos: colunas[COL.LINKS_VIDEOS],
+                linksPlantas: colunas[COL.LINKS_PLANTAS], linksImplant: colunas[COL.LINKS_IMPLANT],
+                linksDiversos: colunas[COL.LINKS_DIVERSOS], plantaoVendas: colunas[COL.PLANTAO_VENDAS]
             };
         }).filter(i => i !== null);
 
@@ -74,7 +84,8 @@ function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
-        return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo}" onclick="navegarVitrine('${item.nome}')">
+        const classe = item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes';
+        return `<div class="${classe} ${ativo}" onclick="navegarVitrine('${item.nome}')">
                     <strong>${item.nome}</strong>
                 </div>`;
     }).join('');
@@ -91,7 +102,7 @@ function comandoSelecao(idPath, nomePath, fonte) {
     const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === pathAtivo);
     const selecionado = fonte || imoveisDaCidade[0];
     imovelAtivo = selecionado.nome;
-
+    
     document.querySelectorAll('path').forEach(el => el.classList.remove('ativo'));
     const elMapa = document.getElementById(`caixa-a-${pathAtivo}`);
     if (elMapa) elMapa.classList.add('ativo');
@@ -113,46 +124,52 @@ function renderizarNoContainer(id, dados, interativo) {
         let eventos = interativo ? `onclick="comandoSelecao('${p.id}')"` : "";
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${temMRV && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
-    // preserveAspectRatio garante que o mapa caiba na tela sem estourar
     container.innerHTML = `<svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet"><g>${pathsHtml}</g></svg>`;
 }
 
 function desenharMapas() {
     renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
     renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
-    document.getElementById('caixa-b').onclick = () => { mapaAtivo = (mapaAtivo === 'GSP' ? 'INTERIOR' : 'GSP'); desenharMapas(); };
+    document.getElementById('caixa-b').onclick = () => { 
+        mapaAtivo = (mapaAtivo === 'GSP' ? 'INTERIOR' : 'GSP'); 
+        desenharMapas(); 
+    };
 }
 
-function formatarLinkSeguro(url) {
-    if (!url || url === "---") return "";
-    return url.includes('drive.google.com') ? `https://drive.google.com/file/d/${url.match(/\/d\/(.*?)(\/|$)/)[1]}/preview` : url;
-}
-
+// A função montarVitrine foi adaptada do desktop para manter a riqueza de detalhes
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()}</div>`;
-        html += `<div style="background:#f9f9f9; padding:12px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;">
-                    <p style="font-size:0.85rem; margin-bottom:5px;">📍 <strong>Endereço:</strong> ${selecionado.endereco}</p>
-                    <p style="font-size:0.85rem; color:var(--mrv-verde);">🏗️ <strong>Obra:</strong> ${selecionado.obra}% | 🗓️ <strong>Entrega:</strong> ${selecionado.entrega}</p>
-                    <p style="font-size:0.95rem; color:var(--mrv-laranja); font-weight:bold; margin-top:8px; border-top:1px solid #eee; pt-5px;">📊 Estoque: ${selecionado.estoque || "---"} UN.</p>
+        html += `<div style="background:#f9f9f9; padding:8px; border-radius:8px; font-size:0.7rem; margin-bottom:10px; border:1px solid #ddd;">
+                    <p>📍 ${selecionado.endereco}</p>
+                    <p>🏗️ Obra: ${selecionado.obra}% | 🗓️ Entrega: ${selecionado.entrega}</p>
                  </div>`;
         
-        if(selecionado.tipologiasH) {
-            const linhas = selecionado.tipologiasH.split(';').filter(l => l.trim() !== "");
-            if(linhas.length > 0) {
-                html += `<div class="tabela-precos-container">
-                            <div class="tabela-corpo">${linhas.map(l => `<div class="tabela-row"><div class="col-tabela">${l.replace(/,/g, ' | ')}</div></div>`).join('')}</div>
-                         </div>`;
-            }
+        // Exemplo de como o estoque aparece aqui na ficha técnica
+        html += `<div style="background:white; border-left:4px solid var(--mrv-laranja); padding:5px 10px; margin-bottom:10px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                    <label style="font-size:0.6rem; font-weight:bold; color:var(--mrv-laranja);">UNIDADES EM ESTOQUE</label>
+                    <p style="font-size:0.9rem; font-weight:bold;">${selecionado.estoque || "Consultar"} Unidades</p>
+                 </div>`;
+
+        if(selecionado.linkCliente) {
+            html += `<a href="${formatarLinkSeguro(selecionado.linkCliente)}" target="_blank" class="card-material-item" style="text-decoration:none;">
+                        <span class="card-text">📄 Book do Cliente</span>
+                        <span class="card-btn-abrir">Abrir</span>
+                     </a>`;
         }
-    } else {
-        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()}</div>
-                 <div style="padding:10px; font-size:0.85rem;">${selecionado.descLonga}</div>`;
     }
     painel.innerHTML = html;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById("modal-sobre");
+    const btn = document.getElementById("btn-sobre");
+    const span = document.querySelector(".modal-close");
+    if(btn) btn.onclick = () => modal.style.display = "block";
+    if(span) span.onclick = () => modal.style.display = "none";
+});
 
 window.onload = iniciarApp;
