@@ -50,10 +50,7 @@ body {
     transition: all 0.2s;
 }
 
-#btn-sobre:hover { 
-    background: white; 
-    color: var(--mrv-verde); 
-}
+#btn-sobre:hover { background: white; color: var(--mrv-verde); }
 
 /* 3. ESTRUTURA PRINCIPAL (WRAPPER) */
 .wrapper { 
@@ -104,11 +101,7 @@ body {
     color: #333; 
 }
 
-.btRes:hover { 
-    background-color: #f0f0f0 !important; 
-    border: 1px solid var(--mrv-verde) !important; 
-    border-left: 4px solid var(--mrv-verde) !important; 
-}
+.btRes:hover { background-color: #f0f0f0 !important; border: 1px solid var(--mrv-verde) !important; border-left: 4px solid var(--mrv-verde) !important; }
 
 .btRes.ativo { 
     background-color: var(--mrv-laranja) !important; 
@@ -117,13 +110,7 @@ body {
 }
 
 /* 5. CENTRO (MAPAS E TÍTULOS) */
-.conteudo-centro { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    background: #fff; 
-    overflow: hidden; 
-}
+.conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
 
 #cidade-titulo { 
     background: #eee; 
@@ -139,14 +126,7 @@ body {
     text-transform: uppercase; 
 }
 
-#caixa-a { 
-    flex: 2; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 15px; 
-    overflow: hidden; 
-}
+#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 15px; overflow: hidden; }
 
 #caixa-b { 
     flex: 0.8; 
@@ -171,11 +151,7 @@ path {
 
 path:hover { fill: #999 !important; cursor: pointer; }
 path.commrv { fill: var(--mrv-verde) !important; }
-path.commrv:hover, path.ativo { 
-    fill: var(--mrv-laranja) !important; 
-    stroke: #000 !important; 
-    stroke-width: 1.5px !important; 
-}
+path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
 
 /* 6. SIDEBAR DIREITA (VITRINE / FICHA TÉCNICA) */
 .sidebar-dir { 
@@ -216,156 +192,63 @@ path.commrv:hover, path.ativo {
 .faixa-preta { background: var(--mrv-preto) !important; }
 
 /* 7. TABELAS DE PREÇOS E INFOS */
-.tabela-precos-container { 
-    width: 100%; 
-    background: var(--cinza-claro); 
-    border-radius: 4px; 
-    margin: 10px 0; 
-    border: 1px solid #ddd; 
-    overflow: hidden; 
-}
+.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 4px; margin: 10px 0; border: 1px solid #ddd; overflow: hidden; }
 
-.tabela-header { 
-    background: #eee; 
-    font-weight: bold; 
-    font-size: 0.65rem; 
-    min-height: 30px; 
-    display: flex; 
-    align-items: center; 
-}
+.tabela-header { background: #eee; font-weight: bold; font-size: 0.65rem; min-height: 30px; display: flex; align-items: center; }
 
-.tabela-row { 
-    display: flex; 
-    background: #fff; 
-    font-size: 0.7rem; 
-    border-bottom: 1px solid #eee; 
-    min-height: 30px; 
-    align-items: center; 
-}
+.tabela-row { display: flex; background: #fff; font-size: 0.7rem; border-bottom: 1px solid #eee; min-height: 30px; align-items: center; }
 
-.col-tabela { 
-    flex: 1; 
-    padding: 5px; 
-    text-align: center; 
-    border-right: 1px solid #eee; 
-}
+.col-tabela { flex: 1; padding: 5px; text-align: center; border-right: 1px solid #eee; }
 
-.col-laranja { 
-    background: #fff3e0 !important; 
-    color: var(--mrv-laranja) !important; 
-    font-weight: bold; 
-}
-
-/* 8. CARDS DE MATERIAIS */
+/* 8. CARDS DE MATERIAIS - CORRIGIDO */
 .card-material-item { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    background: #fff; 
-    border: 1px solid #e0e0e0; 
-    border-radius: 8px; 
-    padding: 8px 12px; 
-    margin-bottom: 6px; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; 
+    padding: 8px 12px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
 }
 
 .card-material-left { display: flex; align-items: center; gap: 10px; flex: 1; }
 .card-icon { font-size: 1rem; }
 .card-text { font-size: 0.7rem; font-weight: 600; color: #333; }
+.card-material-right { display: flex; gap: 5px; align-items: center; }
 
-.card-material-right { display: flex; gap: 5px; }
+/* Container do Botão com Preview */
+.btn-com-preview { position: relative; display: inline-block; }
 
+/* PADRONIZAÇÃO DE TAMANHO */
 .card-btn-abrir, .card-btn-copiar { 
-    padding: 4px 10px; 
-    font-size: 0.65rem; 
-    font-weight: bold; 
-    border-radius: 4px; 
-    text-decoration: none; 
-    color: #fff; 
-    border: none; 
-    cursor: pointer; 
+    width: 70px; height: 26px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: bold; border-radius: 4px; text-decoration: none; color: #fff; border: none; cursor: pointer; 
 }
 
 .card-btn-abrir { background: var(--mrv-verde); }
 .card-btn-copiar { background: var(--mrv-laranja); }
 
+/* LÓGICA DA MINIATURA (PREVIEW) */
+.preview-container {
+    display: none; position: absolute; bottom: 35px; right: 0; width: 320px; height: 200px;
+    background: white; border: 2px solid var(--mrv-verde); border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; overflow: hidden;
+}
+
+.preview-container iframe { width: 100%; height: 100%; border: none; }
+
+.btn-com-preview:hover .preview-container { display: block; }
+
 /* 9. BOTÕES E AUXILIARES */
-.btn-maps { 
-    background: #4285F4; 
-    color: white !important; 
-    text-decoration: none; 
-    padding: 2px 8px; 
-    border-radius: 4px; 
-    font-size: 0.65rem; 
-    font-weight: bold; 
-}
+.btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
 
-.box-complexo-full { 
-    width: 100%; 
-    padding: 12px; 
-    background: #f9f9f9; 
-    border-left: 5px solid var(--mrv-preto); 
-    border-radius: 0 0 4px 4px; 
-}
+.box-complexo-full { width: 100%; padding: 12px; background: #f9f9f9; border-left: 5px solid var(--mrv-preto); border-radius: 0 0 4px 4px; }
 
-/* 10. MODAL DESIGN (AJUSTADO) */
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 9999;
-    left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.6); 
-    backdrop-filter: blur(4px);
-}
+/* 10. MODAL DESIGN */
+.modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
 
-.modal-content {
-    background-color: white; 
-    margin: 8% auto; 
-    padding: 30px;
-    border-radius: 15px; 
-    width: 90%; 
-    max-width: 550px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
-    position: relative;
-    animation: modalFade 0.3s ease-out;
-}
+.modal-content { background-color: white; margin: 8% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 550px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); position: relative; animation: modalFade 0.3s ease-out; }
 
-@keyframes modalFade {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+@keyframes modalFade { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-.modal-close { 
-    position: absolute; 
-    right: 20px; 
-    top: 15px; 
-    cursor: pointer; 
-    font-size: 28px; 
-    color: #999; 
-}
-
+.modal-close { position: absolute; right: 20px; top: 15px; cursor: pointer; font-size: 28px; color: #999; }
 .modal-close:hover { color: var(--vermelho-mrv); }
-
-#btn-whatsapp-feedback {
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    background-color: #25d366; 
-    color: white;
-    text-decoration: none; 
-    padding: 16px; 
-    border-radius: 10px;
-    font-weight: bold; 
-    font-size: 1.1rem; 
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-    margin-top: 10px;
-}
-
-#btn-whatsapp-feedback:hover { 
-    background-color: #128c7e; 
-    transform: scale(1.02); 
-}
 
 /* Scrollbar Personalizada */
 ::-webkit-scrollbar { width: 6px; }
