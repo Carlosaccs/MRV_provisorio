@@ -27,24 +27,23 @@ body {
     border: 1px solid white; color: white; padding: 6px 18px; border-radius: 20px; cursor: pointer;
     font-size: 0.85rem; font-weight: bold; transition: all 0.2s;
 }
-
 #btn-sobre:hover { background: white; color: var(--mrv-verde); }
 
 /* 3. ESTRUTURA */
 .wrapper { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
 
-/* 4. SIDEBAR ESQUERDA - AJUSTADO PARA BOTÕES MAIORES */
+/* 4. SIDEBAR ESQUERDA - BOTÕES DOBRADOS */
 .sidebar-esq { width: 280px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
 
 .btRes, .separador-complexo-btn {
     width: 92% !important; 
-    margin: 8px auto !important; /* Espaçamento maior entre botões */
-    min-height: 54px; /* ALTURA DOBRADA */
+    margin: 8px auto !important; 
+    height: 54px !important; /* ALTURA DOBRADA PARA FACILITAR O TOQUE */
     display: flex !important; 
     align-items: center !important; 
-    padding: 10px 15px !important; 
+    padding: 0 15px !important; 
     border-radius: 6px; 
-    font-size: 0.9rem; /* Fonte levemente maior para facilitar leitura */
+    font-size: 0.9rem; 
     cursor: pointer; 
     border: 1px solid #ddd; 
     text-decoration: none; 
@@ -52,18 +51,14 @@ body {
 }
 
 .separador-complexo-btn { 
-    background: #333 !important; 
-    color: white !important; 
-    justify-content: center !important; 
-    font-weight: bold; 
-    text-transform: uppercase; 
-    border: none !important; 
+    background: #333 !important; color: white !important; justify-content: center !important; 
+    font-weight: bold; text-transform: uppercase; border: none !important; 
 }
 
 .btRes { 
     background: #fff; 
     border-left: 6px solid var(--mrv-verde) !important; 
-    justify-content: flex-start; /* ALINHADO À ESQUERDA */
+    justify-content: flex-start !important; /* TEXTO ALINHADO À ESQUERDA */
     color: #333; 
     text-align: left;
 }
@@ -78,6 +73,7 @@ body {
 #caixa-b { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 10px; border-top: 2px solid #eee; cursor: pointer; background: #fff; min-height: 140px; }
 svg { width: 100%; height: 100%; }
 path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; transition: fill 0.2s; }
+path:hover { fill: #999 !important; cursor: pointer; }
 path.commrv { fill: var(--mrv-verde) !important; }
 path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
 
@@ -119,7 +115,15 @@ path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #00
 .modal-content { background: white; margin: 8% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 550px; position: relative; }
 .modal-close { position: absolute; right: 20px; top: 15px; cursor: pointer; font-size: 28px; color: #999; }
 
-/* Scrollbar */
+/* 11. MINIATURA NO HOVER */
+.container-btn-abrir { position: relative; display: inline-block; }
+.hover-preview { 
+    display: none; position: absolute; bottom: 125%; right: 0; z-index: 1000; 
+    background: white; padding: 4px; border: 1px solid #ddd; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border-radius: 6px; width: 280px; pointer-events: none; 
+}
+.container-btn-abrir:hover .hover-preview { display: block; }
+.hover-preview img { width: 100%; height: auto; display: block; border-radius: 4px; }
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
