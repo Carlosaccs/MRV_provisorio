@@ -1,74 +1,113 @@
 :root {
-    --mrv-verde: #00713a; --mrv-laranja: #ff8c00; --mrv-preto: #333;
-    --vermelho-mrv: #e31010; --cinza-claro: #f4f4f4; --cinza-mapa: #777;
+    --mrv-verde: #00713a;
+    --mrv-laranja: #ff8c00;
+    --mrv-preto: #333;
+    --vermelho-mrv: #e31010;
+    --cinza-claro: #f4f4f4;
+    --cinza-divisor: #ccc;
+    --cinza-mapa: #777;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+/* 1. RESET E LAYOUT BASE */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-/* TRAVA DE ORIENTAÇÃO */
-#aviso-orientacao {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--mrv-verde); color: white; z-index: 99999;
-    align-items: center; justify-content: center; text-align: center; padding: 20px;
+body { 
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: white; 
 }
-.aviso-conteudo p { font-size: 1.5rem; margin-bottom: 10px; }
-.aviso-conteudo span { font-size: 0.9rem; opacity: 0.8; }
-.icone-giro { font-size: 50px; margin-bottom: 20px; animation: rotating 2s linear infinite; }
 
-@keyframes rotating { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* Mostra o aviso se a altura for maior que a largura (celular em pé) */
-@media (orientation: portrait) { #aviso-orientacao { display: flex; } }
-
-body { display: flex; flex-direction: row; height: 100vh; width: 100vw; overflow: hidden; background: white; }
-
-/* BARRA VERTICAL */
-.barra-vertical { 
-    width: 45px; height: 100vh; background: var(--mrv-verde); color: white; 
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
-    padding: 20px 0; flex-shrink: 0; z-index: 1000; box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+/* 2. HEADER */
+.header { 
+    background-color: var(--mrv-verde) !important; color: white !important; height: 60px !important; 
+    line-height: 60px !important; font-size: 1.6rem !important; font-weight: bold !important; 
+    text-align: center; flex-shrink: 0; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10;
 }
-.logo-texto { 
-    font-size: 1.2rem; font-weight: 900; text-transform: uppercase; 
-    writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
-}
+
 #btn-sobre {
-    background: rgba(255,255,255,0.2); border: 1px solid white; color: white; 
-    padding: 8px 5px; border-radius: 5px; font-size: 0.65rem; writing-mode: vertical-rl; transform: rotate(180deg);
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2);
+    border: 1px solid white; color: white; padding: 6px 18px; border-radius: 20px; cursor: pointer;
+    font-size: 0.85rem; font-weight: bold; transition: all 0.2s;
 }
 
-/* LATERAIS */
-.wrapper { display: flex; flex: 1; height: 100vh; overflow: hidden; }
-.sidebar-esq { width: 22%; min-width: 190px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #fdfdfd; }
+#btn-sobre:hover { background: white; color: var(--mrv-verde); }
+
+/* 3. ESTRUTURA */
+.wrapper { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+
+/* 4. SIDEBAR ESQUERDA */
+.sidebar-esq { width: 280px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
 
 .btRes, .separador-complexo-btn {
-    width: 92% !important; margin: 10px auto !important; min-height: 60px; /* ALTURA DOBRADA */
-    display: flex !important; align-items: center !important; justify-content: center !important;
-    padding: 10px !important; border-radius: 10px; font-size: 0.85rem; font-weight: bold;
-    cursor: pointer; border: 1px solid #eee; text-align: center; transition: 0.2s;
+    width: 92% !important; margin: 4px auto !important; min-height: 27px; display: flex !important; 
+    align-items: center !important; padding: 6px 10px !important; border-radius: 4px; font-size: 0.72rem; 
+    cursor: pointer; border: 1px solid #ddd; text-decoration: none; transition: all 0.15s ease;
 }
-.btRes { background: #fff; border-left: 6px solid var(--mrv-verde) !important; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.btRes.ativo { background: var(--mrv-laranja) !important; color: white !important; border-color: var(--mrv-laranja) !important; }
-.separador-complexo-btn { background: var(--mrv-preto) !important; color: white !important; border: none !important; }
 
-/* MAPA E VITRINE */
-.conteudo-centro { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-#cidade-titulo { background: #f4f4f4; padding: 8px; text-align: center; font-weight: 800; font-size: 0.75rem; color: #555; text-transform: uppercase; border-bottom: 1px solid #e0e0e0; }
-#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 10px; }
-#caixa-b { flex: 0.6; display: flex; align-items: center; justify-content: center; border-top: 2px solid #eee; cursor: pointer; background: #fafafa; }
+.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; text-transform: uppercase; border: none !important; }
+.btRes { background: #fff; border-left: 4px solid var(--mrv-verde) !important; justify-content: space-between; color: #333; }
+.btRes:hover { background-color: #f0f0f0 !important; border: 1px solid var(--mrv-verde) !important; border-left: 4px solid var(--mrv-verde) !important; }
+.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border: 1px solid var(--mrv-laranja) !important; }
+
+/* 5. CENTRO */
+.conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+#cidade-titulo { background: #eee; padding: 4px; text-align: center; font-weight: bold; font-size: 0.85rem; color: #555; height: 30px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
+#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 15px; overflow: hidden; }
+#caixa-b { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 10px; border-top: 2px solid #eee; cursor: pointer; background: #fff; min-height: 140px; }
 svg { width: 100%; height: 100%; }
-path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; }
+path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; transition: fill 0.2s; }
+path:hover { fill: #999 !important; cursor: pointer; }
 path.commrv { fill: var(--mrv-verde) !important; }
-path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
+path.commrv:hover, path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
 
-.sidebar-dir { width: 38%; min-width: 320px; border-left: 1px solid #ddd; overflow-y: auto; padding: 15px; flex-shrink: 0; background: #fff; }
-/* Estilos da vitrine permanecem iguais ao desktop */
-.vitrine-topo { background: var(--mrv-verde); color: white; padding: 8px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; }
-.titulo-vitrine-faixa { display: flex !important; align-items: center !important; justify-content: center !important; height: 36px !important; font-weight: bold !important; font-size: 0.8rem !important; border-radius: 4px; color: #fff; margin-bottom: 10px; }
+/* 6. SIDEBAR DIREITA */
+.sidebar-dir { width: 480px; border-left: 1px solid #ddd; overflow-y: auto; padding: 12px; flex-shrink: 0; }
+.vitrine-topo { background: var(--mrv-verde); color: white; padding: 8px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; }
+.titulo-vitrine-faixa { display: flex !important; align-items: center !important; justify-content: center !important; height: 34px !important; font-weight: bold !important; font-size: 0.85rem !important; border-radius: 4px; color: #fff; margin-bottom: 8px; }
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* MODAL */
-.modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
-.modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 80%; max-width: 450px; position: relative; }
-.modal-close { position: absolute; right: 15px; top: 10px; cursor: pointer; font-size: 24px; color: #999; }
+/* 7. TABELAS */
+.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 4px; margin: 10px 0; border: 1px solid #ddd; overflow: hidden; }
+.tabela-header { background: #eee; font-weight: bold; font-size: 0.65rem; min-height: 30px; display: flex; align-items: center; }
+.tabela-row { display: flex; background: #fff; font-size: 0.7rem; border-bottom: 1px solid #eee; min-height: 30px; align-items: center; }
+.col-tabela { flex: 1; padding: 5px; text-align: center; border-right: 1px solid #eee; }
+
+/* 8. CARDS DE MATERIAIS (CORRIGIDO: BOTÕES IGUAIS) */
+.card-material-item { 
+    display: flex; justify-content: space-between; align-items: center; background: #fff; 
+    border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+}
+.card-material-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.card-icon { font-size: 1rem; }
+.card-text { font-size: 0.7rem; font-weight: 600; color: #333; }
+.card-material-right { display: flex; gap: 6px; align-items: center; }
+
+/* ESTILO PADRONIZADO DOS BOTÕES */
+.card-btn-abrir, .card-btn-copiar { 
+    width: 65px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: bold; border-radius: 4px; text-decoration: none; color: #fff; border: none; cursor: pointer;
+}
+.card-btn-abrir { background: var(--mrv-verde); }
+.card-btn-copiar { background: var(--mrv-laranja); }
+
+/* 9. BOTÕES MAPS */
+.btn-maps { background: #4285F4; color: white !important; text-decoration: none; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+.box-complexo-full { width: 100%; padding: 12px; background: #f9f9f9; border-left: 5px solid var(--mrv-preto); border-radius: 0 0 4px 4px; }
+
+/* 10. MODAL */
+.modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+.modal-content { background: white; margin: 8% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 550px; position: relative; }
+.modal-close { position: absolute; right: 20px; top: 15px; cursor: pointer; font-size: 28px; color: #999; }
+
+/* 11. MINIATURA NO HOVER */
+.container-btn-abrir { position: relative; display: inline-block; }
+.hover-preview { 
+    display: none; position: absolute; bottom: 125%; right: 0; z-index: 1000; 
+    background: white; padding: 4px; border: 1px solid #ddd; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border-radius: 6px; width: 280px; pointer-events: none; 
+}
+.container-btn-abrir:hover .hover-preview { display: block; }
+.hover-preview img { width: 100%; height: auto; display: block; border-radius: 4px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
