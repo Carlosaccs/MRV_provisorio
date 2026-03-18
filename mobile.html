@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard MRV SP - Mobile</title>
-    <link rel="stylesheet" href="style-mobile.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard MRV SP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="barra-vertical">
-        <div class="logo-texto">MRV em SP</div>
+    <div class="header">
+        RESIDENCIAIS MRV EM SÃO PAULO
         <button id="btn-sobre">Sobre</button>
     </div>
 
     <div class="wrapper">
         <aside class="sidebar-esq" id="lista-imoveis">
-            <div style="padding:20px; color:#666; font-size: 0.8rem;">Carregando...</div>
+            <div style="padding:20px; color:#666; font-size: 0.8rem;">Carregando residenciais...</div>
         </aside>
         
         <main class="conteudo-centro">
-            <div id="cidade-titulo">Selecione uma região</div> 
+            <div id="cidade-titulo">Selecione uma região no mapa</div> 
             <div id="caixa-a"></div> 
             <div id="caixa-b"></div> 
         </main>
 
         <aside class="sidebar-dir" id="ficha-tecnica">
-            <div style="text-align:center; color:#ccc; margin-top:80px; padding: 10px;">
+            <div style="text-align:center; color:#ccc; margin-top:100px;">
                 <p style="font-size: 30px;">📍</p>
-                <p>Toque em um Residencial ou no mapa</p>
+                <p>Clique em algum Residencial ou em alguma região verde do mapa</p>
             </div>
         </aside>
     </div>
@@ -40,24 +40,24 @@
             <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
             
             <div class="modal-body" style="text-align: center;">
-                <p style="margin-bottom: 20px; color: #333; line-height: 1.5; font-size: 0.9rem;">
-                    Este dashboard foi adaptado para acesso rápido via celular (modo paisagem).
+                <p style="margin-bottom: 20px; color: #333; line-height: 1.5;">
+                    Esse dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
                 </p>
                 
-                <div style="background: #fff9c4; padding: 12px; border-radius: 8px; border-left: 5px solid #fbc02d; margin-bottom: 20px; text-align: left;">
-                    <p style="font-size: 0.85rem; color: #444; line-height: 1.6;">
-                        As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais, envie para o Carlos pelo WhatsApp:
+                <div style="background: #fff9c4; padding: 15px; border-radius: 8px; border-left: 5px solid #fbc02d; margin-bottom: 25px; text-align: left;">
+                    <p style="font-size: 0.9rem; color: #444; line-height: 1.6;">
+                        As informações podem estar desatualizadas e até erradas, então caso encontre algum erro ou se você tiver algum material que esta faltando nele como books ou vídeos, por favor, envie pra mim pelo whatsapp através do botão abaixo:
                     </p>
                 </div>
 
                 <a href="https://wa.me/5511999999999?text=Olá%20Carlos,%20encontrei%20um%20erro/material%20para%20o%20Dashboard" target="_blank" id="btn-whatsapp-feedback">
-                    <span style="margin-right: 10px;">📱</span> Feedback via WhatsApp
+                    <span style="margin-right: 10px;">📱</span> Carlos Custódio - Enviar Feedback
                 </a>
             </div>
         </div>
     </div>
 
     <script src="mrv-data.js"></script>
-    <script src="mrv-engine-mobile.js"></script>
+    <script src="mrv-engine.js"></script>
 </body>
 </html>
