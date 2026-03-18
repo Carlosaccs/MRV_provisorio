@@ -1,3 +1,6 @@
+/* ==========================================================================
+   1. VARIÁVEIS E RESET
+   ========================================================================== */
 :root {
     --mrv-verde: #00713a;
     --mrv-laranja: #ff8c00;
@@ -6,9 +9,14 @@
     --cinza-claro: #f4f4f4;
     --cinza-divisor: #ccc;
     --cinza-mapa: #777;
+
+    /* Cores das Zonas (Padrão MRV SP) */
+    --mrv-zo: #f37021; /* Laranja */
+    --mrv-zl: #002060; /* Azul Marinho */
+    --mrv-zn: #ffc000; /* Amarelo/Ouro */
+    --mrv-zs: #ec008c; /* Rosa/Pink */
 }
 
-/* 1. RESET E LAYOUT BASE */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
 body { 
@@ -19,7 +27,9 @@ body {
     background: white; 
 }
 
-/* 2. HEADER E BOTÃO SOBRE */
+/* ==========================================================================
+   2. HEADER E BOTÃO SOBRE
+   ========================================================================== */
 .header { 
     background-color: var(--mrv-verde) !important; 
     color: white !important; 
@@ -55,7 +65,9 @@ body {
     color: var(--mrv-verde); 
 }
 
-/* 3. ESTRUTURA PRINCIPAL (WRAPPER) */
+/* ==========================================================================
+   3. ESTRUTURA PRINCIPAL (WRAPPER)
+   ========================================================================== */
 .wrapper { 
     display: flex; 
     flex: 1; 
@@ -63,7 +75,9 @@ body {
     overflow: hidden; 
 }
 
-/* 4. SIDEBAR ESQUERDA (LISTA DE IMÓVEIS) */
+/* ==========================================================================
+   4. SIDEBAR ESQUERDA (LISTA DE IMÓVEIS)
+   ========================================================================== */
 .sidebar-esq { 
     width: 280px; 
     border-right: 1px solid #ddd; 
@@ -99,15 +113,20 @@ body {
 
 .btRes { 
     background: #fff; 
-    border-left: 4px solid var(--mrv-verde) !important; 
+    border-left: 4px solid var(--mrv-verde) !important; /* Padrão */
     justify-content: space-between; 
     color: #333; 
 }
 
+/* NOVAS CLASSES: Cores de Zona aplicadas na borda lateral */
+.btRes.btn-zo { border-left: 4px solid var(--mrv-zo) !important; }
+.btRes.btn-zl { border-left: 4px solid var(--mrv-zl) !important; }
+.btRes.btn-zn { border-left: 4px solid var(--mrv-zn) !important; }
+.btRes.btn-zs { border-left: 4px solid var(--mrv-zs) !important; }
+
 .btRes:hover { 
     background-color: #f0f0f0 !important; 
     border: 1px solid var(--mrv-verde) !important; 
-    border-left: 4px solid var(--mrv-verde) !important; 
 }
 
 .btRes.ativo { 
@@ -116,7 +135,9 @@ body {
     border: 1px solid var(--mrv-laranja) !important; 
 }
 
-/* 5. CENTRO (MAPAS E TÍTULOS) */
+/* ==========================================================================
+   5. CENTRO (MAPAS E TÍTULOS)
+   ========================================================================== */
 .conteudo-centro { 
     flex: 1; 
     display: flex; 
@@ -177,7 +198,9 @@ path.commrv:hover, path.ativo {
     stroke-width: 1.5px !important; 
 }
 
-/* 6. SIDEBAR DIREITA (VITRINE / FICHA TÉCNICA) */
+/* ==========================================================================
+   6. SIDEBAR DIREITA (VITRINE / FICHA TÉCNICA)
+   ========================================================================== */
 .sidebar-dir { 
     width: 480px; 
     border-left: 1px solid #ddd; 
@@ -215,7 +238,9 @@ path.commrv:hover, path.ativo {
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* 7. TABELAS DE PREÇOS E INFOS */
+/* ==========================================================================
+   7. TABELAS DE PREÇOS E INFOS
+   ========================================================================== */
 .tabela-precos-container { 
     width: 100%; 
     background: var(--cinza-claro); 
@@ -256,7 +281,9 @@ path.commrv:hover, path.ativo {
     font-weight: bold; 
 }
 
-/* 8. CARDS DE MATERIAIS - CORRIGIDO */
+/* ==========================================================================
+   8. CARDS DE MATERIAIS E PREVIEW
+   ========================================================================== */
 .card-material-item { 
     display: flex; 
     justify-content: space-between; 
@@ -294,7 +321,6 @@ path.commrv:hover, path.ativo {
 .card-btn-abrir { background: var(--mrv-verde); }
 .card-btn-copiar { background: var(--mrv-laranja); }
 
-/* MINIATURA LIMPA E POSICIONADA */
 .preview-container {
     display: none; 
     position: absolute; 
@@ -314,14 +340,16 @@ path.commrv:hover, path.ativo {
     width: 100%; 
     height: 100%; 
     border: none; 
-    pointer-events: none; /* Evita interações acidentais no hover */
+    pointer-events: none;
 }
 
 .btn-com-preview:hover .preview-container { 
     display: block; 
 }
 
-/* 9. BOTÕES E AUXILIARES */
+/* ==========================================================================
+   9. BOTÕES E AUXILIARES
+   ========================================================================== */
 .btn-maps { 
     background: #4285F4; 
     color: white !important; 
@@ -340,7 +368,9 @@ path.commrv:hover, path.ativo {
     border-radius: 0 0 4px 4px; 
 }
 
-/* 10. MODAL DESIGN (REINTEGRADO) */
+/* ==========================================================================
+   10. MODAL DESIGN
+   ========================================================================== */
 .modal {
     display: none; 
     position: fixed; 
