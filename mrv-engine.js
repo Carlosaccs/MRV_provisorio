@@ -20,19 +20,18 @@ const COL = {
 };
 
 /* ==========================================================================
-   INICIALIZAÇÃO E CARREGAMENTO
+   TRATAMENTO DE LINKS (GOOGLE DRIVE CLEAN MODE)
    ========================================================================== */
-async function iniciarApp() {
-    try { await carregarPlanilha(); } catch (err) { console.error(err); }
-}
-
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
     let link = url.trim();
+
+    // Se for um link do Google Drive, purifica a visualização
     if (link.includes('drive.google.com')) {
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
         if (match && match[1]) {
-            return `https://drive.google.com/file/d/${match[1]}/preview`;
+            // ?rm=minimal remove botões de zoom, menus e barras do Drive
+            return `https://drive.google.com/file/d/${match[1]}/preview?rm=minimal`;
         }
     }
     return link;
@@ -41,7 +40,14 @@ function formatarLinkSeguro(url) {
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     navigator.clipboard.writeText(linkSeguro);
-    alert("Link seguro copiado!");
+    alert("Link copiado!");
+}
+
+/* ==========================================================================
+   CARREGAMENTO E LOGICA DE DADOS
+   ========================================================================== */
+async function iniciarApp() {
+    try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
 async function carregarPlanilha() {
@@ -67,39 +73,23 @@ async function carregarPlanilha() {
             const ordem = parseInt(colunas[COL.ORDEM]);
 
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
-
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
             
             return {
-                id_path: idPath,
-                tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
-                ordem: ordem,
-                nome: nomeImovel,
-                nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
-                estoque: colunas[COL.ESTOQUE],
-                endereco: colunas[COL.END] || "",
-                entrega: colunas[COL.ENTREGA] || "---",
-                obra: colunas[COL.OBRA] || "0",
-                tipologiasH: colunas[COL.TIPOLOGIAS] || "", 
-                regiao: colunas[COL.REGIAO] || "---",
-                p_de: colunas[COL.P_DE] || "---",
-                p_ate: colunas[COL.P_ATE] || "---",
-                limitador: colunas[COL.LIMITADOR] || "---",
-                casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
-                campanha: colunas[COL.CAMPANHA] || "",
-                observacoes: colunas[COL.OBSERVACOES] || "", 
-                descLonga: colunas[COL.DESC_LONGA] || "",
-                localizacao: colunas[COL.LOCALIZACAO] || "",
-                mobilidade: colunas[COL.MOBILIDADE] || "",
-                lazer: colunas[COL.CULTURA_LAZER] || "",
-                comercio: colunas[COL.COMERCIO] || "",
-                saude: colunas[COL.SAUDE_EDUCACAO] || "",
-                linkCliente: colunas[COL.BOOK_CLIENTE] || "",
-                linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
-                linksVideos: colunas[COL.LINKS_VIDEOS] || "",
-                linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
-                linksImplant: colunas[COL.LINKS_IMPLANT] || "",
-                linksDiversos: colunas[COL.LINKS_DIVERSOS] || ""
+                id_path: idPath, tipo: cat.includes('COMPLEXO') ? 'N' : 'R', ordem: ordem,
+                nome: nomeImovel, nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
+                estoque: colunas[COL.ESTOQUE], endereco: colunas[COL.END] || "",
+                entrega: colunas[COL.ENTREGA] || "---", obra: colunas[COL.OBRA] || "0",
+                tipologiasH: colunas[COL.TIPOLOGIAS] || "", regiao: colunas[COL.REGIAO] || "---",
+                p_de: colunas[COL.P_DE] || "---", p_ate: colunas[COL.P_ATE] || "---",
+                limitador: colunas[COL.LIMITADOR] || "---", casa_paulista: colunas[COL.CASA_PAULISTA] || "---",
+                campanha: colunas[COL.CAMPANHA] || "", observacoes: colunas[COL.OBSERVACOES] || "", 
+                descLonga: colunas[COL.DESC_LONGA] || "", localizacao: colunas[COL.LOCALIZACAO] || "",
+                mobilidade: colunas[COL.MOBILIDADE] || "", lazer: colunas[COL.CULTURA_LAZER] || "",
+                comercio: colunas[COL.COMERCIO] || "", saude: colunas[COL.SAUDE_EDUCACAO] || "",
+                linkCliente: colunas[COL.BOOK_CLIENTE] || "", linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
+                linksVideos: colunas[COL.LINKS_VIDEOS] || "", linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
+                linksImplant: colunas[COL.LINKS_IMPLANT] || "", linksDiversos: colunas[COL.LINKS_DIVERSOS] || ""
             };
         }).filter(i => i !== null);
 
@@ -349,43 +339,14 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 ${materiaisHtml}
             </div>`;
         }
-        if(selecionado.descLonga) {
-             html += `<div style="margin-top:8px; font-size:0.7rem; color:#666; line-height:1.4; border-top:1px solid #eee; padding-top:4px;">${selecionado.descLonga}</div>`;
-        }
     } else {
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
         html += `<div class="box-complexo-full">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
                  </div>`;
-        let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
-        if (materiaisComplexo !== "") {
-            html += `<div style="margin-top: 10px; padding: 0 5px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
-                ${materiaisComplexo}
-            </div>`;
-        }
     }
     painel.innerHTML = html;
 }
-
-/* ==========================================================================
-   LÓGICA DO MODAL (BOTÃO SOBRE)
-   ========================================================================== */
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById("modal-sobre");
-    const btn = document.getElementById("btn-sobre");
-    const span = document.querySelector(".modal-close");
-
-    if(btn) {
-        btn.onclick = () => { if(modal) modal.style.display = "block"; };
-    }
-    if(span) {
-        span.onclick = () => { if(modal) modal.style.display = "none"; };
-    }
-    window.onclick = (event) => {
-        if (event.target == modal) { modal.style.display = "none"; }
-    };
-});
 
 window.onload = iniciarApp;
