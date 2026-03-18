@@ -113,7 +113,7 @@ body {
 
 .btRes { 
     background: #fff; 
-    border-left: 4px solid var(--mrv-verde) !important; /* Padrão */
+    border-left: 4px solid var(--mrv-verde) !important; 
     justify-content: space-between; 
     color: #333; 
 }
@@ -208,10 +208,15 @@ path.commrv:hover, path.ativo {
     flex-shrink: 0; 
 }
 
-/* AJUSTE: Fonte das caixas coloridas aumentada em 2 pontos (de ~12px para ~15px) */
-.sidebar-dir [style*="background-color"] {
+/* AJUSTE SOLICITADO: Aumenta apenas o texto descritivo das caixas coloridas */
+.sidebar-dir div[style*="padding: 10px;"] {
     font-size: 0.95rem !important; 
     line-height: 1.4 !important;
+}
+
+/* Mantém o título dentro das caixas (como "LOCALIZAÇÃO") com tamanho equilibrado */
+.sidebar-dir strong {
+    font-size: 0.85rem !important;
 }
 
 .vitrine-topo { 
@@ -244,7 +249,7 @@ path.commrv:hover, path.ativo {
 .faixa-preta { background: var(--mrv-preto) !important; }
 
 /* ==========================================================================
-   7. TABELAS DE PREÇOS E INFOS
+   7. TABELAS DE PREÇOS E INFOS (MANTIDO ORIGINAL)
    ========================================================================== */
 .tabela-precos-container { 
     width: 100%; 
@@ -287,7 +292,7 @@ path.commrv:hover, path.ativo {
 }
 
 /* ==========================================================================
-   8. CARDS DE MATERIAIS E PREVIEW (MINIATURAS LIMPAS)
+   8. CARDS DE MATERIAIS E PREVIEW (MINIATURAS APROVADAS)
    ========================================================================== */
 .card-material-item { 
     display: flex; 
@@ -326,7 +331,6 @@ path.commrv:hover, path.ativo {
 .card-btn-abrir { background: var(--mrv-verde); }
 .card-btn-copiar { background: var(--mrv-laranja); }
 
-/* AJUSTE: Limpeza das miniaturas via CSS Crop */
 .preview-container {
     display: none; 
     position: absolute; 
@@ -339,16 +343,16 @@ path.commrv:hover, path.ativo {
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
     z-index: 1000; 
-    overflow: hidden; /* Essencial para o "crop" */
+    overflow: hidden; 
 }
 
 .preview-container iframe { 
-    width: 130%; /* Aumentado para esconder barras laterais */
-    height: 160%; /* Aumentado para esconder o rodapé */
+    width: 130%; 
+    height: 160%; 
     border: none; 
     pointer-events: none;
-    margin-top: -45px; /* Sobe o conteúdo para esconder o menu/header poluído */
-    margin-left: -15px; /* Centraliza o conteúdo útil */
+    margin-top: -45px; 
+    margin-left: -15px; 
 }
 
 .btn-com-preview:hover .preview-container { 
