@@ -17,7 +17,7 @@ const COL = {
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
     LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
     LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
-    ESTANDE: 30 // Coluna AE - Endereço do Plantão de Vendas
+    ESTANDE: 30 
 };
 
 /* ==========================================================================
@@ -27,16 +27,12 @@ async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
-// Formata links do Drive para Preview Limpo (essencial para as miniaturas)
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
     let link = url.trim();
-
     if (link.includes('drive.google.com')) {
-        // Extrai o ID do arquivo (funciona com link de compartilhamento ou visualização)
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
         if (match && match[1]) {
-            // rm=minimal remove as bordas e menus do Google Drive no iframe
             return `https://drive.google.com/file/d/${match[1]}/preview?rm=minimal`;
         }
     }
@@ -52,7 +48,6 @@ function copiarTexto(texto, msg = "Link copiado!") {
     });
 }
 
-// Atalho para copiar o link seguro gerado
 function copiarLink(url) {
     const linkSeguro = formatarLinkSeguro(url);
     copiarTexto(linkSeguro, "Link seguro copiado!");
@@ -136,6 +131,16 @@ function obterHtmlEstoque(valor, tipo) {
     const num = parseInt(clean);
     if (!isNaN(num)) return `<span style="color:${num < 6 ? '#e31010' : '#666'}; font-size:9px; font-weight:bold;">RESTAM ${num} UN.</span>`;
     return `<span style="color:#666; font-size:9px;">${clean || "CONSULTAR"}</span>`;
+}
+
+// NOVO: Função para detectar a Zona e retornar a classe CSS
+function detectarClasseZona(nome) {
+    const n = nome.toUpperCase();
+    if (n.startsWith("ZO ")) return "btn-zo";
+    if (n.startsWith("ZL ")) return "btn-zl";
+    if (n.startsWith("ZN ")) return "btn-zn";
+    if (n.startsWith("ZS ")) return "btn-zs";
+    return ""; // Sem zona específica ou já fora de SP capital
 }
 
 function navegarVitrine(nome) { 
@@ -223,11 +228,14 @@ function trocarMapas(completo) {
     desenharMapas(); gerarListaLateral(); 
 }
 
+// ATUALIZADA: Agora aplica a classe de cor da zona
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
-        return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo}" onclick="navegarVitrine('${item.nome}')">
+        const classeZona = detectarClasseZona(item.nome); // Pega zn, zs, etc.
+        
+        return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')">
                     <strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}
                 </div>`;
     }).join('');
@@ -236,12 +244,9 @@ function gerarListaLateral() {
 /* ==========================================================================
    CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) E MINIATURAS
    ========================================================================== */
-
-// Geração do Card com a estrutura de Preview que o seu CSS exige
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
     const linkSeguro = formatarLinkSeguro(url);
-    
     return `
     <div class="card-material-item">
         <div class="card-material-left">
@@ -279,16 +284,15 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if(outros.length > 0) {
-        html += `<div style="margin-bottom:6px;">${outros.map(i => `
-            <button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
+        html += `<div style="margin-bottom:6px;">${outros.map(i => {
+            const classeZ = detectarClasseZona(i.nome);
+            return `<button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${classeZ}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
                 <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
-            </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
+            </button>`}).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
-
-        // Endereço Residencial com os dois botões (MAPS e LINK)
         html += `
         <div style="padding: 2px 0 5px 0;">
             <div style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
@@ -321,7 +325,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
-        // Tabela de Preços (Com correção para "Menor valor")
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
@@ -351,10 +354,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             }
         }
 
-        // Diferenciais e Estande de Vendas
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
-        
-        // Estande de Vendas (Coluna AE)
         if(selecionado.estande && selecionado.estande !== "---" && selecionado.estande !== "") {
             const urlMapsEstande = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.estande)}`;
             html += `
@@ -386,7 +386,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
         html += `</div>`;
 
-        // Seção de Materiais
         let materiaisHtml = "";
         materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
         materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
@@ -402,7 +401,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>`;
         }
     } else {
-        // Layout para Complexos (Categoria N)
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
         html += `<div class="box-complexo-full">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
