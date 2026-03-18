@@ -6,69 +6,56 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-
 body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: white; }
 
-/* HEADER */
 .header { 
     background-color: var(--mrv-verde); color: white; height: 60px; 
     display: flex; align-items: center; justify-content: center;
-    position: relative; z-index: 1000; font-weight: bold; font-size: 1.2rem;
+    position: relative; z-index: 100; font-weight: bold; font-size: 1.1rem;
 }
 
-#btn-menu {
-    position: absolute; left: 15px; background: none; border: 1px solid white;
-    color: white; font-size: 1.4rem; padding: 4px 10px; border-radius: 6px; cursor: pointer;
-}
+#btn-sobre { position: absolute; right: 15px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; }
 
-#btn-sobre { position: absolute; right: 15px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; }
+.wrapper { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
 
-/* LAYOUT */
-.wrapper { display: flex; flex: 1; position: relative; overflow: hidden; }
+/* COLUNA ESQUERDA */
+.sidebar-esq { width: 260px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #f8f9fa; flex-shrink: 0; }
 
-/* MENU LATERAL FLUTUANTE */
-.sidebar-esq { 
-    position: fixed; top: 60px; left: -300px; /* Escondido */
-    width: 280px; height: calc(100vh - 60px); 
-    background: #f8f9fa; z-index: 900; 
-    transition: 0.3s ease; overflow-y: auto; padding: 10px 0;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.2);
-}
-
-.sidebar-esq.menu-aberto { left: 0; }
-
-/* OVERLAY (Fundo escuro ao abrir menu) */
-#menu-overlay {
-    display: none; position: fixed; top: 60px; left: 0; 
-    width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 850;
-}
-#menu-overlay.ativo { display: block; }
-
-/* BOTÕES DA LISTA */
 .btRes, .separador-complexo-btn {
-    width: 92% !important; margin: 10px auto !important; height: 54px !important;
-    display: flex !important; align-items: center; padding: 0 15px; border-radius: 8px;
-    border: 1px solid #ddd; background: white; font-size: 0.9rem; cursor: pointer;
+    width: 92% !important; margin: 8px auto !important; height: 54px !important; 
+    display: flex !important; align-items: center; padding: 0 15px; border-radius: 6px; 
+    border: 1px solid #ddd; background: white; font-size: 0.85rem; cursor: pointer;
 }
-.btRes { border-left: 8px solid var(--mrv-verde) !important; text-align: left; }
-.btRes.ativo { background: var(--mrv-laranja) !important; color: white !important; border-color: var(--mrv-laranja) !important; }
-.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center !important; font-weight: bold; }
+.btRes { border-left: 8px solid var(--mrv-verde) !important; color: #333; }
+.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border-color: var(--mrv-laranja) !important; }
+.separador-complexo-btn { background: #333 !important; color: white !important; justify-content: center; font-weight: bold; }
 
-/* MAPA E CONTEÚDO */
-.conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; z-index: 10; }
-#cidade-titulo { background: #eee; padding: 8px; text-align: center; font-size: 0.8rem; font-weight: bold; color: #555; }
-#caixa-a { flex: 2; padding: 10px; }
-#caixa-b { flex: 0.8; border-top: 2px solid #eee; background: #fff; min-height: 130px; }
+/* CENTRO */
+.conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 350px; }
+#cidade-titulo { background: #eee; padding: 6px; text-align: center; font-weight: bold; font-size: 0.75rem; color: #555; }
+#caixa-a { flex: 2; padding: 10px; display: flex; align-items: center; justify-content: center; }
+#caixa-b { flex: 0.8; border-top: 2px solid #eee; cursor: pointer; }
+
+/* COLUNA DIREITA */
+.sidebar-dir { width: 440px; border-left: 1px solid #ddd; overflow-y: auto; padding: 12px; flex-shrink: 0; background: #fff; }
+
+/* ESTILOS DA VITRINE (FICHA TÉCNICA) */
+.vitrine-topo { background: var(--mrv-verde); color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; }
+.faixa-laranja { background: var(--mrv-laranja); color: white; padding: 6px; font-weight: bold; text-align: center; border-radius: 4px; margin-bottom: 8px; }
+.btn-maps { background: #4285F4; color: white; padding: 2px 8px; border-radius: 4px; text-decoration: none; font-size: 0.6rem; font-weight: bold; }
+
+/* TABELAS */
+.tabela-precos-container { width: 100%; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+.tabela-header { display: flex; background: #f0f0f0; border-bottom: 1px solid #ddd; }
+.tabela-row { display: flex; border-bottom: 1px solid #eee; }
+.col-tabela { flex: 1; padding: 6px; font-size: 0.65rem; text-align: center; border-right: 1px solid #eee; }
+
+/* MATERIAIS */
+.card-material-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #eee; margin-bottom: 5px; border-radius: 6px; }
+.card-btn-abrir { background: var(--mrv-verde); color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.7rem; }
+.card-btn-copiar { background: #f0f0f0; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; cursor: pointer; }
 
 svg { width: 100%; height: 100%; }
 path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; }
 path.commrv { fill: var(--mrv-verde) !important; }
-path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
-
-/* FICHA TÉCNICA */
-.sidebar-dir { width: 480px; border-left: 1px solid #ddd; overflow-y: auto; padding: 15px; background: white; flex-shrink: 0; }
-.vitrine-topo { background: var(--mrv-verde); color: white; padding: 10px; text-align: center; font-weight: bold; border-radius: 4px; }
-
-/* Estilos das tabelas e cards (Mantidos da versão anterior) */
-.card-material-item { display: flex; justify-content: space-between; padding: 8px; border: 1px solid #eee; margin-bottom: 5px; border-radius: 6px; align-items: center; }
-.card-btn-abrir { background: var(--mrv-verde); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.7rem; }
+path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.2px !important; }
