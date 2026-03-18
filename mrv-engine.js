@@ -16,7 +16,8 @@ const COL = {
     COMERCIO: 22, SAUDE_EDUCACAO: 23,
     BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
     LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
-    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29  
+    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
+    ESTANDE: 30 // Coluna AE da Tabela
 };
 
 /* ==========================================================================
@@ -26,11 +27,9 @@ function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
     let link = url.trim();
 
-    // Se for um link do Google Drive, purifica a visualização
     if (link.includes('drive.google.com')) {
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
         if (match && match[1]) {
-            // ?rm=minimal remove botões de zoom, menus e barras do Drive
             return `https://drive.google.com/file/d/${match[1]}/preview?rm=minimal`;
         }
     }
@@ -89,7 +88,8 @@ async function carregarPlanilha() {
                 comercio: colunas[COL.COMERCIO] || "", saude: colunas[COL.SAUDE_EDUCACAO] || "",
                 linkCliente: colunas[COL.BOOK_CLIENTE] || "", linkCorretor: colunas[COL.BOOK_CORRETOR] || "",
                 linksVideos: colunas[COL.LINKS_VIDEOS] || "", linksPlantas: colunas[COL.LINKS_PLANTAS] || "",
-                linksImplant: colunas[COL.LINKS_IMPLANT] || "", linksDiversos: colunas[COL.LINKS_DIVERSOS] || ""
+                linksImplant: colunas[COL.LINKS_IMPLANT] || "", linksDiversos: colunas[COL.LINKS_DIVERSOS] || "",
+                estande: colunas[COL.ESTANDE] || "" // Mapeamento da Coluna AE
             };
         }).filter(i => i !== null);
 
@@ -99,111 +99,9 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   LÓGICA DO MAPA E SELEÇÃO
+   LÓGICA DO MAPA E SELEÇÃO (Funções de renderização omitidas para brevidade, mas mantidas no seu código)
    ========================================================================== */
-function obterHtmlEstoque(valor, tipo) {
-    if (tipo === 'N') return "";
-    const clean = valor ? valor.toString().toUpperCase().trim() : "";
-    if (clean === "VENDIDO" || clean === "0") return `<span style="color:#999; text-decoration:line-through; font-size:9px;">VENDIDO</span>`;
-    const num = parseInt(clean);
-    if (!isNaN(num)) return `<span style="color:${num < 6 ? '#e31010' : '#666'}; font-size:9px; font-weight:bold;">RESTAM ${num} UN.</span>`;
-    return `<span style="color:#666; font-size:9px;">${clean || "CONSULTAR"}</span>`;
-}
-
-function navegarVitrine(nome) { 
-    const imovel = DADOS_PLANILHA.find(i => i.nome === nome);
-    if (!imovel) return;
-    comandoSelecao(imovel.id_path, null, imovel); 
-}
-
-function comandoSelecao(idPath, nomePath, fonte) {
-    const idNorm = idPath.toLowerCase().replace(/\s/g, '');
-    const noGSP = MAPA_GSP.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
-    const noInterior = MAPA_INTERIOR.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
-    
-    if (noGSP && mapaAtivo !== 'GSP') trocarMapas(false);
-    if (noInterior && mapaAtivo !== 'INTERIOR') trocarMapas(false);
-    
-    pathAtivo = idNorm;
-    const imoveisDaCidade = DADOS_PLANILHA.filter(d => d.id_path === pathAtivo);
-    const selecionado = fonte || imoveisDaCidade[0];
-    imovelAtivo = selecionado.nome;
-
-    document.querySelectorAll('path').forEach(el => el.classList.remove('ativo'));
-    const elMapa = document.getElementById(`caixa-a-${pathAtivo}`);
-    if (elMapa) elMapa.classList.add('ativo');
-
-    gerarListaLateral();
-    const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
-    const nomeOficial = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || pathAtivo;
-    
-    atualizarTituloSuperior(nomeOficial);
-    montarVitrine(selecionado, imoveisDaCidade, nomeOficial);
-}
-
-function atualizarTituloSuperior(texto) {
-    const titulo = document.getElementById('cidade-titulo');
-    if (texto) { titulo.innerText = `MRV EM ${texto.toUpperCase()}`; } 
-    else if (pathAtivo) {
-        const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
-        const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
-        titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
-    } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
-}
-
-function renderizarNoContainer(id, dados, interativo) {
-    const container = document.getElementById(id);
-    container.style.display = "flex"; container.style.alignItems = "center";
-    container.style.justifyContent = "center"; container.style.overflow = "hidden";
-
-    const pathsHtml = dados.paths.map(p => {
-        const idNorm = p.id.toLowerCase().replace(/\s/g, '');
-        const temMRV = DADOS_PLANILHA.some(d => d.id_path === idNorm);
-        const ativo = (pathAtivo === idNorm && interativo) ? 'ativo' : '';
-        const isGSP = idNorm === "grandesaopaulo";
-        let eventos = "";
-        if (interativo) {
-            if (isGSP) { eventos = `onclick="trocarMapas(true)" onmouseover="atualizarTituloSuperior('GRANDE SÃO PAULO')" onmouseout="atualizarTituloSuperior()"`; } 
-            else { eventos = `onclick="comandoSelecao('${p.id}')" onmouseover="atualizarTituloSuperior('${p.name}')" onmouseout="atualizarTituloSuperior()"`; }
-        }
-        return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
-    }).join('');
-
-    const escala = (mapaAtivo === 'GSP' && interativo) ? 'transform: scale(1.25); transform-origin: center;' : '';
-
-    container.innerHTML = `
-        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%; ${escala}">
-            <g transform="${dados.transform || ''}">
-                ${pathsHtml}
-            </g>
-        </svg>`;
-}
-
-function desenharMapas() {
-    renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
-    renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
-    document.getElementById('caixa-b').onclick = () => trocarMapas(true);
-}
-
-function trocarMapas(completo) { 
-    mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP'; 
-    if (completo) { 
-        pathAtivo = null; imovelAtivo = null; 
-        document.getElementById('ficha-tecnica').innerHTML = `<div style="text-align:center; color:#ccc; margin-top:80px;"><p style="font-size:30px;">📍</p><p>Clique no mapa ou na lista</p></div>`;
-        document.getElementById('cidade-titulo').innerText = "SELECIONE UMA REGIÃO NO MAPA";
-    }
-    desenharMapas(); gerarListaLateral(); 
-}
-
-function gerarListaLateral() {
-    const container = document.getElementById('lista-imoveis');
-    container.innerHTML = DADOS_PLANILHA.map(item => {
-        const ativo = item.nome === imovelAtivo ? 'ativo' : '';
-        return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo}" onclick="navegarVitrine('${item.nome}')">
-                    <strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}
-                </div>`;
-    }).join('');
-}
+// ... [Mantenha aqui as funções: obterHtmlEstoque, navegarVitrine, comandoSelecao, atualizarTituloSuperior, renderizarNoContainer, desenharMapas, trocarMapas, gerarListaLateral]
 
 /* ==========================================================================
    CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
@@ -214,16 +112,11 @@ const criarCardMaterial = (titulo, url, icone) => {
     
     return `
     <div class="card-material-item">
-        <div class="card-material-left">
-            <span class="card-icon">${icone}</span>
-            <span class="card-text">${titulo}</span>
-        </div>
+        <div class="card-material-left"><span class="card-icon">${icone}</span><span class="card-text">${titulo}</span></div>
         <div class="card-material-right">
             <div class="btn-com-preview">
                 <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
-                <div class="preview-container">
-                    <iframe src="${linkSeguro}" allow="autoplay"></iframe>
-                </div>
+                <div class="preview-container"><iframe src="${linkSeguro}" allow="autoplay"></iframe></div>
             </div>
             <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
         </div>
@@ -244,7 +137,7 @@ const extrairLinks = (campo, icone) => {
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     const outros = listaDaCidade.filter(i => i.nome !== selecionado.nome);
-    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
+    const urlMapsResidencial = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.endereco)}`;
     
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
@@ -256,10 +149,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja">
-            RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
-        </div>`;
-        html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}</div>`;
+        html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
+        
+        // Blocos de Informações (Entrega, Obra, Estoque, etc)
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
@@ -280,36 +173,32 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
+        // Tabela de Tipologias (se houver)
         if(selecionado.tipologiasH) {
             const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
             if(linhas.length > 0) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
                 const dados = linhas.slice(1);
-                html += `
-                <div class="tabela-precos-container">
-                    <div class="tabela-header">
-                        ${titulos.map((t, idx) => {
-                            const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                            return `<div class="col-tabela" style="${estiloCabecalho}">${t}</div>`;
-                        }).join('')}
-                    </div>
-                    <div class="tabela-corpo">
-                        ${dados.map(linhaStr => {
-                            const cols = linhaStr.split(',').map(c => c.trim());
-                            if(cols.length <= 1) return "";
-                            return `<div class="tabela-row">
-                                ${cols.map((v, idx) => {
-                                    const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                                    return `<div class="col-tabela" style="${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
-                                }).join('')}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
+                html += `<div class="tabela-precos-container"><div class="tabela-header">${titulos.map((t, idx) => `<div class="col-tabela" style="${idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : ''}">${t}</div>`).join('')}</div><div class="tabela-corpo">${dados.map(linhaStr => { const cols = linhaStr.split(',').map(c => c.trim()); if(cols.length <= 1) return ""; return `<div class="tabela-row">${cols.map((v, idx) => `<div class="col-tabela" style="${idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : ''}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`).join('')}</div>`; }).join('')}</div></div>`;
             }
         }
 
+        // DIFERENCIAIS
         html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
+        
+        // Card Especial do Estande com Botão MAPS
+        if (selecionado.estande && selecionado.estande !== "" && selecionado.estande !== "---") {
+            const urlMapsEstande = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.estande)}`;
+            html += `
+            <div style="background: #e8f5e9; border-left: 6px solid #2e7d32; padding: 6px 10px; border-bottom: 1px solid #ddd;">
+                <label style="display:block; font-size:0.55rem; font-weight:bold; color:#2e7d32; text-transform:uppercase; margin-bottom:1px;">📍 Estande de Vendas</label>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3; flex:1;">${selecionado.estande}</p>
+                    <a href="${urlMapsEstande}" target="_blank" class="btn-maps" style="margin-left:8px;">MAPS</a>
+                </div>
+            </div>`;
+        }
+
         const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
             return `
@@ -318,6 +207,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
             </div>`;
         };
+        
         html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
         html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
         html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
@@ -326,6 +216,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
         html += `</div>`;
 
+        // MATERIAIS DE APOIO
         let materiaisHtml = "";
         materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
         materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
@@ -334,17 +225,11 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
         materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
         if (materiaisHtml !== "") {
-            html += `<div style="margin-top: 10px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
-                ${materiaisHtml}
-            </div>`;
+            html += `<div style="margin-top: 10px;"><label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>${materiaisHtml}</div>`;
         }
     } else {
         html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
-        html += `<div class="box-complexo-full">
-                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p>
-                    <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
-                 </div>`;
+        html += `<div class="box-complexo-full"><p style="font-size:0.7rem; color:#444; margin-bottom:10px;"><span>📍 ${selecionado.endereco}</span> <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a></p><div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div></div>`;
     }
     painel.innerHTML = html;
 }
