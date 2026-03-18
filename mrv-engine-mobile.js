@@ -20,33 +20,8 @@ const COL = {
     PLANTAO_VENDAS: 30 
 };
 
-/* ==========================================================================
-   INICIALIZAÇÃO E CARREGAMENTO
-   ========================================================================== */
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
-}
-
-function formatarLinkSeguro(url) {
-    if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
-    let link = url.trim();
-    if (link.includes('drive.google.com')) {
-        const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
-        if (match && match[1]) return `https://drive.google.com/file/d/${match[1]}/preview`;
-    }
-    return link;
-}
-
-function obterIdDrive(url) {
-    if (!url || !url.includes('drive.google.com')) return null;
-    const match = url.match(/\/d\/(.*?)(\/|$|\?)/) || url.match(/id=(.*?)($|&)/);
-    return match ? match[1] : null;
-}
-
-function copiarLink(url) {
-    const linkSeguro = formatarLinkSeguro(url);
-    navigator.clipboard.writeText(linkSeguro);
-    alert("Link copiado com sucesso!");
 }
 
 async function carregarPlanilha() {
@@ -66,16 +41,13 @@ async function carregarPlanilha() {
                 else { campo += char; }
             }
             colunas.push(campo.trim());
-
             const nomeImovel = colunas[COL.NOME] || "";
             const idPath = (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, '');
             const ordem = parseInt(colunas[COL.ORDEM]);
-
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
-            const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
             
             return {
-                id_path: idPath, tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
+                id_path: idPath, tipo: (colunas[COL.CATEGORIA] || "").toUpperCase().includes('COMPLEXO') ? 'N' : 'R',
                 ordem: ordem, nome: nomeImovel, nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
                 estoque: colunas[COL.ESTOQUE], endereco: colunas[COL.END] || "",
                 entrega: colunas[COL.ENTREGA] || "---", obra: colunas[COL.OBRA] || "0",
@@ -98,29 +70,21 @@ async function carregarPlanilha() {
     } catch (e) { console.error(e); }
 }
 
-/* ==========================================================================
-   LÓGICA DE LISTA LIMPA (SEM ESTOQUE)
-   ========================================================================== */
-function navegarVitrine(nome) { 
-    const imovel = DADOS_PLANILHA.find(i => i.nome === nome);
-    if (imovel) comandoSelecao(imovel.id_path, null, imovel); 
-}
-
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
-        const classe = item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes';
-        // Limpo: Apenas o nome do residencial
-        return `<div class="${classe} ${ativo}" onclick="navegarVitrine('${item.nome}')">
+        return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo}" onclick="navegarVitrine('${item.nome}')">
                     <strong>${item.nome}</strong>
                 </div>`;
     }).join('');
 }
 
-/* ==========================================================================
-   COMANDOS DE SELEÇÃO E MAPA
-   ========================================================================== */
+function navegarVitrine(nome) { 
+    const imovel = DADOS_PLANILHA.find(i => i.nome === nome);
+    if (imovel) comandoSelecao(imovel.id_path, null, imovel); 
+}
+
 function comandoSelecao(idPath, nomePath, fonte) {
     const idNorm = idPath.toLowerCase().replace(/\s/g, '');
     pathAtivo = idNorm;
@@ -149,6 +113,7 @@ function renderizarNoContainer(id, dados, interativo) {
         let eventos = interativo ? `onclick="comandoSelecao('${p.id}')"` : "";
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${temMRV && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
+    // preserveAspectRatio garante que o mapa caiba na tela sem estourar
     container.innerHTML = `<svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet"><g>${pathsHtml}</g></svg>`;
 }
 
@@ -158,25 +123,34 @@ function desenharMapas() {
     document.getElementById('caixa-b').onclick = () => { mapaAtivo = (mapaAtivo === 'GSP' ? 'INTERIOR' : 'GSP'); desenharMapas(); };
 }
 
-/* ==========================================================================
-   VITRINE (O ESTOQUE APARECE AQUI)
-   ========================================================================== */
+function formatarLinkSeguro(url) {
+    if (!url || url === "---") return "";
+    return url.includes('drive.google.com') ? `https://drive.google.com/file/d/${url.match(/\/d\/(.*?)(\/|$)/)[1]}/preview` : url;
+}
+
 function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     const painel = document.getElementById('ficha-tecnica');
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if (selecionado.tipo === 'R') {
         html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()}</div>`;
-        html += `<div style="background:#f9f9f9; padding:8px; border-radius:8px; font-size:0.7rem; margin-bottom:10px; border:1px solid #ddd;">
-                    <p>📍 ${selecionado.endereco}</p>
-                    <p>🏗️ Obra: ${selecionado.obra}% | 🗓️ Entrega: ${selecionado.entrega}</p>
-                    <p style="color:var(--mrv-laranja); font-weight:bold; margin-top:5px;">📊 Estoque: ${selecionado.estoque || "Consultar"} Unidades</p>
+        html += `<div style="background:#f9f9f9; padding:12px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;">
+                    <p style="font-size:0.85rem; margin-bottom:5px;">📍 <strong>Endereço:</strong> ${selecionado.endereco}</p>
+                    <p style="font-size:0.85rem; color:var(--mrv-verde);">🏗️ <strong>Obra:</strong> ${selecionado.obra}% | 🗓️ <strong>Entrega:</strong> ${selecionado.entrega}</p>
+                    <p style="font-size:0.95rem; color:var(--mrv-laranja); font-weight:bold; margin-top:8px; border-top:1px solid #eee; pt-5px;">📊 Estoque: ${selecionado.estoque || "---"} UN.</p>
                  </div>`;
         
-        // Se houver tabelas de preço, o código continuaria aqui...
         if(selecionado.tipologiasH) {
-             // Lógica da tabela simplificada para mobile
+            const linhas = selecionado.tipologiasH.split(';').filter(l => l.trim() !== "");
+            if(linhas.length > 0) {
+                html += `<div class="tabela-precos-container">
+                            <div class="tabela-corpo">${linhas.map(l => `<div class="tabela-row"><div class="col-tabela">${l.replace(/,/g, ' | ')}</div></div>`).join('')}</div>
+                         </div>`;
+            }
         }
+    } else {
+        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()}</div>
+                 <div style="padding:10px; font-size:0.85rem;">${selecionado.descLonga}</div>`;
     }
     painel.innerHTML = html;
 }
