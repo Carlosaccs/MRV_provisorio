@@ -1,118 +1,74 @@
 :root {
-    --mrv-verde: #00713a;
-    --mrv-laranja: #ff8c00;
-    --mrv-preto: #333;
-    --vermelho-mrv: #e31010;
-    --cinza-claro: #f4f4f4;
-    --cinza-divisor: #ccc;
-    --cinza-mapa: #777;
+    --mrv-verde: #00713a; --mrv-laranja: #ff8c00; --mrv-preto: #333;
+    --vermelho-mrv: #e31010; --cinza-claro: #f4f4f4; --cinza-mapa: #777;
 }
 
-/* 1. RESET E LAYOUT BASE */
-* { 
-    margin: 0; padding: 0; box-sizing: border-box; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    -webkit-tap-highlight-color: transparent;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
 
-body { 
-    display: flex; flex-direction: row; 
-    height: 100vh; width: 100vw;
-    overflow: hidden; background: white; 
+/* TRAVA DE ORIENTAÇÃO */
+#aviso-orientacao {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--mrv-verde); color: white; z-index: 99999;
+    align-items: center; justify-content: center; text-align: center; padding: 20px;
 }
+.aviso-conteudo p { font-size: 1.5rem; margin-bottom: 10px; }
+.aviso-conteudo span { font-size: 0.9rem; opacity: 0.8; }
+.icone-giro { font-size: 50px; margin-bottom: 20px; animation: rotating 2s linear infinite; }
 
-/* 2. BARRA VERTICAL ESQUERDA */
+@keyframes rotating { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Mostra o aviso se a altura for maior que a largura (celular em pé) */
+@media (orientation: portrait) { #aviso-orientacao { display: flex; } }
+
+body { display: flex; flex-direction: row; height: 100vh; width: 100vw; overflow: hidden; background: white; }
+
+/* BARRA VERTICAL */
 .barra-vertical { 
-    width: 45px; height: 100vh;
-    background-color: var(--mrv-verde); color: white; 
-    display: flex; flex-direction: column; 
-    align-items: center; justify-content: space-between; 
-    padding: 20px 0; flex-shrink: 0; z-index: 1000;
-    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    width: 45px; height: 100vh; background: var(--mrv-verde); color: white; 
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
+    padding: 20px 0; flex-shrink: 0; z-index: 1000; box-shadow: 3px 0 10px rgba(0,0,0,0.2);
 }
-
 .logo-texto { 
     font-size: 1.2rem; font-weight: 900; text-transform: uppercase; 
-    letter-spacing: 2px; writing-mode: vertical-rl; 
-    transform: rotate(180deg); white-space: nowrap;
+    writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
 }
-
 #btn-sobre {
-    background: rgba(255,255,255,0.15); border: 1px solid white; 
-    color: white; padding: 8px 5px; border-radius: 5px; 
-    cursor: pointer; font-size: 0.65rem; font-weight: bold;
-    text-transform: uppercase; writing-mode: vertical-rl;
-    transform: rotate(180deg);
+    background: rgba(255,255,255,0.2); border: 1px solid white; color: white; 
+    padding: 8px 5px; border-radius: 5px; font-size: 0.65rem; writing-mode: vertical-rl; transform: rotate(180deg);
 }
 
-/* 3. WRAPPER PRINCIPAL */
+/* LATERAIS */
 .wrapper { display: flex; flex: 1; height: 100vh; overflow: hidden; }
-
-/* 4. SIDEBAR ESQUERDA (BOTÕES GRANDES + FONTE AUMENTADA) */
-.sidebar-esq { 
-    width: 22%; min-width: 200px; 
-    border-right: 1px solid #ddd; overflow-y: auto; 
-    padding: 10px 0; background: #fdfdfd; flex-shrink: 0; 
-}
+.sidebar-esq { width: 22%; min-width: 190px; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; background: #fdfdfd; }
 
 .btRes, .separador-complexo-btn {
-    width: 94% !important; 
-    margin: 8px auto !important; 
-    min-height: 64px; 
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important; 
-    padding: 10px 15px !important; 
-    border-radius: 10px; 
-    font-size: 1.1rem; /* Fonte aumentada em ~2pt */
-    font-weight: bold;
-    cursor: pointer; 
-    border: 1px solid #eee; 
-    transition: all 0.2s ease; 
-    text-align: center;
+    width: 92% !important; margin: 10px auto !important; min-height: 60px; /* ALTURA DOBRADA */
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    padding: 10px !important; border-radius: 10px; font-size: 0.85rem; font-weight: bold;
+    cursor: pointer; border: 1px solid #eee; text-align: center; transition: 0.2s;
 }
-
+.btRes { background: #fff; border-left: 6px solid var(--mrv-verde) !important; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.btRes.ativo { background: var(--mrv-laranja) !important; color: white !important; border-color: var(--mrv-laranja) !important; }
 .separador-complexo-btn { background: var(--mrv-preto) !important; color: white !important; border: none !important; }
-.btRes { background: #fff; border-left: 6px solid var(--mrv-verde) !important; color: #333; }
-.btRes.ativo { background-color: var(--mrv-laranja) !important; color: white !important; border: 1px solid var(--mrv-laranja) !important; }
 
-/* 5. ÁREA DO MAPA (CORREÇÃO DE ESTOURO) */
-.conteudo-centro { flex: 1.2; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
-
-#cidade-titulo { 
-    background: #f4f4f4; padding: 6px; text-align: center; 
-    font-weight: 800; font-size: 0.8rem; color: #555; 
-    height: 35px; display: flex; align-items: center; 
-    justify-content: center; text-transform: uppercase;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
-#caixa-b { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 5px; border-top: 2px solid #eee; cursor: pointer; background: #fafafa; }
-
-svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+/* MAPA E VITRINE */
+.conteudo-centro { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#cidade-titulo { background: #f4f4f4; padding: 8px; text-align: center; font-weight: 800; font-size: 0.75rem; color: #555; text-transform: uppercase; border-bottom: 1px solid #e0e0e0; }
+#caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 10px; }
+#caixa-b { flex: 0.6; display: flex; align-items: center; justify-content: center; border-top: 2px solid #eee; cursor: pointer; background: #fafafa; }
+svg { width: 100%; height: 100%; }
 path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; }
 path.commrv { fill: var(--mrv-verde) !important; }
 path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
 
-/* 6. SIDEBAR DIREITA (CORREÇÃO DE CARREGAMENTO) */
-.sidebar-dir { 
-    width: 38%; min-width: 320px; 
-    border-left: 1px solid #ddd; overflow-y: auto; 
-    padding: 15px; flex-shrink: 0; background: #fff;
-    height: 100vh;
-}
-
-/* 7. TABELAS E CARDS */
-.vitrine-topo { background: var(--mrv-verde); color: white; padding: 10px; text-align: center; font-weight: bold; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px; }
-.titulo-vitrine-faixa { display: flex !important; align-items: center !important; justify-content: center !important; height: 40px !important; font-weight: bold !important; font-size: 0.95rem !important; border-radius: 4px; color: #fff; margin-bottom: 10px; }
+.sidebar-dir { width: 38%; min-width: 320px; border-left: 1px solid #ddd; overflow-y: auto; padding: 15px; flex-shrink: 0; background: #fff; }
+/* Estilos da vitrine permanecem iguais ao desktop */
+.vitrine-topo { background: var(--mrv-verde); color: white; padding: 8px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; }
+.titulo-vitrine-faixa { display: flex !important; align-items: center !important; justify-content: center !important; height: 36px !important; font-weight: bold !important; font-size: 0.8rem !important; border-radius: 4px; color: #fff; margin-bottom: 10px; }
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-.card-material-item { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-.card-text { font-size: 0.8rem; font-weight: 700; }
-.card-btn-abrir { background: var(--mrv-verde); color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: bold; }
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
+/* MODAL */
+.modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+.modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 80%; max-width: 450px; position: relative; }
+.modal-close { position: absolute; right: 15px; top: 10px; cursor: pointer; font-size: 24px; color: #999; }
