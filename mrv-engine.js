@@ -27,11 +27,15 @@ async function iniciarApp() {
 }
 
 function formatarLinkSeguro(url) {
-    if (!url || url === "---" || url === "") return "";
-    if (url.includes('drive.google.com')) {
-        return url.split('/view')[0].split('/edit')[0] + '/preview';
+    if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
+    let link = url.trim();
+    if (link.includes('drive.google.com')) {
+        const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
+        if (match && match[1]) {
+            return `https://drive.google.com/file/d/${match[1]}/preview`;
+        }
     }
-    return url;
+    return link;
 }
 
 function copiarLink(url) {
@@ -149,16 +153,12 @@ function comandoSelecao(idPath, nomePath, fonte) {
 
 function atualizarTituloSuperior(texto) {
     const titulo = document.getElementById('cidade-titulo');
-    if (texto) { 
-        titulo.innerText = `MRV EM ${texto.toUpperCase()}`; 
-    } 
+    if (texto) { titulo.innerText = `MRV EM ${texto.toUpperCase()}`; } 
     else if (pathAtivo) {
         const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
         const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
         titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
-    } else { 
-        titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; 
-    }
+    } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
 
 function renderizarNoContainer(id, dados, interativo) {
@@ -221,15 +221,21 @@ function gerarListaLateral() {
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
     const linkSeguro = formatarLinkSeguro(url);
+    
     return `
-    <div class="card-material-item" style="padding: 4px 8px; margin-bottom: 4px; min-height: 32px;">
-        <div class="card-material-left" style="gap: 8px;">
-            <span class="card-icon" style="font-size: 0.8rem;">${icone}</span>
-            <span class="card-text" style="font-size: 0.65rem;">${titulo}</span>
+    <div class="card-material-item">
+        <div class="card-material-left">
+            <span class="card-icon">${icone}</span>
+            <span class="card-text">${titulo}</span>
         </div>
-        <div class="card-material-right" style="position: relative; gap: 4px;">
-            <a href="${linkSeguro}" target="_blank" class="card-btn-abrir" style="padding: 2px 8px; font-size: 0.6rem;">Abrir</a>
-            <button onclick="copiarLink('${url}')" class="card-btn-copiar" style="padding: 2px 8px; font-size: 0.6rem;">Copiar</button>
+        <div class="card-material-right">
+            <div class="btn-com-preview">
+                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
+                <div class="preview-container">
+                    <iframe src="${linkSeguro}" allow="autoplay"></iframe>
+                </div>
+            </div>
+            <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
         </div>
     </div>`;
 };
@@ -259,10 +265,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </button>`).join('')}</div><hr style="border:0; border-top:1px solid #eee; margin:6px 0;">`;
     }
 
-    const estiloFaixa = `display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; text-align: center !important; line-height: normal !important; height: 32px; border-radius: 4px; margin-bottom: 4px; font-weight: bold; font-size: 0.85rem; color: white;`;
-
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja" style="${estiloFaixa}">
+        html += `<div class="titulo-vitrine-faixa faixa-laranja">
             RES. ${selecionado.nome.toUpperCase()}   —   ${selecionado.regiao}
         </div>`;
         html += `<div style="padding: 2px 0 5px 0;"><p style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center; margin:0;"><span>📍 ${selecionado.endereco}</span><a href="${urlMaps}" target="_blank" class="btn-maps">MAPS</a></p></div>`;
@@ -292,23 +296,21 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 const titulos = linhas[0].split(',').map(t => t.trim());
                 const dados = linhas.slice(1);
                 html += `
-                <div class="tabela-precos-container" style="margin-top:2px; margin-bottom:8px;">
-                    <div class="tabela-header" style="min-height: 28px;">
+                <div class="tabela-precos-container">
+                    <div class="tabela-header">
                         ${titulos.map((t, idx) => {
-                            // Aplicando fundo laranja e texto branco no cabeçalho "Menor preço" (índice 1)
                             const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                            return `<div class="col-tabela" style="padding: 4px; ${estiloCabecalho}">${t}</div>`;
+                            return `<div class="col-tabela" style="${estiloCabecalho}">${t}</div>`;
                         }).join('')}
                     </div>
                     <div class="tabela-corpo">
                         ${dados.map(linhaStr => {
                             const cols = linhaStr.split(',').map(c => c.trim());
                             if(cols.length <= 1) return "";
-                            return `<div class="tabela-row" style="min-height: 28px;">
+                            return `<div class="tabela-row">
                                 ${cols.map((v, idx) => {
-                                    // Aplicando fundo laranja e texto branco nos valores da coluna (índice 1)
                                     const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                                    return `<div class="col-tabela" style="padding: 4px; ${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
+                                    return `<div class="col-tabela" style="${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
                                 }).join('')}
                             </div>`;
                         }).join('')}
@@ -376,28 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const span = document.querySelector(".modal-close");
 
     if(btn) {
-        btn.onclick = () => { 
-            if(modal) {
-                const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
-                modalBody.innerHTML = `
-                    <div style="text-align:center; padding:10px;">
-                        <p style="font-size:0.85rem; color:#444; line-height:1.5; margin-bottom:15px;">
-                            Este dashboard foi feito para acessarmos de forma rápida informações básicas dos residenciais MRV durante atendimento a leads.
-                        </p>
-                        
-                        <div style="background:#fff9c4; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #fbc02d; text-align:left;">
-                            <p style="font-size:0.8rem; color:#444; margin:0; line-height:1.4;">
-                                As informações podem estar desatualizadas. Se encontrar erros ou tiver novos materiais (books/vídeos), por favor, envie para mim:
-                            </p>
-                        </div>
-
-                        <a href="https://wa.me/5511992617026" target="_blank" style="display:inline-block; background-color:#25D366; color:white; text-decoration:none; padding:12px 30px; border-radius:30px; font-weight:bold; font-size:1rem; transition:background 0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-                            Carlos Custódio
-                        </a>
-                    </div>`;
-                modal.style.display = "block"; 
-            }
-        };
+        btn.onclick = () => { if(modal) modal.style.display = "block"; };
     }
     if(span) {
         span.onclick = () => { if(modal) modal.style.display = "none"; };
