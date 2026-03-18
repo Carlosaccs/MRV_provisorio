@@ -208,18 +208,24 @@ path.commrv:hover, path.ativo {
     flex-shrink: 0; 
 }
 
-/* AJUSTE FINAL: Aumenta o texto das caixas coloridas e força a prioridade */
-.sidebar-dir div[style*="padding: 10px;"] {
-    font-size: 16px !important; 
-    line-height: 1.5 !important;
-    color: #333 !important;
+/* 6.1 - CORREÇÃO TOPO: Volta as infos de Plantas/Limitador ao normal */
+.sidebar-dir table:first-of-type b, 
+.sidebar-dir table:first-of-type span {
+    font-size: 0.75rem !important;
 }
 
-/* Mantém o título da caixa (ex: LOCALIZAÇÃO) em destaque */
-.sidebar-dir div[style*="padding: 10px;"] strong {
+/* 6.2 - ALVO ESPECÍFICO: Aumenta apenas os textos das caixas coloridas descritivas */
+/* Usamos a borda esquerda grossa que você tem nelas como identificador */
+.sidebar-dir div[style*="border-left: 5px solid"] {
+    font-size: 16px !important; 
+    line-height: 1.5 !important;
+}
+
+/* Ajuste nos títulos em negrito dentro dessas caixas (LOCALIZAÇÃO, MOBILIDADE...) */
+.sidebar-dir div[style*="border-left: 5px solid"] strong {
     font-size: 14px !important;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .vitrine-topo { 
