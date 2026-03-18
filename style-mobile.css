@@ -21,7 +21,7 @@ body {
     overflow: hidden; background: white; 
 }
 
-/* 2. BARRA VERTICAL ESQUERDA (DESIGN MODERNO) */
+/* 2. BARRA VERTICAL ESQUERDA */
 .barra-vertical { 
     width: 45px; height: 100vh;
     background-color: var(--mrv-verde); color: white; 
@@ -45,12 +45,11 @@ body {
     text-transform: uppercase; writing-mode: vertical-rl;
     transform: rotate(180deg); transition: all 0.3s;
 }
-#btn-sobre:hover { background: white; color: var(--mrv-verde); }
 
 /* 3. WRAPPER PRINCIPAL */
 .wrapper { display: flex; flex: 1; height: 100vh; overflow: hidden; min-width: 0; }
 
-/* 4. SIDEBAR ESQUERDA (LISTA DE IMÓVEIS) */
+/* 4. SIDEBAR ESQUERDA (BOTÕES REFORMULADOS) */
 .sidebar-esq { 
     width: 22%; min-width: 180px; 
     border-right: 1px solid #ddd; overflow-y: auto; 
@@ -58,33 +57,45 @@ body {
 }
 
 .btRes, .separador-complexo-btn {
-    width: 94% !important; margin: 5px auto !important; 
-    min-height: 32px; display: flex !important; 
-    align-items: center !important; padding: 8px 12px !important; 
-    border-radius: 6px; font-size: 0.72rem; cursor: pointer; 
-    border: 1px solid #eee; text-decoration: none; 
-    transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    width: 94% !important; 
+    margin: 8px auto !important; 
+    min-height: 64px; /* ALTURA DOBRADA */
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; /* CENTRALIZAÇÃO TOTAL */
+    padding: 10px 15px !important; 
+    border-radius: 10px; 
+    font-size: 0.85rem; 
+    font-weight: bold;
+    cursor: pointer; 
+    border: 1px solid #eee; 
+    text-decoration: none; 
+    transition: all 0.2s ease; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
 }
 
 .separador-complexo-btn { 
     background: var(--mrv-preto) !important; color: white !important; 
-    justify-content: center !important; font-weight: bold; 
     text-transform: uppercase; border: none !important; 
 }
 
 .btRes { 
-    background: #fff; border-left: 4px solid var(--mrv-verde) !important; 
-    justify-content: space-between; color: #444; 
+    background: #fff; 
+    border-left: 6px solid var(--mrv-verde) !important; 
+    color: #333; 
+    line-height: 1.2;
 }
-.btRes:hover { background-color: #f9f9f9 !important; transform: translateX(2px); border-color: var(--mrv-verde) !important; }
+
 .btRes.ativo { 
-    background-color: var(--mrv-laranja) !important; color: white !important; 
-    border: 1px solid var(--mrv-laranja) !important; transform: scale(1.02);
+    background-color: var(--mrv-laranja) !important; 
+    color: white !important; 
+    border: 1px solid var(--mrv-laranja) !important; 
+    transform: scale(1.02);
 }
 
 /* 5. ÁREA DO MAPA (CENTRO) */
 .conteudo-centro { flex: 1; display: flex; flex-direction: column; background: #fff; overflow: hidden; min-width: 0; }
-
 #cidade-titulo { 
     background: #f4f4f4; padding: 6px; text-align: center; 
     font-weight: 800; font-size: 0.75rem; color: #555; 
@@ -92,108 +103,55 @@ body {
     justify-content: center; text-transform: uppercase;
     border-bottom: 1px solid #e0e0e0;
 }
-
 #caixa-a { flex: 2; display: flex; align-items: center; justify-content: center; padding: 15px; overflow: hidden; }
 #caixa-b { 
     flex: 0.7; display: flex; align-items: center; justify-content: center; 
     padding: 8px; border-top: 2px solid #eee; cursor: pointer; 
-    background: #fafafa; transition: background 0.3s;
+    background: #fafafa;
 }
-#caixa-b:hover { background: #f0f0f0; }
 
-svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+svg { width: 100%; height: 100%; }
 path { fill: var(--cinza-mapa); stroke: #fff; stroke-width: 0.8; transition: all 0.3s; }
 path.commrv { fill: var(--mrv-verde) !important; }
-path.commrv:hover, path.ativo { 
-    fill: var(--mrv-laranja) !important; stroke: #000 !important; 
-    stroke-width: 1.5px !important; cursor: pointer;
-}
+path.ativo { fill: var(--mrv-laranja) !important; stroke: #000 !important; stroke-width: 1.5px !important; }
 
-/* 6. SIDEBAR DIREITA (FICHA TÉCNICA) */
+/* 6. SIDEBAR DIREITA */
 .sidebar-dir { 
     width: 38%; min-width: 320px; 
     border-left: 1px solid #ddd; overflow-y: auto; 
     padding: 15px; flex-shrink: 0; background: #fff;
 }
-
 .vitrine-topo { 
     background: var(--mrv-verde); color: white; padding: 8px; 
     text-align: center; font-weight: bold; border-radius: 4px; 
     margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-
 .titulo-vitrine-faixa { 
     display: flex !important; align-items: center !important; 
     justify-content: center !important; height: 36px !important; 
     font-weight: bold !important; font-size: 0.8rem !important; 
     border-radius: 4px; color: #fff; margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .faixa-laranja { background: var(--mrv-laranja) !important; }
 .faixa-preta { background: var(--mrv-preto) !important; }
 
-/* 7. TABELAS DE PREÇOS */
-.tabela-precos-container { 
-    width: 100%; background: var(--cinza-claro); 
-    border-radius: 6px; margin: 12px 0; border: 1px solid #ddd; 
-    overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.tabela-header { background: #eee; font-weight: bold; font-size: 0.65rem; min-height: 30px; display: flex; align-items: center; border-bottom: 1px solid #ddd; }
+/* 7. TABELAS E CARDS */
+.tabela-precos-container { width: 100%; background: var(--cinza-claro); border-radius: 6px; margin: 12px 0; border: 1px solid #ddd; overflow: hidden; }
+.tabela-header { background: #eee; font-weight: bold; font-size: 0.65rem; min-height: 30px; display: flex; align-items: center; }
 .tabela-row { display: flex; background: #fff; font-size: 0.7rem; border-bottom: 1px solid #eee; min-height: 30px; align-items: center; }
 .col-tabela { flex: 1; padding: 6px; text-align: center; border-right: 1px solid #eee; }
 
-/* 8. CARDS DE MATERIAIS COM HOVER PREVIEW */
 .card-material-item { 
     display: flex; justify-content: space-between; align-items: center; 
     background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; 
-    padding: 8px 12px; margin-bottom: 8px; transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 8px 12px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.card-material-item:hover { border-color: var(--mrv-laranja); transform: translateY(-1px); }
-
 .card-text { font-size: 0.7rem; font-weight: 700; color: #333; }
+.card-btn-abrir { background: var(--mrv-verde); color: white; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 0.65rem; font-weight: bold; }
+.card-btn-copiar { background: var(--mrv-laranja); color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer; }
 
-.card-btn-abrir, .card-btn-copiar { 
-    width: 65px; height: 30px; display: inline-flex; 
-    align-items: center; justify-content: center;
-    font-size: 0.65rem; font-weight: bold; border-radius: 5px; 
-    text-decoration: none; color: #fff; border: none; cursor: pointer;
-}
-.card-btn-abrir { background: var(--mrv-verde); margin-right: 5px; }
-.card-btn-copiar { background: var(--mrv-laranja); }
-
-.container-btn-abrir { position: relative; display: inline-block; }
-.hover-preview { 
-    display: none; position: absolute; bottom: 125%; right: 0; 
-    z-index: 2000; background: white; padding: 5px; 
-    border: 1px solid #ddd; box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
-    border-radius: 8px; width: 250px; pointer-events: none; 
-}
-.container-btn-abrir:hover .hover-preview { display: block; }
-.hover-preview img { width: 100%; height: auto; border-radius: 4px; }
-
-/* 9. BOTÕES MAPS */
-.btn-maps { 
-    background: #4285F4; color: white !important; 
-    text-decoration: none; padding: 4px 10px; border-radius: 5px; 
-    font-size: 0.65rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* 10. MODAL */
-.modal { 
-    display: none; position: fixed; z-index: 10002; 
-    left: 0; top: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); 
-}
-.modal-content { 
-    background: white; margin: 5% auto; padding: 25px; 
-    border-radius: 15px; width: 80%; max-width: 450px; position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-/* Scrollbar Personalizada */
+/* 10. MODAL E SCROLLBAR */
+.modal { display: none; position: fixed; z-index: 10002; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+.modal-content { background: white; margin: 5% auto; padding: 25px; border-radius: 15px; width: 80%; max-width: 450px; position: relative; }
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--mrv-verde); }
