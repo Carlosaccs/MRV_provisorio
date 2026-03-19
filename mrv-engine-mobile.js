@@ -173,12 +173,26 @@ function desenharMapas() {
 // AJUSTE SOLICITADO: REMOVIDO O ESTOQUE DA LISTA LATERAL
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
+    if (!container) return;
+
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
         const classeZona = detectarClasseZona(item.nome);
-        return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')">
-                    <strong>${item.nome}</strong>
-                </div>`;
+        
+        // Se for complexo (N), mantém o estilo de separador
+        if (item.tipo === 'N') {
+            return `<div class="separador-complexo-btn" onclick="navegarVitrine('${item.nome}')">${item.nome}</div>`;
+        }
+
+        // Versão Mobile: Apenas Nome e Região (Estoque removido daqui)
+        return `
+            <div class="btRes ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span style="font-weight:bold; font-size:0.85rem;">${item.nome}</span>
+                    <span style="font-size:0.65rem; opacity:0.8; text-transform:uppercase;">${item.regiao}</span>
+                </div>
+                <span style="font-size:1.2rem; font-weight:bold; color:var(--mrv-verde);">›</span>
+            </div>`;
     }).join('');
 }
 
