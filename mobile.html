@@ -1,44 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="notranslate">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard MRV SP - Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRV Móvel - Paisagem</title>
     <link rel="stylesheet" href="style-mobile.css">
 </head>
 <body>
-
-    <div class="header">
-        RESIDENCIAIS MRV EM SÃO PAULO
-        <button id="btn-sobre">Sobre</button>
-    </div>
-
-    <div class="wrapper">
-        <aside class="sidebar-esq" id="lista-imoveis">
-            <div style="padding:20px; color:#666; font-size: 0.8rem;">Carregando...</div>
+    <div class="mobile-wrapper">
+        <aside class="mobile-sidebar">
+            <div id="lista-imoveis">
+                </div>
         </aside>
-        
-        <main class="conteudo-centro">
-            <div id="cidade-titulo">SELECIONE UMA REGIÃO NO MAPA</div> 
-            <div id="caixa-a"></div> 
-            <div id="caixa-b"></div> 
-        </main>
 
-        <aside class="sidebar-dir" id="ficha-tecnica">
-            <div style="text-align:center; color:#ccc; margin-top:100px;">
-                <p style="font-size: 30px;">📍</p>
-                <p>Clique em algum Residencial ou no mapa</p>
+        <main class="mobile-content">
+            <header class="mobile-header">
+                <span id="cidade-titulo">SELECIONE NO MAPA</span>
+            </header>
+            
+            <div id="mapa-container">
+                <div id="caixa-a"></div>
             </div>
-        </aside>
-    </div>
 
-    <div id="modal-sobre" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2 style="color: #00713a; margin-bottom: 10px;">Sobre o Projeto</h2>
-            <p>Dashboard de consulta rápida para corretores MRV.</p>
-        </div>
+            <div id="ficha-tecnica" class="mobile-ficha">
+                </div>
+        </main>
     </div>
 
     <script src="mrv-data.js"></script>
