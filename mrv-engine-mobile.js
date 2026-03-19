@@ -185,11 +185,12 @@ function gerarListaLateral() {
         }
 
         // NOVO MOBILE: Apenas o nome, fonte maior e sem regional
-        return `
-            <div class="btRes ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')">
-                <span style="font-weight:bold; font-size:0.95rem; line-height:1.2;">${item.nome}</span>
-                <span style="font-size:1.2rem; font-weight:bold; color:var(--mrv-verde); margin-left:10px;">›</span>
-            </div>`;
+/* === TRECHO ATUALIZADO PARA O JS MOBILE === */
+      return `
+          <div class="btRes ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')" style="justify-content: space-between; padding: 0 15px;">
+              <span style="font-weight:bold; font-size:1.1rem; line-height:1.2; flex: 1;">${item.nome}</span>
+              <span style="font-size:1.5rem; font-weight:bold; color:var(--mrv-verde); margin-left:10px;">›</span>
+          </div>`;
     }).join('');
 }
 
