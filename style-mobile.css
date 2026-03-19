@@ -480,30 +480,32 @@ path.commrv:hover, path.ativo {
 }
 
 /* Força o SVG a respeitar o tamanho da caixa, sem estourar a altura */
-#mapa-container svg { 
-    width: 100% !important; 
-    height: 100% !important; 
-    max-height: 100% !important; 
+/* --- SUBSTITUA O TRECHO DO MAPA POR ESTE --- */
+
+#mapa-container { 
+    flex: 1 !important; /* Faz o mapa ocupar o que sobrar de espaço */
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    overflow: hidden !important; 
+    min-height: 0; /* CRUCIAL: permite que o container encolha para dar espaço à ficha */
 }
 
-/* Cria a "gaveta" de informações na parte inferior (35% da altura) */
+#mapa-container svg { 
+    width: auto !important; 
+    height: 100% !important; 
+    max-height: 100% !important; 
+    max-width: 100% !important;
+}
+
+/* A sua .mobile-ficha já está correta, mantenha-a como está abaixo */
 .mobile-ficha {
     height: 35% !important; 
     min-height: 150px;
     background: #fff !important;
     border-top: 3px solid var(--mrv-laranja) !important;
-    overflow-y: auto !important; /* Permite rolar os detalhes se forem longos */
+    overflow-y: auto !important; 
     padding: 15px !important;
-    flex-shrink: 0 !important; /* Impede que o mapa "esmague" a ficha */
+    flex-shrink: 0 !important; 
     z-index: 100;
 }
-
-/* Ajuste fino para os textos dentro da ficha mobile */
-.mobile-ficha div {
-    margin-bottom: 8px !important;
-}
-
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #999; }
