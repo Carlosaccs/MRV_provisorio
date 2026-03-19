@@ -68,25 +68,24 @@ body {
 /* ==========================================================================
    3. ESTRUTURA PRINCIPAL (WRAPPER)
    ========================================================================== */
-.wrapper { 
+.mobile-wrapper { 
     display: flex !important; 
-    flex-direction: row !important; /* FORÇA LADO A LADO */
-    flex-wrap: nowrap !important;   /* IMPEDE QUE O CONTEÚDO CAIA PARA BAIXO */
-    height: calc(100vh - 60px); 
-    width: 100vw !important; 
+    flex-direction: row !important; /* Força lista e mapa lado a lado */
+    height: 100vh; 
+    width: 100vw; 
     overflow: hidden; 
 }
 
 /* ==========================================================================
    4. SIDEBAR ESQUERDA (LISTA DE IMÓVEIS)
    ========================================================================== */
-.sidebar-esq { 
-    width: 30% !important; /* TRAVA EM 30% DA LARGURA */
-    min-width: 250px !important; /* NÃO DEIXA FICAR MUITO ESTREITO */
+.mobile-sidebar { 
+    width: 30% !important; 
+    min-width: 250px;
     border-right: 1px solid #ddd; 
     overflow-y: auto; 
     background: #f8f9fa; 
-    flex-shrink: 0 !important; 
+    flex-shrink: 0; 
 }
 
 .btRes, .separador-complexo-btn {
@@ -139,11 +138,10 @@ body {
 /* ==========================================================================
    5. CENTRO (MAPAS E TÍTULOS)
    ========================================================================== */
-.conteudo-centro { 
-    flex-grow: 1 !important; 
-    display: flex !important; 
-    flex-direction: column !important; 
-    background: #fff; 
+.mobile-content { 
+    flex: 1 !important; 
+    display: flex; 
+    flex-direction: column; 
     overflow: hidden; 
 }
 
