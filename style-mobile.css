@@ -139,12 +139,12 @@ body {
    5. CENTRO (MAPAS E TÍTULOS)
    ========================================================================== */
 .mobile-content { 
-    flex: 1 !important; 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
+    width: 70% !important; /* Trava em 70% horizontal */
+    display: flex !important; 
+    flex-direction: column !important; /* Coloca Mapa em cima, Ficha embaixo */
+    height: 100vh; /* Garante que ocupe a altura total */
+    overflow: hidden; /* Impede scroll na coluna inteira */
 }
-
 #cidade-titulo { 
     background: #eee; 
     padding: 4px; 
@@ -180,7 +180,11 @@ body {
     min-height: 140px; 
 }
 
-svg { width: 100%; height: 100%; }
+svg { 
+    width: 100% !important; 
+    height: 100% !important; 
+    max-height: 100% !important; /* Impede o SVG de estourar verticalmente */
+}
 
 path { 
     fill: var(--cinza-mapa); 
@@ -460,6 +464,45 @@ path.commrv:hover, path.ativo {
 }
 
 /* Scrollbar Personalizada */
+/* ==========================================================================
+   AJUSTE DE TRAVAMENTO PARA O LAYOUT MOBILE (PAISAGEM)
+   ========================================================================== */
+
+/* Garante que o container do mapa não empurre a ficha para fora da tela */
+#mapa-container { 
+    flex: 1 !important; 
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    background: #fff;
+    overflow: hidden !important; /* Trava o SVG aqui dentro */
+    padding: 10px;
+}
+
+/* Força o SVG a respeitar o tamanho da caixa, sem estourar a altura */
+#mapa-container svg { 
+    width: 100% !important; 
+    height: 100% !important; 
+    max-height: 100% !important; 
+}
+
+/* Cria a "gaveta" de informações na parte inferior (35% da altura) */
+.mobile-ficha {
+    height: 35% !important; 
+    min-height: 150px;
+    background: #fff !important;
+    border-top: 3px solid var(--mrv-laranja) !important;
+    overflow-y: auto !important; /* Permite rolar os detalhes se forem longos */
+    padding: 15px !important;
+    flex-shrink: 0 !important; /* Impede que o mapa "esmague" a ficha */
+    z-index: 100;
+}
+
+/* Ajuste fino para os textos dentro da ficha mobile */
+.mobile-ficha div {
+    margin-bottom: 8px !important;
+}
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
