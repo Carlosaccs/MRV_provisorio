@@ -173,25 +173,22 @@ function desenharMapas() {
 // AJUSTE SOLICITADO: REMOVIDO O ESTOQUE DA LISTA LATERAL
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
-    if (!container) return;
+    if (!container) return; // Segurança caso o ID mude
 
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
         const classeZona = detectarClasseZona(item.nome);
         
-        // Se for complexo (N), mantém o estilo de separador
+        // Se for complexo (separador), mantém o estilo centralizado
         if (item.tipo === 'N') {
             return `<div class="separador-complexo-btn" onclick="navegarVitrine('${item.nome}')">${item.nome}</div>`;
         }
 
-        // Versão Mobile: Apenas Nome e Região (Estoque removido daqui)
+        // NOVO MOBILE: Apenas o nome, fonte maior e sem regional
         return `
             <div class="btRes ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')">
-                <div style="display:flex; flex-direction:column; gap:2px;">
-                    <span style="font-weight:bold; font-size:0.85rem;">${item.nome}</span>
-                    <span style="font-size:0.65rem; opacity:0.8; text-transform:uppercase;">${item.regiao}</span>
-                </div>
-                <span style="font-size:1.2rem; font-weight:bold; color:var(--mrv-verde);">›</span>
+                <span style="font-weight:bold; font-size:0.95rem; line-height:1.2;">${item.nome}</span>
+                <span style="font-size:1.2rem; font-weight:bold; color:var(--mrv-verde); margin-left:10px;">›</span>
             </div>`;
     }).join('');
 }
