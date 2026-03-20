@@ -1,1 +1,148 @@
 
+:root {
+    --mrv-verde: #00713a;
+    --mrv-laranja: #ff8c00;
+    --cinza-bg: #f4f4f4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+
+body { 
+    background: #000; 
+    height: 100vh; 
+    width: 100vw; 
+    overflow: hidden; 
+}
+
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+}
+
+/* FAIXA VERDE VERTICAL */
+.faixa-verde {
+    width: 50px;
+    background: var(--mrv-verde);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    color: white;
+    z-index: 100;
+}
+
+.titulo-vertical {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.btn-zoom-toggle {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 1.5rem;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ÁREA DO MAPA */
+.mapa-view {
+    flex: 1;
+    position: relative;
+    background: #fff;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#caixa-mapa-principal { width: 90%; height: 90%; transition: transform 0.3s ease; }
+svg { width: 100%; height: 100%; }
+
+/* ILHA DE TROCA */
+.ilha-troca {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 100px;
+    height: 80px;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid var(--mrv-verde);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+#mini-mapa { width: 80%; height: 60%; pointer-events: none; }
+.legenda-ilha { font-size: 0.6rem; font-weight: bold; color: var(--mrv-verde); }
+
+/* MENU FLUTUANTE (CARROSSEL) */
+.menu-flutuante {
+    position: absolute;
+    left: 10px;
+    bottom: -320px; /* Começa "escondido" */
+    width: 260px;
+    height: 380px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+    transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-flutuante.aberto { bottom: 0; }
+
+.alca-pull {
+    width: 50px;
+    height: 6px;
+    background: #ccc;
+    margin: 10px auto;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.carrossel-vertical {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* BOTÕES btRes NOVO ESTILO */
+.btRes {
+    background: white;
+    border: 1px solid #ddd;
+    border-left: 6px solid var(--mrv-verde);
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+}
+.btRes span:first-child { font-weight: bold; font-size: 1rem; }
+.btRes .seta { color: var(--mrv-verde); font-weight: bold; font-size: 1.2rem; }
+
+/* FICHA LATERAL */
+.ficha-lateral {
+    width: 320px;
+    background: var(--cinza-bg);
+    border-left: 1px solid #ddd;
+    overflow-y: auto;
+    padding: 15px;
+}
