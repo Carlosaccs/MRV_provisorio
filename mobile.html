@@ -1,1 +1,41 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRV Mobile Premium</title>
+    <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="faixa-verde">
+            <button class="btn-zoom-toggle" onclick="toggleFullScreen()">
+                <span id="icon-zoom">⛶</span> </button>
+            <div class="titulo-vertical">RESIDENCIAIS MRV</div>
+        </aside>
+
+        <main class="mapa-view" id="mapa-area">
+            <div id="caixa-mapa-principal"></div>
+            
+            <div class="ilha-troca" onclick="alternarMapa()" title="Trocar Região">
+                <div id="mini-mapa"></div>
+                <span class="legenda-ilha">TROCAR</span>
+            </div>
+
+            <div class="menu-flutuante" id="drawer-menu">
+                <div class="alca-pull" onclick="toggleMenu()"></div>
+                <div id="lista-imoveis-mobile" class="carrossel-vertical">
+                    </div>
+            </div>
+        </main>
+
+        <aside class="ficha-lateral" id="detalhes-imovel">
+            <div class="placeholder-ficha">Selecione um residencial no menu ou no mapa</div>
+        </aside>
+    </div>
+
+    <script src="mrv-data.js"></script>
+    <script src="mobile.js"></script>
+</body>
+</html>
