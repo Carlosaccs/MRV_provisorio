@@ -60,16 +60,17 @@ body {
 }
 
 /* ==========================================================================
-   BLOCO 40: CONTEÚDO PRINCIPAL (MAPA + FICHA)
+   BLOCO 40: CONTEÚDO PRINCIPAL (OCUPAR TODO O RESTO)
    ========================================================================== */
 .conteudo-principal { 
-    flex: 1 !important; 
+    flex: 1 !important; /* PEGA 100% DO ESPAÇO APÓS A FAIXA VERDE */
+    height: 100vh !important;
     display: flex !important; 
     flex-direction: column !important; 
     overflow: hidden; 
     position: relative;
+    background: #fff;
 }
-
 /* ==========================================================================
    BLOCO 50: ÁREA DO MAPA (TOPO - 65% DA TELA)
    ========================================================================== */
