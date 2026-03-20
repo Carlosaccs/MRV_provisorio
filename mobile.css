@@ -1,40 +1,106 @@
-<style>
-/* BLOCO 05: FUNDAÇÃO (Obriga o navegador a usar a tela toda) */
-html, body { 
-    margin: 0 !important; 
-    padding: 0 !important; 
-    width: 100% !important; 
-    height: 100% !important; 
-    overflow: hidden !important; 
-}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MRV Mobile Premium</title>
 
-/* BLOCO 20: CONTAINER MESTRE (Cria a divisão Faixa | Conteúdo) */
-.mobile-wrapper { 
-    display: flex !important; 
-    flex-direction: row !important; 
-    width: 100vw !important; 
-    height: 100vh !important; 
-}
+    <style>
+        /* BLOCO 05: FUNDAÇÃO */
+        html, body { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            width: 100% !important; 
+            height: 100% !important; 
+            overflow: hidden !important; 
+            background: #fff;
+        }
 
-/* BLOCO 30: FAIXA VERDE VERTICAL (Sua marca registrada na esquerda) */
-.faixa-verde-vertical { 
-    width: 50px !important; 
-    height: 100% !important; 
-    background: #00713a !important; 
-    display: flex !important; 
-    flex-direction: column !important;
-    align-items: center !important; 
-    justify-content: space-between !important; 
-    padding: 15px 0 !important;
-    flex-shrink: 0 !important; 
-}
+        /* BLOCO 20: CONTAINER MESTRE */
+        .mobile-wrapper { 
+            display: flex !important; 
+            flex-direction: row !important; 
+            width: 100vw !important; 
+            height: 100vh !important; 
+        }
 
-/* BLOCO 40: CONTEÚDO PRINCIPAL (Onde o Mapa e a Ficha moram) */
-.conteudo-principal { 
-    flex: 1 !important; 
-    display: flex !important; 
-    flex-direction: column !important; 
-    background: #fff;
-    overflow: hidden;
-}
-</style>
+        /* BLOCO 30: FAIXA VERDE VERTICAL */
+        .faixa-verde-vertical { 
+            width: 50px !important; 
+            height: 100% !important; 
+            background: #00713a !important; 
+            display: flex !important; 
+            flex-direction: column !important;
+            align-items: center !important; 
+            justify-content: space-between !important; 
+            padding: 15px 0 !important;
+            flex-shrink: 0 !important; 
+            z-index: 100;
+        }
+
+        .titulo-vertical { 
+            writing-mode: vertical-rl; 
+            transform: rotate(180deg); 
+            color: white; 
+            font-weight: bold; 
+            font-size: 0.8rem; 
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        /* BLOCO 40: CONTEÚDO PRINCIPAL (MAPA + FICHA) */
+        .conteudo-principal { 
+            flex: 1 !important; 
+            display: flex !important; 
+            flex-direction: column !important; 
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* BLOCO 50: ÁREA DO MAPA (65%) */
+        #mapa-container { 
+            flex: 1 !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            justify-content: center !important; 
+            padding: 10px;
+        }
+
+        #mapa-container svg { max-height: 100%; width: auto; }
+
+        /* BLOCO 60: FICHA TÉCNICA (35%) */
+        .mobile-ficha {
+            height: 35% !important; 
+            border-top: 4px solid #ff8c00;
+            background: #f9f9f9;
+            padding: 15px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-wrapper">
+        <aside class="faixa-verde-vertical">
+            <div style="color:white; font-size:1.5rem;">⛶</div>
+            <div class="titulo-vertical">RESIDENCIAIS MRV</div>
+            <div style="color:white; font-size:1.5rem;" onclick="alert('Menu clicado')">☰</div>
+        </aside>
+
+        <main class="conteudo-principal">
+            <div id="mapa-container">
+                <p style="color:#ccc">Carregando mapa...</p>
+            </div>
+            
+            <section class="mobile-ficha" id="ficha-tecnica">
+                <h3 style="color:#00713a">Selecione um Residencial</h3>
+                <p style="font-size:0.9rem; color:#666;">Toque no mapa ou na lista para detalhes.</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="mrv-data.js"></script>
+    <script src="mobile.js"></script>
+</body>
+</html>
