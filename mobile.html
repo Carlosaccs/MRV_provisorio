@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -8,31 +7,40 @@
     <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
-    <div class="app-container">
-        <aside class="faixa-verde">
-            <button class="btn-zoom-toggle" onclick="toggleFullScreen()">
-                <span id="icon-zoom">⛶</span> </button>
+
+    <div class="mobile-wrapper">
+
+        <aside class="faixa-verde-vertical">
+            <button class="btn-zoom-toggle" onclick="toggleFullScreen()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">
+                ⛶
+            </button>
             <div class="titulo-vertical">RESIDENCIAIS MRV</div>
+            <button class="btn-menu-toggle" onclick="toggleMenu()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">
+                ☰
+            </button>
         </aside>
 
-        <main class="mapa-view" id="mapa-area">
-            <div id="caixa-mapa-principal"></div>
+        <main class="conteudo-principal">
             
-            <div class="ilha-troca" onclick="alternarMapa()" title="Trocar Região">
-                <div id="mini-mapa"></div>
-                <span class="legenda-ilha">TROCAR</span>
-            </div>
+            <div id="mapa-container">
+                </div>
 
-            <div class="menu-flutuante" id="drawer-menu">
-                <div class="alca-pull" onclick="toggleMenu()"></div>
-                <div id="lista-imoveis-mobile" class="carrossel-vertical">
+            <section class="mobile-ficha" id="ficha-tecnica">
+                <div style="text-align:center; padding-top:20px; color:#999;">
+                    Selecione um residencial para ver os detalhes
+                </div>
+            </section>
+
+            <nav class="mobile-sidebar" id="sidebar-imoveis">
+                <div id="lista-imoveis-mobile">
                     </div>
-            </div>
-        </main>
+            </nav>
 
-        <aside class="ficha-lateral" id="detalhes-imovel">
-            <div class="placeholder-ficha">Selecione um residencial no menu ou no mapa</div>
-        </aside>
+            <div class="ilha-troca" onclick="trocarRegiao()">
+                <div id="mini-mapa-container" style="width:100%; height:100%;"></div>
+            </div>
+
+        </main>
     </div>
 
     <script src="mrv-data.js"></script>
