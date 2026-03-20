@@ -1,84 +1,120 @@
+/* DASHBOARD MRV MOBILE - MOTOR LOGICO
+   MARCAÇÃO POR BLOCOS (100-200-300...)
+*/
 
-let mapaAtivo = 'GSP'; // GSP ou INTERIOR
-let menuAberto = false;
-let escalaZoom = 1;
+// ==========================================================================
+// BLOCO 100: VARIÁVEIS DE ESTADO (MEMÓRIA DO APP)
+// ==========================================================================
+let regiaoAtiva = 'GSP'; // Pode ser 'GSP' ou 'INTERIOR'
+let sidebarAberta = false;
+let imovelSelecionado = null;
 
-// 1. INICIALIZAÇÃO
-function iniciarMobile() {
+// ==========================================================================
+// BLOCO 110: INICIALIZAÇÃO (O QUE RODA AO ABRIR)
+// ==========================================================================
+window.onload = () => {
+    console.log("App Mobile Iniciado");
     renderizarMapaPrincipal();
     renderizarMiniMapa();
-    gerarMenuCarrossel();
-}
+    gerarListaBotões();
+};
 
-// 2. CONTROLE DO MENU (PUXAR/EMPURRAR)
+// ==========================================================================
+// BLOCO 120: CONTROLES DE INTERFACE (MENU E TELA CHEIA)
+// ==========================================================================
 function toggleMenu() {
-    menuAberto = !menuAberto;
-    document.getElementById('drawer-menu').classList.toggle('aberto', menuAberto);
-}
-
-// 3. TROCA DE MAPAS (ILHA)
-function alternarMapa() {
-    mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP';
-    renderizarMapaPrincipal();
-    renderizarMiniMapa();
-    escalaZoom = 1;
-    aplicarZoom();
-}
-
-// 4. LÓGICA DE RENDERIZAÇÃO (REDUZIDA PARA PERFORMANCE)
-function renderizarMapaPrincipal() {
-    const container = document.getElementById('caixa-mapa-principal');
-    const dados = (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
-    
-    let pathsHtml = dados.paths.map(p => {
-        return `<path id="main-${p.id}" d="${p.d}" fill="#777" stroke="#fff" onclick="selecionarImovel('${p.id}')"></path>`;
-    }).join('');
-
-    container.innerHTML = `<svg viewBox="${dados.viewBox}" onclick="resetZoom()">${pathsHtml}</svg>`;
-}
-
-function renderizarMiniMapa() {
-    const container = document.getElementById('mini-mapa');
-    const dadosMini = (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP;
-    
-    let pathsHtml = dadosMini.paths.map(p => `<path d="${p.d}" fill="#aaa"></path>`).join('');
-    container.innerHTML = `<svg viewBox="${dadosMini.viewBox}">${pathsHtml}</svg>`;
-}
-
-// 5. ZOOM (SIMULADO PARA CLIQUE E GESTO)
-function resetZoom() {
-    escalaZoom = 1;
-    aplicarZoom();
-}
-
-function aplicarZoom() {
-    const el = document.getElementById('caixa-mapa-principal');
-    el.style.transform = `scale(${escalaZoom})`;
-}
-
-// 6. FULL SCREEN (ESTILO YOUTUBE)
-function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-        document.getElementById('icon-zoom').innerText = "⛶";
+    sidebarAberta = !sidebarAberta;
+    const sidebar = document.getElementById('sidebar-imoveis');
+    if (sidebarAberta) {
+        sidebar.classList.add('aberta');
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-            document.getElementById('icon-zoom').innerText = "⛶";
-        }
+        sidebar.classList.remove('aberta');
     }
 }
 
-function gerarMenuCarrossel() {
-    const container = document.getElementById('lista-imoveis-mobile');
-    // Aqui usamos os seus DADOS_PLANILHA do mrv-data.js
-    // Exemplo simplificado:
-    container.innerHTML = DADOS_PLANILHA.map(item => `
-        <div class="btRes" onclick="selecionarImovel('${item.id_path}')">
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// ==========================================================================
+// BLOCO 200: RENDERIZAÇÃO DO MAPA (SVG)
+// ==========================================================================
+function renderizarMapaPrincipal() {
+    const container = document.getElementById('mapa-container');
+    const dadosRegiao = (regiaoAtiva === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
+    
+    // Constrói o HTML do SVG
+    const paths = dadosRegiao.paths.map(p => {
+        const cor = (p.id === imovelSelecionado) ? 'var(--mrv-laranja)' : '#777';
+        return `<path id="${p.id}" d="${p.d}" fill="${cor}" stroke="#fff" onclick="cliqueNoMapa('${p.id}')"></path>`;
+    }).join('');
+
+    container.innerHTML = `<svg viewBox="${dadosRegiao.viewBox}">${paths}</svg>`;
+}
+
+// ==========================================================================
+// BLOCO 210: TROCA DE REGIÃO (ILHA)
+// ==========================================================================
+function trocarRegiao() {
+    regiaoAtiva = (regiaoAtiva === 'GSP') ? 'INTERIOR' : 'GSP';
+    renderizarMapaPrincipal();
+    renderizarMiniMapa();
+    gerarListaBotões(); // Atualiza a lista para a nova região
+}
+
+function renderizarMiniMapa() {
+    const container = document.getElementById('mini-mapa-container');
+    const dadosMini = (regiaoAtiva === 'GSP') ? MAPA_INTERIOR : MAPA_GSP;
+    
+    const paths = dadosMini.paths.map(p => `<path d="${p.d}" fill="#ccc"></path>`).join('');
+    container.innerHTML = `<svg viewBox="${dadosMini.viewBox}">${paths}</svg>`;
+}
+
+// ==========================================================================
+// BLOCO 300: LISTA DE BOTÕES (CARROSSEL)
+// ==========================================================================
+function gerarListaBotões() {
+    const lista = document.getElementById('lista-imoveis-mobile');
+    
+    // Filtra os dados da mrv-data.js baseado na região ativa
+    const imoveisFiltrados = DADOS_PLANILHA.filter(item => item.regiao_mapa === regiaoAtiva);
+
+    lista.innerHTML = imoveisFiltrados.map(item => `
+        <div class="btRes" onclick="cliqueNoBotao('${item.id_path}')">
             <span>${item.nome}</span>
             <span class="seta">›</span>
         </div>
     `).join('');
 }
 
-window.onload = iniciarMobile;
+// ==========================================================================
+// BLOCO 400: LÓGICA DE SELEÇÃO E FICHA TÉCNICA
+// ==========================================================================
+function cliqueNoBotao(id) {
+    imovelSelecionado = id;
+    renderizarMapaPrincipal(); // Pinta o mapa
+    exibirFichaTecnica(id);
+    toggleMenu(); // Fecha a lista após selecionar
+}
+
+function cliqueNoMapa(id) {
+    imovelSelecionado = id;
+    renderizarMapaPrincipal();
+    exibirFichaTecnica(id);
+}
+
+function exibirFichaTecnica(id) {
+    const ficha = document.getElementById('ficha-tecnica');
+    const dados = DADOS_PLANILHA.find(item => item.id_path === id);
+    
+    if (dados) {
+        ficha.innerHTML = `
+            <h2 style="color:var(--mrv-verde)">${dados.nome}</h2>
+            <p>${dados.descricao || 'Informações do residencial...'}</p>
+            `;
+    }
+}
