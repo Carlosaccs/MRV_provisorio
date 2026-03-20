@@ -1,8 +1,11 @@
-/* DASHBOARD MRV MOBILE - ESTRUTURA MESTRE UNIFICADA */
-
 /* ==========================================================================
-   FUNDAÇÃO: RESETS E TRAVAMENTO DE TELA
+   BLOCO 10: FUNDAÇÃO (RESETS E VARIÁVEIS)
    ========================================================================== */
+:root {
+    --mrv-verde: #00713a;
+    --mrv-laranja: #ff8c00;
+}
+
 * { 
     margin: 0 !important; 
     padding: 0 !important; 
@@ -17,33 +20,31 @@ html, body {
     background: #fff; 
 }
 
-:root {
-    --mrv-verde: #00713a;
-    --mrv-laranja: #ff8c00;
-}
-
 /* ==========================================================================
-   CONTAINER MESTRE E FAIXA VERDE (LAYOUT DE DUAS COLUNAS)
+   BLOCO 20: CONTAINER MESTRE (ESTRUTURA HORIZONTAL)
    ========================================================================== */
 .mobile-wrapper { 
     display: flex !important; 
-    flex-direction: row !important; /* Lado a lado: Faixa | Resto */
+    flex-direction: row !important; 
     width: 100vw !important; 
     height: 100vh !important; 
     overflow: hidden !important; 
     background: #fff;
 }
 
+/* ==========================================================================
+   BLOCO 30: FAIXA VERDE VERTICAL (LATERAL ESQUERDA)
+   ========================================================================== */
 .faixa-verde-vertical { 
     width: 50px !important; 
-    height: 100vh !important; /* Força altura total */
+    height: 100vh !important; 
     background: var(--mrv-verde) !important; 
     display: flex !important; 
     flex-direction: column !important;
     align-items: center !important; 
     justify-content: space-between !important; 
     padding: 15px 0 !important;
-    flex-shrink: 0 !important; /* Impede que seja amassada */
+    flex-shrink: 0 !important; 
     z-index: 200;
 }
 
@@ -54,24 +55,27 @@ html, body {
     font-weight: bold; 
     font-size: 0.8rem; 
     letter-spacing: 2px; 
-    white-space: nowrap; /* Impede que o texto quebre */
+    white-space: nowrap; 
 }
 
 /* ==========================================================================
-   CONTEÚDO PRINCIPAL (MAPA 65% + FICHA 35%)
+   BLOCO 40: CONTEÚDO PRINCIPAL (MAPA + FICHA)
    ========================================================================== */
 .conteudo-principal { 
-    flex: 1 !important; /* Ocupa TODO o resto da tela */
+    flex: 1 !important; 
     height: 100vh !important;
     display: flex !important; 
-    flex-direction: column !important; /* Mapa em cima, Ficha embaixo */
+    flex-direction: column !important; 
     overflow: hidden; 
     position: relative;
     background: #fff;
 }
 
+/* ==========================================================================
+   BLOCO 50: ÁREA DO MAPA (TOPO)
+   ========================================================================== */
 #mapa-container { 
-    flex: 1 !important; /* Ocupa o topo (65%) */
+    flex: 1 !important; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -85,8 +89,11 @@ html, body {
     width: auto !important; 
 }
 
+/* ==========================================================================
+   BLOCO 60: FICHA TÉCNICA (RODAPÉ)
+   ========================================================================== */
 .mobile-ficha {
-    height: 35% !important; /* Trava a gaveta de informações na base */
+    height: 35% !important; 
     min-height: 150px;
     background: #fff;
     border-top: 4px solid var(--mrv-laranja);
