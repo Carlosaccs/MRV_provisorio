@@ -1,122 +1,185 @@
-/* DASHBOARD MRV MOBILE - MOTOR LOGICO
-   MARCAÇÃO POR BLOCOS (100-200-300...)
-*/
+/* ==========================================================================
+   css v140.7.1 - REVISADO (Ficha Técnica Inteligente)
+   ========================================================================== */
 
-// ==========================================================================
-// BLOCO 100: VARIÁVEIS DE ESTADO (MEMÓRIA DO APP)
-// ==========================================================================
-let regiaoAtiva = 'GSP'; // Pode ser 'GSP' ou 'INTERIOR'
-let sidebarAberta = false;
-let imovelSelecionado = null;
-
-// ==========================================================================
-// BLOCO 110: INICIALIZAÇÃO (O QUE RODA AO ABRIR)
-// ==========================================================================
-window.onload = () => {
-    console.log("App Mobile Iniciado");
-    renderizarMapaPrincipal();
-    renderizarMiniMapa();
-    gerarListaBotões();
-};
-
-// ==========================================================================
-// BLOCO 120: CONTROLES DE INTERFACE (MENU E TELA CHEIA)
-// ==========================================================================
-function toggleMenu() {
-    sidebarAberta = !sidebarAberta;
-    const sidebar = document.getElementById('sidebar-imoveis');
-    if (sidebarAberta) {
-        sidebar.classList.add('aberta');
-    } else {
-        sidebar.classList.remove('aberta');
-    }
+/* ==========================================================================
+   BLOCO 1: RESET E FUNDAÇÃO
+   ========================================================================== */
+html, body {
+    margin: 0; padding: 0; 
+    width: 100%; height: 100%;
+    overflow: hidden; 
+    background: #00713a; 
 }
 
-function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
+* { 
+    box-sizing: border-box; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;                       
 }
 
-// ==========================================================================
-// BLOCO 200: RENDERIZAÇÃO DO MAPA (SVG) - ATUALIZADO
-// ==========================================================================
-function renderizarMapaPrincipal() {
-    const container = document.getElementById('mapa-container');
-    // Busca os dados do objeto MAPA_GSP ou MAPA_INTERIOR que estão no seu mrv-data.js
-    const dadosRegiao = (regiaoAtiva === 'GSP') ? MAPA_GSP : MAPA_INTERIOR;
-    
-    if (!dadosRegiao) return;
-
-    const paths = dadosRegiao.paths.map(p => {
-        // Se o imóvel for o selecionado, brilha em laranja, senão usa cinza
-        const corAtiva = (p.name === imovelSelecionado) ? 'var(--mrv-laranja)' : '#777';
-        
-        return `
-            <path 
-                id="${p.id}" 
-                d="${p.d}" 
-                fill="${corAtiva}" 
-                stroke="#fff" 
-                stroke-width="1"
-                onclick="cliqueNoMapa('${p.name}')"
-                style="transition: fill 0.2s ease;">
-            </path>`;
-    }).join('');
-
-    // Aplica o viewBox e o transform que já existem no seu mrv-data.js
-    container.innerHTML = `
-        <svg viewBox="${dadosRegiao.viewBox}" style="width:100%; height:100%;">
-            <g transform="${dadosRegiao.transform || ''}">
-                ${paths}
-            </g>
-        </svg>`;
+:root {
+    --ft-font-size: 0.85rem; 
+    --ft-font-dados: 0.72rem;
+    --mrv-verde: #00713a;
 }
 
-// ==========================================================================
-// BLOCO 300: LISTA DE BOTÕES (CARROSSEL) - ATUALIZADO
-// ==========================================================================
-function gerarListaBotões() {
-    const lista = document.getElementById('lista-imoveis-mobile');
-    if (!lista) return;
-
-    // Filtra sua DADOS_PLANILHA para mostrar apenas o que pertence à região do mapa atual
-    // Ajuste o nome 'regiao_mapa' se na sua planilha for diferente (ex: 'localizacao')
-    const imoveisFiltrados = DADOS_PLANILHA.filter(item => item.regiao_mapa === regiaoAtiva);
-
-    lista.innerHTML = imoveisFiltrados.map(item => `
-        <div class="btRes" onclick="cliqueNoBotao('${item.name}')">
-            <span>${item.name}</span>
-            <span class="seta">›</span>
-        </div>
-    `).join('');
-}
-// ==========================================================================
-// BLOCO 400: LÓGICA DE SELEÇÃO E FICHA TÉCNICA
-// ==========================================================================
-function cliqueNoBotao(id) {
-    imovelSelecionado = id;
-    renderizarMapaPrincipal(); // Pinta o mapa
-    exibirFichaTecnica(id);
-    toggleMenu(); // Fecha a lista após selecionar
+/* ==========================================================================
+   BLOCO 2: FAIXA VERDE E BOTÕES LATERAIS
+   ========================================================================== */
+.faixa-verde-vertical {
+    position: absolute; left: 0; top: 0;
+    width: 60px; height: 100%;
+    background-color: #00713a;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 15px 0; z-index: 4000;
+    box-shadow: none;
+    border-right: none;
 }
 
-function cliqueNoMapa(id) {
-    imovelSelecionado = id;
-    renderizarMapaPrincipal();
-    exibirFichaTecnica(id);
+.titulo-vertical {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    font-weight: bold; font-size: 1.1rem;
+    letter-spacing: 2px; color: white !important;
+    white-space: nowrap; flex-grow: 1;
+    display: flex; align-items: center; justify-content: center;
 }
 
-function exibirFichaTecnica(id) {
-    const ficha = document.getElementById('ficha-tecnica');
-    const dados = DADOS_PLANILHA.find(item => item.id_path === id);
-    
-    if (dados) {
-        ficha.innerHTML = `
-            <h2 style="color:var(--mrv-verde)">${dados.nome}</h2>
-            <p>${dados.descricao || 'Informações do residencial...'}</p>
-            `;
-    }
+#btn-menu:active, #btn-fullscreen:active {
+    opacity: 0.5;
+    transform: scale(0.9);
+}
+
+/* ==========================================================================
+   BLOCO 3: MENU LATERAL
+   ========================================================================== */
+#menu-lateral {
+    position: fixed; left: 60px; top: 0;
+    width: calc(100% - 80px); max-width: 330px; height: 100%;
+    background: transparent; backdrop-filter: blur(15px);
+    z-index: 3000; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#menu-lateral.menu-aberto { transform: translateX(0); }
+#menu-lateral.menu-oculto { transform: translateX(-120%); }
+
+.menu-lista { list-style: none; padding: 10px 0; margin: 0; height: 100vh; overflow-y: auto; }
+
+/* ==========================================================================
+   BLOCO 4: ESTILO DOS BOTÕES (MRV E COMPLEXO)
+   ========================================================================== */
+.menu-item-mrv {
+    background: #ffffff; border: 1px solid #d1d1d1;
+    border-right: 18px solid var(--mrv-verde); 
+    margin: 8px 10px 8px 5px; padding: 12px 12px 12px 25px; 
+    border-radius: 2px 12px 12px 2px;
+    color: #333; font-weight: 600; font-size: var(--ft-font-size);
+    display: block; box-shadow: 4px 4px 10px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+}
+
+.estilo-complexo {
+    border-right-width: 4px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+/* ==========================================================================
+   BLOCO 5: MAPA E INDICADORES
+   ========================================================================== */
+#mapa-container {
+    position: absolute; left: 0; top: 0;
+    width: 100%; height: 100%; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    padding-left: 60px;
+    background: #fff;
+}
+
+#mapa-minimizado {
+    position: absolute; bottom: 25px; right: calc(44% + 15px); 
+    width: 85px; height: 65px;
+    background: white; border: 2px solid var(--mrv-verde);
+    border-radius: 10px; z-index: 2000;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.3);
+}
+
+#identificador-cidade {
+    position: absolute; top: 10px; left: 28%;
+    transform: translateX(-50%);
+    font-size: 0.9rem; font-weight: bold;
+    color: var(--mrv-verde); z-index: 1500;
+    background: rgba(255,255,255,0.9);
+    padding: 5px 15px; border-radius: 20px;
+}
+
+/* ==========================================================================
+   BLOCO 6: FICHA TÉCNICA (LIMPEZA E NOVAS CAIXAS)
+   ========================================================================== */
+.ficha-tecnica {
+    position: absolute; right: 0; top: 0;
+    width: 44%; height: 100%;
+    background: rgba(30, 30, 30, 0.96); backdrop-filter: blur(12px);
+    color: white; padding: 15px 12px; z-index: 1000;
+    overflow-y: auto;
+    border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+#nome-imovel {
+    color: #50c878; 
+    font-weight: 700; 
+    font-size: 0.85rem;
+    border: none;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+}
+
+/* --- NOVO: CAIXA DE DESTAQUE (COLUNA Q) --- */
+.caixa-destaque-coluna-q {
+    width: 100%;
+    background-color: #ffffff; /* Fundo branco para destaque total */
+    border-radius: 4px;
+    padding: 8px 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.caixa-destaque-coluna-q span {
+    color: #ff0000; /* Texto Vermelho em Negrito */
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+/* --- NOVO: GRID DE 6 CAIXAS --- */
+.grid-6-caixas-placeholder {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px;
+    width: 100%;
+}
+
+.caixa-pequena-placeholder {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* --- MATERIAIS DE APOIO (USADO EM COMPLEXO) --- */
+.divisor-materiais {
+    margin-top: 12px; 
+    border: none;
+    padding-top: 0px;
+    margin-bottom: 5px;
 }
