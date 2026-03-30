@@ -106,11 +106,12 @@ function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
     if (!container || !dados) return;
 
-    // Configuração de visualização do container
+    // Garante que o container esteja limpo e pronto para receber o SVG
     container.style.display = "flex"; 
     container.style.alignItems = "center";
     container.style.justifyContent = "center"; 
     container.style.overflow = "hidden";
+    container.style.padding = "10px"; // Pequeno respiro para o mapa não colar na borda
 
     const pathsHtml = dados.paths.map(p => {
         const idNorm = p.id.toLowerCase().replace(/\s/g, '');
@@ -130,35 +131,16 @@ function renderizarNoContainer(id, dados, interativo) {
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : p.class}" ${eventos}></path>`;
     }).join('');
 
-    // --- AJUSTE DE TAMANHO DO MAPA (SCALE) ---
-    // Aumentamos para 4.8 para ocupar a caixa toda no Desktop
-    const escalaValue = (mapaAtivo === 'GSP' && interativo) ? '4.8' : '4.0';
-    const escalaStyle = `transform: scale(${escalaValue}); transform-origin: center;`;
-
+    // Removemos o scale manual fixo que causou o zoom excessivo.
+    // O segredo está no 'preserveAspectRatio' que vai ajustar o mapa ao tamanho da sua div cinza.
     container.innerHTML = `
-        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%;">
-            <g transform="${dados.transform || ''}" style="${escalaStyle}">
+        <svg viewBox="${dados.viewBox}" 
+             preserveAspectRatio="xMidYMid meet" 
+             style="width: 100%; height: 100%; max-height: 100%;">
+            <g transform="${dados.transform || ''}">
                 ${pathsHtml}
             </g>
         </svg>`;
-}
-
-function desenharMapas() {
-    renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
-    renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
-    document.getElementById('caixa-b').onclick = () => trocarMapas(true);
-}
-
-function trocarMapas(completo) { 
-    mapaAtivo = (mapaAtivo === 'GSP') ? 'INTERIOR' : 'GSP'; 
-    if (completo) { 
-        pathAtivo = null; imovelAtivo = null; 
-        const painel = document.getElementById('ficha-tecnica');
-        if(painel) painel.innerHTML = `<div style="text-align:center; color:#ccc; margin-top:80px;"><p style="font-size:30px;">📍</p><p>Clique no mapa ou na lista</p></div>`;
-        document.getElementById('cidade-titulo').innerText = "SELECIONE UMA REGIÃO NO MAPA";
-    }
-    desenharMapas(); 
-    gerarListaLateral(); 
 }
 
 /* =============================================================================
