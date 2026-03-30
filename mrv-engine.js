@@ -185,16 +185,16 @@ function atualizarTituloSuperior(texto) {
 }
 
 /* ==========================================================================
-   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG) - AJUSTE DE ENQUADRAMENTO
+   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG) - TESTE DE CARREGAMENTO SIMPLES
    ========================================================================== */
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
     if (!container || !dados) return;
 
+    // Removemos qualquer transformação complexa para garantir que apareça
     container.style.display = "flex"; 
     container.style.alignItems = "center";
     container.style.justifyContent = "center"; 
-    container.style.overflow = "hidden";
 
     const pathsHtml = dados.paths.map(p => {
         const idNorm = p.id.toLowerCase().replace(/\s/g, '');
@@ -213,9 +213,9 @@ function renderizarNoContainer(id, dados, interativo) {
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
 
-    // Removemos o scale fixo. O 'viewBox' e 'preserveAspectRatio' cuidam do tamanho.
+    // Usamos width: 100% sem o transform de scale para ver o tamanho natural do mapa-SP.js
     container.innerHTML = `
-        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:95%; height:95%;">
+        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%;">
             <g transform="${dados.transform || ''}">
                 ${pathsHtml}
             </g>
