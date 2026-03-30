@@ -185,7 +185,7 @@ function atualizarTituloSuperior(texto) {
 }
 
 /* ==========================================================================
-   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG) - AJUSTE DE ESCALA 1.1
+   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG) - AJUSTE DE ENQUADRAMENTO
    ========================================================================== */
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
@@ -202,6 +202,7 @@ function renderizarNoContainer(id, dados, interativo) {
         const ativo = (pathAtivo === idNorm && interativo) ? 'ativo' : '';
         const isGSP = idNorm === "grandesaopaulo";
         let eventos = "";
+        
         if (interativo) {
             if (isGSP) { 
                 eventos = `onclick="trocarMapas(true)" onmouseover="atualizarTituloSuperior('GRANDE SÃO PAULO')" onmouseout="atualizarTituloSuperior()"`; 
@@ -212,13 +213,10 @@ function renderizarNoContainer(id, dados, interativo) {
         return `<path id="${id}-${idNorm}" d="${p.d}" class="${(temMRV || isGSP) && interativo ? 'commrv '+ativo : ''}" ${eventos}></path>`;
     }).join('');
 
-    // Ajustamos a escala para 4.2 para preencher a caixa branca, 
-    // já que os novos paths são baseados em coordenadas menores.
-    const escalaGeral = interativo ? 'transform: scale(4.2);' : 'transform: scale(1.0);';
-
+    // Removemos o scale fixo. O 'viewBox' e 'preserveAspectRatio' cuidam do tamanho.
     container.innerHTML = `
-        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:100%;">
-            <g transform="${dados.transform || ''}" style="${escalaGeral} transform-origin: center;">
+        <svg viewBox="${dados.viewBox}" preserveAspectRatio="xMidYMid meet" style="width:95%; height:95%;">
+            <g transform="${dados.transform || ''}">
                 ${pathsHtml}
             </g>
         </svg>`;
