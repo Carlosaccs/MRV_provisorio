@@ -1,20 +1,19 @@
 /* ==========================================================================
-   CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
+   BLOCO 01: CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
    ========================================================================== */
 let DADOS_PLANILHA = [];
 let pathAtivo = null;  
 let imovelAtivo = null;  
 let mapaAtivo = 'GSP'; 
 
-// Mapeamento atualizado: Nova coluna inserida em D (3), deslocando as demais
 const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, 
-    NOVA_COLUNA: 3, // Coluna inserida na posição D
+    NOVA_COLUNA: 3, 
     NOME: 4, NOME_FULL: 5,  
     ESTOQUE: 6, END: 7, TIPOLOGIAS: 8, ENTREGA: 9, 
     P_DE: 10, P_ATE: 11, OBRA: 12, LIMITADOR: 13, 
     REGIAO: 14, CASA_PAULISTA: 15, CAMPANHA: 16, 
-    DESC_LONGA: 18, OBSERVACOES: 19, // Invertidos/Deslocados conforme estrutura original
+    DESC_LONGA: 18, OBSERVACOES: 19, 
     LOCALIZACAO: 20, MOBILIDADE: 21, CULTURA_LAZER: 22,    
     COMERCIO: 23, SAUDE_EDUCACAO: 24,
     BOOK_CLIENTE: 25, BOOK_CORRETOR: 26,
@@ -24,7 +23,7 @@ const COL = {
 };
 
 /* ==========================================================================
-   INICIALIZAÇÃO E UTILITÁRIOS
+   BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS (LINKS E COPIAR)
    ========================================================================== */
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
@@ -57,7 +56,7 @@ function copiarLink(url) {
 }
 
 /* ==========================================================================
-   CARREGAMENTO DE DADOS (GOOGLE SHEETS)
+   BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
    ========================================================================== */
 async function carregarPlanilha() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
@@ -82,7 +81,6 @@ async function carregarPlanilha() {
             const ordem = parseInt(colunas[COL.ORDEM]);
 
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
-
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
             
             return {
@@ -125,7 +123,7 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   LÓGICA DO MAPA E SELEÇÃO
+   BLOCO 04: LÓGICA DE INTERAÇÃO E SELEÇÃO (MAPA -> VITRINE)
    ========================================================================== */
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -186,6 +184,9 @@ function atualizarTituloSuperior(texto) {
     } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
 
+/* ==========================================================================
+   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG)
+   ========================================================================== */
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
     container.style.display = "flex"; container.style.alignItems = "center";
@@ -230,6 +231,9 @@ function trocarMapas(completo) {
     desenharMapas(); gerarListaLateral(); 
 }
 
+/* ==========================================================================
+   BLOCO 06: LISTA LATERAL (MENU DE IMÓVEIS)
+   ========================================================================== */
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
@@ -243,7 +247,7 @@ function gerarListaLateral() {
 }
 
 /* ==========================================================================
-   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) E MINIATURAS
+   BLOCO 07: CONSTRUÇÃO DA VITRINE E FICHA TÉCNICA
    ========================================================================== */
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
@@ -425,22 +429,16 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (SOBRE)
+   BLOCO 08: MODAL (SOBRE) E EVENTOS DE CARREGAMENTO
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
     const btn = document.getElementById("btn-sobre");
     const span = document.querySelector(".modal-close");
 
-    if(btn && modal) {
-        btn.onclick = () => { modal.style.display = "block"; };
-    }
-    if(span && modal) {
-        span.onclick = () => { modal.style.display = "none"; };
-    }
-    window.onclick = (event) => {
-        if (event.target == modal) { modal.style.display = "none"; }
-    };
+    if(btn && modal) { btn.onclick = () => { modal.style.display = "block"; }; }
+    if(span && modal) { span.onclick = () => { modal.style.display = "none"; }; }
+    window.onclick = (event) => { if (event.target == modal) { modal.style.display = "none"; } };
 });
 
 window.onload = iniciarApp;
