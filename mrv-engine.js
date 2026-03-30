@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
+   BLOCO 01: CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
    ========================================================================== */
 let DADOS_PLANILHA = [];
 let pathAtivo = null;  
@@ -24,7 +24,7 @@ const COL = {
 };
 
 /* ==========================================================================
-   INICIALIZAÇÃO E UTILITÁRIOS
+   BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS
    ========================================================================== */
 async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
@@ -57,7 +57,7 @@ function copiarLink(url) {
 }
 
 /* ==========================================================================
-   CARREGAMENTO DE DADOS (GOOGLE SHEETS)
+   BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
    ========================================================================== */
 async function carregarPlanilha() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
@@ -125,7 +125,7 @@ async function carregarPlanilha() {
 }
 
 /* ==========================================================================
-   LÓGICA DO MAPA E SELEÇÃO
+   BLOCO 04: LÓGICA DO MAPA E SELEÇÃO
    ========================================================================== */
 function obterHtmlEstoque(valor, tipo) {
     if (tipo === 'N') return "";
@@ -186,6 +186,9 @@ function atualizarTituloSuperior(texto) {
     } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
 
+/* ==========================================================================
+   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG)
+   ========================================================================== */
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
     container.style.display = "flex"; container.style.alignItems = "center";
@@ -230,6 +233,9 @@ function trocarMapas(completo) {
     desenharMapas(); gerarListaLateral(); 
 }
 
+/* ==========================================================================
+   BLOCO 06: LISTA LATERAL
+   ========================================================================== */
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
@@ -243,7 +249,7 @@ function gerarListaLateral() {
 }
 
 /* ==========================================================================
-   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) E MINIATURAS
+   BLOCO 07: CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
    ========================================================================== */
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
@@ -425,7 +431,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (SOBRE)
+   BLOCO 08: LÓGICA DO MODAL (SOBRE)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
