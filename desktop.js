@@ -6,18 +6,20 @@ let pathAtivo = null;
 let imovelAtivo = null;  
 let mapaAtivo = 'GSP'; 
 
+// Mapeamento sincronizado com a estrutura da planilha
 const COL = {
-    ID: 0, CATEGORIA: 1, ORDEM: 2, NOME: 3, NOME_FULL: 4, 
-    ESTOQUE: 5, END: 6, TIPOLOGIAS: 7, ENTREGA: 8, 
-    P_DE: 9, P_ATE: 10, OBRA: 11, LIMITADOR: 12, 
-    REGIAO: 13, CASA_PAULISTA: 14, CAMPANHA: 15, 
-    OBSERVACOES: 18, DESC_LONGA: 17, 
-    LOCALIZACAO: 19, MOBILIDADE: 20, CULTURA_LAZER: 21,    
-    COMERCIO: 22, SAUDE_EDUCACAO: 23,
-    BOOK_CLIENTE: 24, BOOK_CORRETOR: 25,
-    LINKS_VIDEOS: 26, LINKS_PLANTAS: 27,  
-    LINKS_IMPLANT: 28, LINKS_DIVERSOS: 29,
-    ESTANDE: 30 
+    ID: 0, CATEGORIA: 1, ORDEM: 2, 
+    NOME: 4, NOME_FULL: 5,  
+    ESTOQUE: 6, END: 7, TIPOLOGIAS: 8, ENTREGA: 9, 
+    P_DE: 10, P_ATE: 11, OBRA: 12, LIMITADOR: 13, 
+    REGIAO: 14, CASA_PAULISTA: 15, CAMPANHA: 16, 
+    DESC_LONGA: 18, OBSERVACOES: 19, 
+    LOCALIZACAO: 20, MOBILIDADE: 21, CULTURA_LAZER: 22,    
+    COMERCIO: 23, SAUDE_EDUCACAO: 24,
+    BOOK_CLIENTE: 25, BOOK_CORRETOR: 26,
+    LINKS_VIDEOS: 27, LINKS_PLANTAS: 28,  
+    LINKS_IMPLANT: 29, LINKS_DIVERSOS: 30,
+    ESTANDE: 31 
 };
 
 /* ==========================================================================
@@ -27,40 +29,30 @@ async function iniciarApp() {
     try { await carregarPlanilha(); } catch (err) { console.error(err); }
 }
 
+// FUNÇÃO DE SEGURANÇA: Transforma links do Drive em visualização limpa
 function formatarLinkSeguro(url) {
-    if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
+    if (!url || url === "---" || url === "" || typeof url !== 'string') return "#";
     let link = url.trim();
     if (link.includes('drive.google.com')) {
-        const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
-        if (match && match[1]) {
-            return `https://drive.google.com/file/d/${match[1]}/preview?rm=minimal`;
-        }
+        return link.replace(/\/view.*|\/edit.*|\?usp=sharing/g, "") + "/preview";
     }
     return link;
 }
 
-function copiarTexto(texto, msg = "Link copiado!") {
-    if (!texto || texto === "") return;
+function copiarTexto(texto, msg = "Copiado para a área de transferência!") {
+    if (!texto || texto === "" || texto === "#") return;
     navigator.clipboard.writeText(texto).then(() => {
         alert(msg);
-    }).catch(err => {
-        console.error('Erro ao copiar: ', err);
-    });
-}
-
-function copiarLink(url) {
-    const linkSeguro = formatarLinkSeguro(url);
-    copiarTexto(linkSeguro, "Link seguro copiado!");
+    }).catch(err => { console.error('Erro ao copiar: ', err); });
 }
 
 /* ==========================================================================
-   CARREGAMENTO DE DADOS (GOOGLE SHEETS)
+   CARREGAMENTO DE DADOS (AGORA USANDO MAPA-SP.JS)
    ========================================================================== */
 async function carregarPlanilha() {
-    const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
-    const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0&v=${new Date().getTime()}`;
     try {
-        const response = await fetch(URL_CSV);
+        // Usa a URL_PLANILHA que vem do mapa-SP.js
+        const response = await fetch(`${URL_PLANILHA}&cache_buster=${Date.now()}`);
         let texto = await response.text();
         const linhasPuras = texto.split(/\r?\n/);
 
@@ -78,14 +70,12 @@ async function carregarPlanilha() {
             const idPath = (colunas[COL.ID] || "").toLowerCase().replace(/\s/g, '');
             const ordem = parseInt(colunas[COL.ORDEM]);
 
-            if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
+            if (!idPath || nomeImovel.length <= 1) return null;
 
-            const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
-            
             return {
                 id_path: idPath,
-                tipo: cat.includes('COMPLEXO') ? 'N' : 'R',
-                ordem: ordem,
+                tipo: (colunas[COL.CATEGORIA] || "").toUpperCase().includes('COMPLEXO') ? 'N' : 'R',
+                ordem: ordem || 999,
                 nome: nomeImovel,
                 nomeFull: colunas[COL.NOME_FULL] || nomeImovel,
                 estoque: colunas[COL.ESTOQUE],
@@ -118,7 +108,7 @@ async function carregarPlanilha() {
 
         DADOS_PLANILHA.sort((a, b) => a.ordem - b.ordem);
         desenharMapas(); gerarListaLateral();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Erro ao carregar:", e); }
 }
 
 /* ==========================================================================
@@ -133,14 +123,13 @@ function obterHtmlEstoque(valor, tipo) {
     return `<span style="color:#666; font-size:9px;">${clean || "CONSULTAR"}</span>`;
 }
 
-// NOVO: Função para detectar a Zona e retornar a classe CSS
 function detectarClasseZona(nome) {
     const n = nome.toUpperCase();
     if (n.startsWith("ZO ")) return "btn-zo";
     if (n.startsWith("ZL ")) return "btn-zl";
     if (n.startsWith("ZN ")) return "btn-zn";
     if (n.startsWith("ZS ")) return "btn-zs";
-    return ""; // Sem zona específica ou já fora de SP capital
+    return ""; 
 }
 
 function navegarVitrine(nome) { 
@@ -228,12 +217,11 @@ function trocarMapas(completo) {
     desenharMapas(); gerarListaLateral(); 
 }
 
-// ATUALIZADA: Agora aplica a classe de cor da zona
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
     container.innerHTML = DADOS_PLANILHA.map(item => {
         const ativo = item.nome === imovelAtivo ? 'ativo' : '';
-        const classeZona = detectarClasseZona(item.nome); // Pega zn, zs, etc.
+        const classeZona = detectarClasseZona(item.nome); 
         
         return `<div class="${item.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${ativo} ${classeZona}" onclick="navegarVitrine('${item.nome}')">
                     <strong>${item.nome}</strong> ${obterHtmlEstoque(item.estoque, item.tipo)}
@@ -242,7 +230,7 @@ function gerarListaLateral() {
 }
 
 /* ==========================================================================
-   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA) E MINIATURAS
+   CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
    ========================================================================== */
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---") return "";
@@ -251,27 +239,22 @@ const criarCardMaterial = (titulo, url, icone) => {
     <div class="card-material-item">
         <div class="card-material-left">
             <span class="card-icon">${icone}</span>
-            <span class="card-text">${titulo}</span>
+            <span class="card-text">${titulo.toUpperCase()}</span>
         </div>
         <div class="card-material-right">
-            <div class="btn-com-preview">
-                <a href="${linkSeguro}" target="_blank" class="card-btn-abrir">Abrir</a>
-                <div class="preview-container">
-                    <iframe src="${linkSeguro}"></iframe>
-                </div>
-            </div>
-            <button onclick="copiarLink('${url}')" class="card-btn-copiar">Copiar</button>
+            <button onclick="window.open('${linkSeguro}','_blank')" class="card-btn-abrir">ABRIR</button>
+            <button onclick="copiarTexto('${linkSeguro}')" class="card-btn-copiar">COPIAR</button>
         </div>
     </div>`;
 };
 
 const extrairLinks = (campo, icone) => {
-    if(!campo || campo === "---") return "";
+    if(!campo || campo === "---" || !campo.includes(",")) return "";
     let htmlTemp = "";
-    const grupos = campo.split(';').map(g => g.trim()).filter(g => g !== "");
+    const grupos = campo.split(';');
     grupos.forEach(g => {
-        const partes = g.split(',').map(p => p.trim());
-        if(partes.length >= 2) htmlTemp += criarCardMaterial(partes[0], partes[1], icone);
+        const partes = g.split(',');
+        if(partes.length >= 2) htmlTemp += criarCardMaterial(partes[0].trim(), partes[1].trim(), icone);
     });
     return htmlTemp;
 };
@@ -284,7 +267,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     let html = `<div class="vitrine-topo">MRV EM ${nomeRegiao}</div>`;
     
     if(outros.length > 0) {
-        html += `<div style="margin-bottom:6px;">${outros.map(i => {
+        html += `<div style="margin-bottom:6px; display:flex; flex-direction:column; gap:2px;">${outros.map(i => {
             const classeZ = detectarClasseZona(i.nome);
             return `<button class="${i.tipo === 'N' ? 'separador-complexo-btn' : 'btRes'} ${classeZ}" style="width:100%;" onclick="navegarVitrine('${i.nome}')">
                 <strong>${i.nome}</strong> ${obterHtmlEstoque(i.estoque, i.tipo)}
@@ -292,154 +275,115 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
+        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()}</div>`;
         html += `
-        <div style="padding: 2px 0 5px 0;">
-            <div style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
-                <span style="flex:1;">📍 ${selecionado.endereco}</span>
-                <div style="display:flex; gap:3px; margin-left:5px;">
-                    <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
-                    <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none; cursor:pointer;">LINK</button>
+        <div style="padding: 5px 0;">
+            <div style="font-size:0.75rem; color:#444; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <span style="flex:1; font-weight:bold;">📍 ${selecionado.endereco.toUpperCase()}</span>
+                <div style="display:flex; gap:3px;">
+                    <button onclick="window.open('${urlMapsResidencial}','_blank')" class="btn-maps" style="background:#4285F4; border:none; color:white; padding:4px 8px; border-radius:3px; font-size:0.6rem; cursor:pointer; font-weight:bold;">MAPS</button>
+                    <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none; color:white; padding:4px 8px; border-radius:3px; font-size:0.6rem; cursor:pointer; font-weight:bold;">COPIAR</button>
                 </div>
             </div>
         </div>`;
 
-        html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
+        // Bloco de Informações Rápidas
+        html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">`;
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
-            html += `<div style="background: #fff5f5; color: #e31010; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #ddd;">${selecionado.campanha}</div>`;
+            html += `<div style="background: #fff5f5; color: #e31010; font-weight: 900; font-size: 0.75rem; text-align: center; padding: 6px; border-bottom: 1px solid #ddd;">${selecionado.campanha.toUpperCase()}</div>`;
         }
         
         const linhaInfo = (l1, v1, l2, v2, borda) => `
             <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
-                <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l1}</label>
-                    <strong style="font-size: 0.65rem; color: #333;">${v1}</strong>
+                <div style="flex: 1; padding: 6px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36;">${l1.toUpperCase()}</label>
+                    <strong style="font-size: 0.7rem; color: #333;">${v1}</strong>
                 </div>
-                <div style="flex: 1; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l2}</label>
-                    <strong style="font-size: 0.65rem; color: #333;">${v2}</strong>
+                <div style="flex: 1; padding: 6px 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36;">${l2.toUpperCase()}</label>
+                    <strong style="font-size: 0.7rem; color: #333;">${v2}</strong>
                 </div>
             </div>`;
+        
         html += linhaInfo('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%', true);
-        html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', (selecionado.estoque || "---") + ' UN.', true);
+        html += linhaInfo('Plantas', selecionado.p_de + '-' + selecionado.p_ate + 'm²', 'Estoque', (selecionado.estoque || "---"), true);
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
-        if(selecionado.tipologiasH) {
-            const linhas = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
-            if(linhas.length > 0) {
-                const titulos = linhas[0].split(',').map(t => t.trim());
-                const dados = linhas.slice(1);
-                html += `
-                <div class="tabela-precos-container">
-                    <div class="tabela-header">
-                        ${titulos.map((t, idx) => {
-                            const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                            return `<div class="col-tabela" style="${estiloCabecalho}">${t}</div>`;
-                        }).join('')}
-                    </div>
-                    <div class="tabela-corpo">
-                        ${dados.map(linhaStr => {
-                            const cols = linhaStr.split(',').map(c => c.trim());
-                            if(cols.length <= 1) return "";
-                            return `<div class="tabela-row">
-                                ${cols.map((v, idx) => {
-                                    const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
-                                    return `<div class="col-tabela" style="${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
-                                }).join('')}
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            }
-        }
-
-        html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
-        if(selecionado.estande && selecionado.estande !== "---" && selecionado.estande !== "") {
-            const urlMapsEstande = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.estande)}`;
+        // Tabela de Preços
+        if(selecionado.tipologiasH && selecionado.tipologiasH.includes(";")) {
+            const linhas = selecionado.tipologiasH.split(';');
+            const titulos = linhas[0].split(',');
+            const dados = linhas.slice(1);
             html += `
-            <div style="background: #e8f5e9; border-left: 6px solid #2e7d32; padding: 6px 10px; border-bottom: 1px solid #ddd;">
-                <label style="display:block; font-size:0.55rem; font-weight:bold; color:#2e7d32; text-transform:uppercase; margin-bottom:1px;">📍 Estande de Vendas</label>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3; flex:1;">${selecionado.estande}</p>
-                    <div style="display:flex; gap:3px; margin-left:5px;">
-                        <a href="${urlMapsEstande}" target="_blank" class="btn-maps">MAPS</a>
-                        <button onclick="copiarTexto('${urlMapsEstande}')" class="btn-maps" style="background:#444; border:none; cursor:pointer;">LINK</button>
-                    </div>
+            <div class="tabela-precos-container">
+                <div class="tabela-header" style="display:grid; grid-template-columns: 0.6fr 1fr 0.8fr 0.8fr; background:#eee; font-size:0.55rem; font-weight:bold; padding:4px;">
+                    ${titulos.map(t => `<div style="text-align:center">${t.toUpperCase()}</div>`).join('')}
                 </div>
+                ${dados.map(lStr => {
+                    const c = lStr.split(',');
+                    return `<div style="display:grid; grid-template-columns: 0.6fr 1fr 0.8fr 0.8fr; border-bottom:1px solid #eee; padding:4px; font-size:0.65rem; align-items:center;">
+                        <div style="font-weight:bold">${c[0]}</div>
+                        <div style="background:#ff8c00; color:white; text-align:center; border-radius:2px; font-weight:bold">${c[1]}</div>
+                        <div style="text-align:right; color:#666">${c[2]}</div>
+                        <div style="text-align:right; color:#666">${c[3]}</div>
+                    </div>`;
+                }).join('')}
             </div>`;
         }
 
-        const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
+        // Diferenciais e Localização
+        const criarBoxDiferencial = (label, texto, corBorda) => {
             if(!texto || texto === "---" || texto === "") return "";
             return `
-            <div style="background: ${corFundo}; border-left: 6px solid ${corBorda}; padding: 6px 10px; ${temBorda ? 'border-bottom: 1px solid #ddd;' : ''}">
-                <label style="display:block; font-size:0.55rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:1px;">${label}</label>
-                <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3;">${texto}</p>
+            <div style="margin-top:8px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; border-left: 5px solid ${corBorda}; background:#fff;">
+                <div style="background:#f4f4f4; padding:3px 8px; font-size:0.55rem; font-weight:bold; color:${corBorda}; border-bottom:1px solid #ddd;">${label.toUpperCase()}</div>
+                <div style="padding:8px; font-size:0.75rem; color:#444; line-height:1.3;">${texto.toUpperCase()}</div>
             </div>`;
         };
-        html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
-        html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
-        html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
-        html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
-        html += criarBoxDiferencial('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828', true);
-        html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
-        html += `</div>`;
 
-        let materiaisHtml = "";
-        materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
-        materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
-        materiaisHtml += extrairLinks(selecionado.linksVideos, '🎬');
-        materiaisHtml += extrairLinks(selecionado.linksPlantas, '📐');
-        materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
-        materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
+        html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#e31010');
+        if(selecionado.estande) html += criarBoxDiferencial('📍 Estande de Vendas', selecionado.estande, '#2e7d32');
+        html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#f37021');
+        html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#2e7d32');
+        html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#1565c0');
+        html += criarBoxDiferencial('🛒 Comércio', selecionado.comercio, '#c62828');
+        html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#6a1b9a');
+
+        // Materiais
+        let mats = "";
+        mats += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
+        mats += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
+        mats += extrairLinks(selecionado.linksVideos, '🎬');
+        mats += extrairLinks(selecionado.linksPlantas, '📐');
+        mats += extrairLinks(selecionado.linksImplant, '📍');
+        mats += extrairLinks(selecionado.linksDiversos, '✨');
         
-        if (materiaisHtml !== "") {
-            html += `<div style="margin-top: 10px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
-                ${materiaisHtml}
+        if (mats !== "") {
+            html += `<div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top:10px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; margin-bottom:5px;">MATERIAIS DE APOIO</label>
+                ${mats}
             </div>`;
         }
     } else {
-        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}</div>`;
-        html += `<div class="box-complexo-full">
-                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                        <span>📍 ${selecionado.endereco}</span> 
-                        <span style="display:flex; gap:3px;">
-                            <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
-                            <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none;">LINK</button>
-                        </span>
-                    </p>
-                    <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
-                 </div>`;
-        let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
-        if (materiaisComplexo !== "") {
-            html += `<div style="margin-top: 10px; padding: 0 5px;">
-                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
-                ${materiaisComplexo}
-            </div>`;
-        }
+        // --- VISUAL PARA COMPLEXO (TIPO N) ---
+        html += `<div class="titulo-vitrine-faixa faixa-preta">${selecionado.nomeFull.toUpperCase()}</div>`;
+        html += `<div style="padding:10px; background:#f9f9f9; border-radius:4px; font-size:0.8rem; color:#444; line-height:1.5; text-align:justify; margin-bottom:10px;">${selecionado.descLonga}</div>`;
+        html += extrairLinks(selecionado.linksImplant, '📍');
     }
     painel.innerHTML = html;
 }
 
 /* ==========================================================================
-   LÓGICA DO MODAL (SOBRE)
+   LÓGICA DO MODAL (SOBRE) E WINDOW LOAD
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById("modal-sobre");
     const btn = document.getElementById("btn-sobre");
     const span = document.querySelector(".modal-close");
-
-    if(btn && modal) {
-        btn.onclick = () => { modal.style.display = "block"; };
-    }
-    if(span && modal) {
-        span.onclick = () => { modal.style.display = "none"; };
-    }
-    window.onclick = (event) => {
-        if (event.target == modal) { modal.style.display = "none"; }
-    };
+    if(btn && modal) btn.onclick = () => { modal.style.display = "block"; };
+    if(span && modal) span.onclick = () => { modal.style.display = "none"; };
+    window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
 });
 
 window.onload = iniciarApp;
