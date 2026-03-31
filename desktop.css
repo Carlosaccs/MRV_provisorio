@@ -90,7 +90,6 @@ body {
 .btRes, .separador-complexo-btn {
     width: 92% !important; 
     margin: 4px auto !important; 
-    min-height: 27px;
     display: flex !important; 
     align-items: center !important; 
     padding: 6px 10px !important;
@@ -100,6 +99,7 @@ body {
     border: 1px solid #ddd; 
     text-decoration: none;
     transition: all 0.15s ease;
+    box-sizing: border-box;
 }
 
 .separador-complexo-btn { 
@@ -113,27 +113,28 @@ body {
 
 .btRes { 
     background: #fff; 
-    border-left: 4px solid var(--mrv-verde) !important; 
+    /* TARJA PARA A DIREITA */
+    border-right: 5px solid var(--mrv-verde) !important; 
+    border-left: 1px solid #ddd !important;
     justify-content: space-between; 
     color: #333; 
 }
 
-.btRes.btn-zo { border-left: 4px solid var(--mrv-zo) !important; }
-.btRes.btn-zl { border-left: 4px solid var(--mrv-zl) !important; }
-.btRes.btn-zn { border-left: 4px solid var(--mrv-zn) !important; }
-.btRes.btn-zs { border-left: 4px solid var(--mrv-zs) !important; }
+/* Cores das Zonas na Tarja Direita */
+.btRes.btn-zo { border-right-color: var(--mrv-zo) !important; }
+.btRes.btn-zl { border-right-color: var(--mrv-zl) !important; }
+.btRes.btn-zn { border-right-color: var(--mrv-zn) !important; }
+.btRes.btn-zs { border-right-color: var(--mrv-zs) !important; }
 
 .btRes:hover { 
     background-color: #f0f0f0 !important; 
-    border: 1px solid var(--mrv-verde) !important; 
 }
 
 .btRes.ativo { 
     background-color: var(--mrv-laranja) !important; 
     color: white !important; 
-    border: 1px solid var(--mrv-laranja) !important; 
+    border-right-color: white !important; /* Destaque branco na tarja quando ativo */
 }
-
 /* ==========================================================================
    5. CENTRO (MAPAS E TÍTULOS)
    ========================================================================== */
