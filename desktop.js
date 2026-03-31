@@ -426,15 +426,18 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 ${materiaisHtml}
             </div>`;
         }
-    } else {
-        // TÍTULO DO COMPLEXO: COR DINÂMICA (MAIS ESCURA QUE A ZONA)
+} else {
+        // Cores de Título que combinam com os novos botões de complexo
         let corComplexo = "#333";
-        if (selecionado.zona === 'ZO') corComplexo = "#c45a1a";
-        else if (selecionado.zona === 'ZL') corComplexo = "#001540";
-        else if (selecionado.zona === 'ZN') corComplexo = "#cc9900";
-        else if (selecionado.zona === 'ZS') corComplexo = "#b00069";
+        if (selecionado.zona === 'ZO') corComplexo = "#ff9d42"; // O novo laranja claro
+        else if (selecionado.zona === 'ZL') corComplexo = "#003399";
+        else if (selecionado.zona === 'ZN') corComplexo = "#ffd700";
+        else if (selecionado.zona === 'ZS') corComplexo = "#ff33aa";
 
-        html += `<div class="titulo-vitrine-faixa" style="background-color: ${corComplexo}; color: white; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.8rem;">
+        // Cor do texto do título (preto para amarelo, branco para os outros)
+        let corTexto = (selecionado.zona === 'ZN') ? "#333" : "white";
+
+        html += `<div class="titulo-vitrine-faixa" style="background-color: ${corComplexo}; color: ${corTexto}; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.8rem;">
                     ${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}
                  </div>`;
                  
