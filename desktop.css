@@ -102,67 +102,24 @@ body {
     box-sizing: border-box;
 }
 
+/* BOTÃO COMPLEXO (Separador) */
 .separador-complexo-btn { 
     background: #333 !important; 
     color: white !important; 
     justify-content: center !important; 
     font-weight: bold; 
     text-transform: uppercase; 
-    border: none !important; 
+    border: 2px solid transparent !important; 
 }
 
-.btRes { 
-    background: #fff; 
-    /* TARJA PARA A DIREITA */
-    border-right: 5px solid var(--mrv-verde) !important; 
-    border-left: 1px solid #ddd !important;
-    justify-content: space-between; 
-    color: #333; 
+/* Quando o COMPLEXO é clicado: Borda preta e fundo cinza */
+.separador-complexo-btn.ativo {
+    border: 2px solid #000 !important;
+    background: #ececec !important;
+    color: #000 !important;
 }
 
-/* Cores das Zonas na Tarja Direita */
-.btRes.btn-zo { border-right-color: var(--mrv-zo) !important; }
-.btRes.btn-zl { border-right-color: var(--mrv-zl) !important; }
-.btRes.btn-zn { border-right-color: var(--mrv-zn) !important; }
-.btRes.btn-zs { border-right-color: var(--mrv-zs) !important; }
-
-.btRes:hover { 
-    background-color: #f0f0f0 !important; 
-}
-
-/* ESTADO ATIVO: Fundo cinza claro e contorno verde */
-.btRes.ativo { 
-    background-color: #ececec !important; /* Cinza claro solicitado */
-    color: #000 !important; 
-    border: 1px solid var(--mrv-verde) !important; /* Contorno verde solicitado */
-    border-right: 5px solid var(--mrv-verde) !important; /* Mantém a tarja grossa */
-    font-weight: bold;
-}
-
-.btRes, .separador-complexo-btn {
-    width: 92% !important; 
-    margin: 4px auto !important; 
-    display: flex !important; 
-    align-items: center !important; 
-    padding: 6px 10px !important;
-    border-radius: 4px; 
-    font-size: 0.72rem; 
-    cursor: pointer; 
-    border: 1px solid #ddd; 
-    text-decoration: none;
-    transition: all 0.1s ease; /* Transição mais rápida */
-    box-sizing: border-box;
-}
-
-.separador-complexo-btn { 
-    background: #333 !important; 
-    color: white !important; 
-    justify-content: center !important; 
-    font-weight: bold; 
-    text-transform: uppercase; 
-    border: none !important; 
-}
-
+/* BOTÃO RESIDENCIAL (btRes) */
 .btRes { 
     background: #fff; 
     border-right: 5px solid var(--mrv-verde) !important; 
@@ -171,25 +128,32 @@ body {
     color: #333; 
 }
 
-/* Cores das Zonas na Tarja Direita */
-.btRes.btn-zo { border-right-color: var(--mrv-zo) !important; }
-.btRes.btn-zl { border-right-color: var(--mrv-zl) !important; }
-.btRes.btn-zn { border-right-color: var(--mrv-zn) !important; }
-.btRes.btn-zs { border-right-color: var(--mrv-zs) !important; }
-
-.btRes:hover { 
-    background-color: #f0f0f0 !important; 
-}
-
-/* ESTADO ATIVO: Fundo cinza claro e borda total verde */
+/* ESTADO ATIVO DO btRes (Residencial comum) */
 .btRes.ativo { 
-    background-color: #ececec !important; /* Cinza claro */
+    background-color: #ececec !important; 
     color: #000 !important; 
-    border: 1px solid var(--mrv-verde) !important; /* Contorno verde */
-    border-right: 5px solid var(--mrv-verde) !important; /* Mantém a tarja grossa */
+    border: 1px solid var(--mrv-verde) !important; 
+    border-right: 5px solid var(--mrv-verde) !important; 
     font-weight: bold;
 }
 
+/* --- REGRAS DE CORES POR ZONA (Fundo e Tarja) --- */
+
+/* Zona Oeste (Laranja) */
+.btn-zo { border-right-color: var(--mrv-zo) !important; }
+.btRes.btn-zo { background-color: rgba(243, 112, 33, 0.1) !important; } /* Fundo leve da cor da zona */
+
+/* Zona Leste (Azul) */
+.btn-zl { border-right-color: var(--mrv-zl) !important; }
+.btRes.btn-zl { background-color: rgba(0, 32, 96, 0.1) !important; }
+
+/* Zona Norte (Amarelo) */
+.btn-zn { border-right-color: var(--mrv-zn) !important; }
+.btRes.btn-zn { background-color: rgba(255, 192, 0, 0.1) !important; }
+
+/* Zona Sul (Rosa) */
+.btn-zs { border-right-color: var(--mrv-zs) !important; }
+.btRes.btn-zs { background-color: rgba(236, 0, 140, 0.1) !important; }
 
 /* ==========================================================================
    5. CENTRO (MAPAS E TÍTULOS)
