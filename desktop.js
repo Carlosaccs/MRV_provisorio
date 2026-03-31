@@ -305,7 +305,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
-        // TÍTULO COM O LARANJA PADRONIZADO
+        // TÍTULO DO RESIDENCIAL (LARANJA PADRONIZADO)
         html += `<div class="titulo-vitrine-faixa" style="background-color: var(--mrv-laranja); color: white; padding: 6px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.75rem;">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
         
         html += `
@@ -346,7 +346,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
         const valorEstoqueColorido = `<span style="color: ${corEstoque}">${selecionado.estoque || "---"} UN.</span>`;
 
-        html += linhaInfo('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%', true);
+        html += linhaInfo('Entrega', selecionado.entrega, 'Obra', (selecionado.obra || 0) + '%', true);
         html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', valorEstoqueColorido, true);
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
@@ -426,18 +426,24 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 ${materiaisHtml}
             </div>`;
         }
-  } else {
-        // TÍTULO DO COMPLEXO: Cor de fundo igual ao botão (Preto/Cinza Escuro)
-        html += `<div class="titulo-vitrine-faixa" style="background-color: #333; color: white; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.8rem;">
+    } else {
+        // TÍTULO DO COMPLEXO: COR DINÂMICA (MAIS ESCURA QUE A ZONA)
+        let corComplexo = "#333";
+        if (selecionado.zona === 'ZO') corComplexo = "#c45a1a";
+        else if (selecionado.zona === 'ZL') corComplexo = "#001540";
+        else if (selecionado.zona === 'ZN') corComplexo = "#cc9900";
+        else if (selecionado.zona === 'ZS') corComplexo = "#b00069";
+
+        html += `<div class="titulo-vitrine-faixa" style="background-color: ${corComplexo}; color: white; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.8rem;">
                     ${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}
                  </div>`;
                  
-        html += `<div class="box-complexo-full" style="border: 1px solid #333; border-radius: 4px; padding: 10px; background: #fff;">
+        html += `<div class="box-complexo-full" style="border: 1px solid ${corComplexo}; border-radius: 4px; padding: 10px; background: #fff;">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                         <span>📍 ${selecionado.endereco}</span> 
                         <span style="display:flex; gap:3px;">
                             <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
-                            <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none; color:white; padding: 2px 6px; border-radius: 3px; cursor:pointer;">LINK</button>
+                            <button onclick="copiarTexto('${urlMapsResidencial}')" class="btn-maps" style="background:#444; border:none; color:white; cursor:pointer; border-radius:3px; padding: 2px 6px;">LINK</button>
                         </span>
                     </p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
@@ -453,6 +459,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
     painel.innerHTML = html;
 }
+
+
+
 /* ==========================================================================
    BLOCO 08: LÓGICA DO MODAL (SOBRE)
    ========================================================================== */
