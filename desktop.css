@@ -169,16 +169,18 @@ body {
 }
 
 #caixa-b { 
-    flex: 0.8; 
+    flex: 0.4; /* Reduzi de 0.8 para 0.4 para ocupar metade do espaço anterior */
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    padding: 10px; 
-    border-top: 2px solid #eee; 
+    padding: 5px; /* Reduzi um pouco o respiro interno */
+    border-top: 1px solid #eee; 
     cursor: pointer; 
     background: #fff; 
-    min-height: 140px; 
+    min-height: 120px; /* Diminuí levemente a altura mínima */
+    max-height: 160px; /* Travei uma altura máxima para não crescer demais em telas grandes */
 }
+
 
 svg { width: 100%; height: 100%; }
 
