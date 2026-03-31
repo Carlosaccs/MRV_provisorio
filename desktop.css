@@ -100,36 +100,19 @@ body {
     text-decoration: none;
     transition: all 0.1s ease;
     box-sizing: border-box;
+    font-weight: normal; /* Garante que o padrão não é negrito */
 }
 
-/* BOTÃO COMPLEXO (Separador) */
-.separador-complexo-btn { 
-    background: #333 !important; 
-    color: white !important; 
-    justify-content: center !important; 
-    font-weight: bold; 
-    text-transform: uppercase; 
-    border: 2px solid transparent !important; 
+/* --- ESTADOS GERAIS --- */
+
+/* HOVER: Contorno verde sem negrito */
+.btRes:hover, .separador-complexo-btn:hover { 
+    border: 1px solid var(--mrv-verde) !important;
+    background-color: #f0f0f0 !important;
 }
 
-/* Quando o COMPLEXO é clicado: Borda preta e fundo cinza */
-.separador-complexo-btn.ativo {
-    border: 2px solid #000 !important;
-    background: #ececec !important;
-    color: #000 !important;
-}
-
-/* BOTÃO RESIDENCIAL (btRes) */
-.btRes { 
-    background: #fff; 
-    border-right: 5px solid var(--mrv-verde) !important; 
-    border-left: 1px solid #ddd !important;
-    justify-content: space-between; 
-    color: #333; 
-}
-
-/* ESTADO ATIVO DO btRes (Residencial comum) */
-.btRes.ativo { 
+/* CLIQUE (ATIVO): Fundo cinza e contorno verde (como você aprovou) */
+.btRes.ativo, .separador-complexo-btn.ativo { 
     background-color: #ececec !important; 
     color: #000 !important; 
     border: 1px solid var(--mrv-verde) !important; 
@@ -137,23 +120,28 @@ body {
     font-weight: bold;
 }
 
-/* --- REGRAS DE CORES POR ZONA (Fundo e Tarja) --- */
+/* --- BOTÕES DE RESIDENCIAL (btRes) - Fundo Suave --- */
+.btRes { background: #fff; border-right-width: 5px !important; }
 
-/* Zona Oeste (Laranja) */
-.btn-zo { border-right-color: var(--mrv-zo) !important; }
-.btRes.btn-zo { background-color: rgba(243, 112, 33, 0.1) !important; } /* Fundo leve da cor da zona */
+.btRes.btn-zo { background-color: rgba(243, 112, 33, 0.1) !important; border-right-color: var(--mrv-zo) !important; }
+.btRes.btn-zl { background-color: rgba(0, 32, 96, 0.1) !important; border-right-color: var(--mrv-zl) !important; }
+.btRes.btn-zn { background-color: rgba(255, 192, 0, 0.1) !important; border-right-color: var(--mrv-zn) !important; }
+.btRes.btn-zs { background-color: rgba(236, 0, 140, 0.1) !important; border-right-color: var(--mrv-zs) !important; }
 
-/* Zona Leste (Azul) */
-.btn-zl { border-right-color: var(--mrv-zl) !important; }
-.btRes.btn-zl { background-color: rgba(0, 32, 96, 0.1) !important; }
+/* --- BOTÕES DE COMPLEXO (separador-complexo-btn) - Mais Escuros --- */
+.separador-complexo-btn { 
+    color: white !important; 
+    justify-content: center !important; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    border-right: 5px solid rgba(0,0,0,0.3) !important;
+}
 
-/* Zona Norte (Amarelo) */
-.btn-zn { border-right-color: var(--mrv-zn) !important; }
-.btRes.btn-zn { background-color: rgba(255, 192, 0, 0.1) !important; }
-
-/* Zona Sul (Rosa) */
-.btn-zs { border-right-color: var(--mrv-zs) !important; }
-.btRes.btn-zs { background-color: rgba(236, 0, 140, 0.1) !important; }
+/* Cores de Complexo (Tom mais escuro que a zona) */
+.separador-complexo-btn.btn-zo { background-color: #c45a1a !important; } /* Laranja Escuro */
+.separador-complexo-btn.btn-zl { background-color: #001540 !important; } /* Azul Escuro */
+.separador-complexo-btn.btn-zn { background-color: #cc9900 !important; } /* Amarelo Escuro */
+.separador-complexo-btn.btn-zs { background-color: #b00069 !important; } /* Rosa Escuro */
 
 /* ==========================================================================
    5. CENTRO (MAPAS E TÍTULOS)
