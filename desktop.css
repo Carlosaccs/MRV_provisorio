@@ -3,7 +3,7 @@
    ========================================================================== */
 :root {
     --mrv-verde: #00713a;
-    --mrv-laranja: #ff8c00;
+    --mrv-laranja: #f37021; /* Padronizado com o hover do mapa */
     --mrv-preto: #333;
     --vermelho-mrv: #e31010;
     --cinza-claro: #f4f4f4;
@@ -11,7 +11,7 @@
     --cinza-mapa: #777;
 
     /* Cores das Zonas (Padrão MRV SP) */
-    --mrv-zo: #f37021; 
+    --mrv-zo: var(--mrv-laranja); /* ZO agora usa o mesmo laranja padrão */
     --mrv-zl: #002060; 
     --mrv-zn: #ffc000; 
     --mrv-zs: #ec008c; 
@@ -98,7 +98,7 @@ body {
     cursor: pointer; 
     border: 1px solid #ddd; 
     text-decoration: none;
-    transition: all 0.15s ease;
+    transition: all 0.1s ease;
     box-sizing: border-box;
 }
 
@@ -130,11 +130,67 @@ body {
     background-color: #f0f0f0 !important; 
 }
 
+/* ESTADO ATIVO: Fundo cinza claro e contorno verde */
 .btRes.ativo { 
-    background-color: var(--mrv-laranja) !important; 
-    color: white !important; 
-    border-right-color: white !important; /* Destaque branco na tarja quando ativo */
+    background-color: #ececec !important; /* Cinza claro solicitado */
+    color: #000 !important; 
+    border: 1px solid var(--mrv-verde) !important; /* Contorno verde solicitado */
+    border-right: 5px solid var(--mrv-verde) !important; /* Mantém a tarja grossa */
+    font-weight: bold;
 }
+
+.btRes, .separador-complexo-btn {
+    width: 92% !important; 
+    margin: 4px auto !important; 
+    display: flex !important; 
+    align-items: center !important; 
+    padding: 6px 10px !important;
+    border-radius: 4px; 
+    font-size: 0.72rem; 
+    cursor: pointer; 
+    border: 1px solid #ddd; 
+    text-decoration: none;
+    transition: all 0.1s ease; /* Transição mais rápida */
+    box-sizing: border-box;
+}
+
+.separador-complexo-btn { 
+    background: #333 !important; 
+    color: white !important; 
+    justify-content: center !important; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    border: none !important; 
+}
+
+.btRes { 
+    background: #fff; 
+    border-right: 5px solid var(--mrv-verde) !important; 
+    border-left: 1px solid #ddd !important;
+    justify-content: space-between; 
+    color: #333; 
+}
+
+/* Cores das Zonas na Tarja Direita */
+.btRes.btn-zo { border-right-color: var(--mrv-zo) !important; }
+.btRes.btn-zl { border-right-color: var(--mrv-zl) !important; }
+.btRes.btn-zn { border-right-color: var(--mrv-zn) !important; }
+.btRes.btn-zs { border-right-color: var(--mrv-zs) !important; }
+
+.btRes:hover { 
+    background-color: #f0f0f0 !important; 
+}
+
+/* ESTADO ATIVO: Fundo cinza claro e borda total verde */
+.btRes.ativo { 
+    background-color: #ececec !important; /* Cinza claro */
+    color: #000 !important; 
+    border: 1px solid var(--mrv-verde) !important; /* Contorno verde */
+    border-right: 5px solid var(--mrv-verde) !important; /* Mantém a tarja grossa */
+    font-weight: bold;
+}
+
+
 /* ==========================================================================
    5. CENTRO (MAPAS E TÍTULOS)
    ========================================================================== */
