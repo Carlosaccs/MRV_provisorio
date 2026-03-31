@@ -305,7 +305,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
-        html += `<div class="titulo-vitrine-faixa faixa-laranja">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
+        // TÍTULO COM O LARANJA PADRONIZADO
+        html += `<div class="titulo-vitrine-faixa" style="background-color: var(--mrv-laranja); color: white; padding: 6px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.75rem;">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;
+        
         html += `
         <div style="padding: 2px 0 5px 0;">
             <div style="font-size:0.65rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
@@ -325,11 +327,11 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         const linhaInfo = (l1, v1, l2, v2, borda) => `
             <div style="display: flex; width: 100%; ${borda ? 'border-bottom: 1px solid #ddd;' : ''}">
                 <div style="flex: 1; padding: 4px 8px; border-right: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l1}</label>
+                    <label style="font-size: 0.55rem; font-weight: bold; color: var(--mrv-verde); text-transform: uppercase;">${l1}</label>
                     <strong style="font-size: 0.65rem; color: #333;">${v1}</strong>
                 </div>
                 <div style="flex: 1; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <label style="font-size: 0.55rem; font-weight: bold; color: #008d36; text-transform: uppercase;">${l2}</label>
+                    <label style="font-size: 0.55rem; font-weight: bold; color: var(--mrv-verde); text-transform: uppercase;">${l2}</label>
                     <strong style="font-size: 0.65rem; color: #333;">${v2}</strong>
                 </div>
             </div>`;
@@ -340,7 +342,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             corEstoque = "#999";
         } else {
             const nEst = parseInt(estoqueRaw);
-            if (!isNaN(nEst) && nEst < 6) corEstoque = "#e31010";
+            if (!isNaN(nEst) && nEst < 6) corEstoque = "var(--vermelho-mrv)";
         }
         const valorEstoqueColorido = `<span style="color: ${corEstoque}">${selecionado.estoque || "---"} UN.</span>`;
 
@@ -358,7 +360,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <div class="tabela-precos-container">
                     <div class="tabela-header">
                         ${titulos.map((t, idx) => {
-                            const estiloCabecalho = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
+                            const estiloCabecalho = idx === 1 ? 'background-color: var(--mrv-laranja); color:white; font-weight:bold;' : '';
                             return `<div class="col-tabela" style="${estiloCabecalho}">${t}</div>`;
                         }).join('')}
                     </div>
@@ -368,7 +370,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                             if(cols.length <= 1) return "";
                             return `<div class="tabela-row">
                                 ${cols.map((v, idx) => {
-                                    const estiloCelula = idx === 1 ? 'background-color:#ff8c00; color:white; font-weight:bold;' : '';
+                                    const estiloCelula = idx === 1 ? 'background-color: var(--mrv-laranja); color:white; font-weight:bold;' : '';
                                     return `<div class="col-tabela" style="${estiloCelula}">${idx === 0 ? `<strong>${v}</strong>` : v}</div>`;
                                 }).join('')}
                             </div>`;
@@ -446,6 +448,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
     painel.innerHTML = html;
 }
+
 /* ==========================================================================
    BLOCO 08: LÓGICA DO MODAL (SOBRE)
    ========================================================================== */
