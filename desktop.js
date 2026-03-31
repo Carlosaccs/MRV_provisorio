@@ -353,8 +353,20 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                     <strong style="font-size: 0.65rem; color: #333;">${v2}</strong>
                 </div>
             </div>`;
+
+        // LÓGICA DE COR DO ESTOQUE (IGUAL AOS BOTÕES)
+        const estoqueRaw = selecionado.estoque ? selecionado.estoque.toString().toUpperCase().trim() : "";
+        let corEstoque = "#333";
+        if (estoqueRaw === "VENDIDO" || estoqueRaw === "0") {
+            corEstoque = "#999";
+        } else {
+            const nEst = parseInt(estoqueRaw);
+            if (!isNaN(nEst) && nEst < 6) corEstoque = "#e31010";
+        }
+        const valorEstoqueColorido = `<span style="color: ${corEstoque}">${selecionado.estoque || "---"} UN.</span>`;
+
         html += linhaInfo('Entrega', selecionado.entrega, 'Obra', selecionado.obra + '%', true);
-        html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', (selecionado.estoque || "---") + ' UN.', true);
+        html += linhaInfo('Plantas', selecionado.p_de + ' - ' + selecionado.p_ate, 'Estoque', valorEstoqueColorido, true);
         html += linhaInfo('Limitador', selecionado.limitador, 'C. Paulista', selecionado.casa_paulista, false);
         html += `</div>`;
 
@@ -455,7 +467,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
     painel.innerHTML = html;
 }
-
 /* ==========================================================================
    BLOCO 08: LÓGICA DO MODAL (SOBRE)
    ========================================================================== */
