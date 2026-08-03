@@ -868,3 +868,13 @@ path.commrv:hover, path.ativo {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Adição complementar ao final de desktop.css para garantir visualização limpa do modal */
+#modal-sobre {
+    overflow-y: auto;
+}
+
+.modal-content-speedsim {
+    margin: 30px auto !important;
+}
