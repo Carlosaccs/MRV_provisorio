@@ -62,30 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Abre a modal e carrega o HTML externo dinamicamente se ainda não foi carregado
+ * Abre a modal diretamente (sem necessidade de fetch)
  */
-async function abrirSpeedSim() {
+function abrirSpeedSim() {
   const modal = document.getElementById('modal-sobre');
   if (!modal) return;
 
-  // Se o conteúdo ainda não foi injetado na modal, carrega via fetch
-  if (!modal.innerHTML.trim()) {
-    try {
-      const response = await fetch('simulador.html');
-      if (response.ok) {
-        modal.innerHTML = await response.text();
-      } else {
-        console.error("Erro ao carregar simulador.html:", response.statusText);
-        return;
-      }
-    } catch (err) {
-      console.error("Erro na requisição do simulador.html:", err);
-      return;
-    }
-  }
-
   modal.style.display = 'block';
-  simularFluxo(); // Executa o cálculo inicial
+  simularFluxo(); // Executa o cálculo inicial imediatamente
 }
 
 function fecharSpeedSim() {
