@@ -2,6 +2,36 @@
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
  */
 
+// ============================================================================
+// ⚙️ TABELA DE PARÂMETROS DA CAIXA ECONÔMICA (ATUALIZE AQUI PERIODICAMENTE)
+// ============================================================================
+const CAIXA_CONFIG = {
+  // Enquadramento de Renda MCMV (Teto de Renda Familiar Bruta)
+  rendaMaxFaixa1: 2850.00,
+  rendaMaxFaixa2: 4700.00,
+  rendaMaxFaixa3: 8400.00,
+
+  // Teto de Valor do Imóvel no MCMV
+  tetoImovelMCMV: 350000.00,
+
+  // Taxas de Juros Efetivas Nominais (% a.a.)
+  jurosFaixa1: 4.25,
+  jurosFaixa2: 5.25,
+  jurosFaixa3: 7.66,
+  jurosSBPE: 9.50, // Taxa média SBPE padrão
+
+  // Subsídios Máximos MCMV
+  subsidioMaxFaixa1: 55000.00,
+  subsidioMaxFaixa2: 30000.00,
+  
+  // Limites de Financiamento (Quota Máxima)
+  quotaMaxFinanciamento: 0.80, // Máximo 80% do valor do imóvel
+
+  // Limite Idade + Prazo (Anos)
+  prazoMaxAnos: 35,
+  idadeMaxSomada: 80 // Idade + Prazo não pode ultrapassar 80 anos
+};
+
 // Objeto global com estado da simulação ativa
 let simState = {
   valorImovel: 0,
@@ -13,8 +43,7 @@ let simState = {
   valorFinanciado: 0,
   taxaJurosAnual: 0,
   prazoMeses: 0,
-  amortizacoesSac: {},   // { mes: valor }
-  amortizacoesPrice: {}  // { mes: valor }
+  amortizacoesExtras: {} // { mes: valor } - Unificado para SAC e PRICE
 };
 
 // Vinculação de eventos quando o DOM é carregado
@@ -24,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSpeedsim.addEventListener('click', abrirSpeedSim);
   }
 
-  // Fechar ao clicar fora da modal-content
   const modal = document.getElementById('modal-sobre');
   if (modal) {
     modal.addEventListener('click', (e) => {
@@ -37,7 +65,7 @@ function abrirSpeedSim() {
   const modal = document.getElementById('modal-sobre');
   if (modal) {
     modal.style.display = 'block';
-    simularFluxo(); // Executa simulação inicial ao abrir
+    simularFluxo();
   }
 }
 
@@ -49,7 +77,7 @@ function fecharSpeedSim() {
 }
 
 /**
- * Calcula a idade em anos
+ * Calcula a idade em anos a partir da data de nascimento
  */
 function calcularIdade(dataNasc) {
   if (!dataNasc) return 30;
@@ -64,36 +92,37 @@ function calcularIdade(dataNasc) {
 }
 
 /**
- * Regras Caixa / MCMV 2026
+ * Determina Enquadramento e Parâmetros usando as regras configuráveis da Caixa
  */
 function calcularParametrosCaixa(renda, idade, valorImovel) {
-  const prazoMaxAnos = Math.min(35, Math.max(1, 80 - idade));
+  const prazoMaxAnos = Math.min(CAIXA_CONFIG.prazoMaxAnos, Math.max(1, CAIXA_CONFIG.idadeMaxSomada - idade));
   const prazoMaxMeses = prazoMaxAnos * 12;
 
   let programa = "SBPE";
-  let jurosEfetivos = 9.50;
+  let jurosEfetivos = CAIXA_CONFIG.jurosSBPE;
   let subsidioMax = 0;
-  const maxQuotaPercent = 0.80;
 
-  if (renda <= 8400 && valorImovel <= 350000) {
+  // Enquadramento Minha Casa Minha Vida
+  if (renda <= CAIXA_CONFIG.rendaMaxFaixa3 && valorImovel <= CAIXA_CONFIG.tetoImovelMCMV) {
     programa = "MCMV";
-    if (renda <= 2850) {
-      jurosEfetivos = 4.25;
-      subsidioMax = Math.min(55000, valorImovel * 0.25);
-    } else if (renda <= 4700) {
-      jurosEfetivos = 5.25;
-      subsidioMax = Math.min(30000, valorImovel * 0.15);
+    
+    if (renda <= CAIXA_CONFIG.rendaMaxFaixa1) {
+      jurosEfetivos = CAIXA_CONFIG.jurosFaixa1;
+      subsidioMax = Math.min(CAIXA_CONFIG.subsidioMaxFaixa1, valorImovel * 0.25);
+    } else if (renda <= CAIXA_CONFIG.rendaMaxFaixa2) {
+      jurosEfetivos = CAIXA_CONFIG.jurosFaixa2;
+      subsidioMax = Math.min(CAIXA_CONFIG.subsidioMaxFaixa2, valorImovel * 0.15);
     } else {
-      jurosEfetivos = 7.66;
+      jurosEfetivos = CAIXA_CONFIG.jurosFaixa3;
       subsidioMax = 0;
     }
   } else {
     programa = "SBPE (Caixa)";
-    jurosEfetivos = 9.50;
+    jurosEfetivos = CAIXA_CONFIG.jurosSBPE;
     subsidioMax = 0;
   }
 
-  const maxFinanciamentoQuota = valorImovel * maxQuotaPercent;
+  const maxFinanciamentoQuota = valorImovel * CAIXA_CONFIG.quotaMaxFinanciamento;
 
   return {
     programa,
@@ -123,7 +152,7 @@ function simularFluxo() {
   const idade = calcularIdade(dataNasc);
   const params = calcularParametrosCaixa(renda, idade, valorImovel);
 
-  const valorFinanciado = Math.min(valorImovel * 0.80, params.maxFinanciamentoQuota);
+  const valorFinanciado = Math.min(valorImovel * CAIXA_CONFIG.quotaMaxFinanciamento, params.maxFinanciamentoQuota);
   const percentFinanciado = ((valorFinanciado / valorImovel) * 100).toFixed(1);
 
   const subsidio = params.subsidioMax;
@@ -131,7 +160,7 @@ function simularFluxo() {
   const saldoEntradaParcelado = Math.max(0, entradaTotal - sinal - fgts);
   const valorParcelaEntrada = numParcelasEntrada > 0 ? (saldoEntradaParcelado / numParcelasEntrada) : 0;
 
-  // Atualiza painel visual
+  // Atualiza painel de resultados
   document.getElementById('res-enquadramento').innerText = params.programa;
   document.getElementById('res-financiamento').innerText = `R$ ${valorFinanciado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-percent-financiado').innerText = `${percentFinanciado}% do imóvel`;
@@ -146,108 +175,105 @@ function simularFluxo() {
   simState.taxaJurosAnual = params.jurosEfetivos;
   simState.prazoMeses = params.prazoMaxMeses;
 
-  gerarTabelasAmortizacao();
+  gerarTabelaUnificada();
 }
 
 /**
- * Renderização dinâmica das tabelas SAC e PRICE
+ * Renderiza a Tabela Unificada SAC vs PRICE com amortização única e scroll único
  */
-function gerarTabelasAmortizacao() {
+function gerarTabelaUnificada() {
   const P = simState.valorFinanciado;
   const n = simState.prazoMeses;
   const iMensal = Math.pow(1 + (simState.taxaJurosAnual / 100), 1 / 12) - 1;
 
   if (!P || !n) return;
 
-  // 1. SAC
   let saldoSac = P;
-  const amortizacaoConstanteSac = P / n;
-  let htmlSac = '';
-
-  for (let mes = 1; mes <= n; mes++) {
-    const juros = saldoSac * iMensal;
-    const amortExtra = parseFloat(simState.amortizacoesSac[mes]) || 0;
-    let amortTotal = amortizacaoConstanteSac + amortExtra;
-
-    if (amortTotal > saldoSac) amortTotal = saldoSac;
-
-    const parcela = amortTotal + juros;
-    saldoSac -= amortTotal;
-    if (saldoSac < 0) saldoSac = 0;
-
-    const classeLinha = amortExtra > 0 ? 'class="linha-amortizada"' : '';
-
-    htmlSac += `
-      <tr ${classeLinha}>
-        <td>${mes}</td>
-        <td>R$ ${parcela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${amortTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${juros.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${saldoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>
-          <input type="number" class="input-amort-extra" data-tabela="sac" data-mes="${mes}" 
-                 value="${simState.amortizacoesSac[mes] || ''}" placeholder="0,00" onchange="atualizarAmortizacao(this)">
-        </td>
-      </tr>
-    `;
-
-    if (saldoSac === 0) break;
-  }
-  document.getElementById('tabela-sac-body').innerHTML = htmlSac;
-
-  // 2. PRICE
   let saldoPrice = P;
+  const amortizacaoConstanteSac = P / n;
   const parcelaConstantePrice = P * ( (iMensal * Math.pow(1 + iMensal, n)) / (Math.pow(1 + iMensal, n) - 1) );
-  let htmlPrice = '';
+
+  let totalPagoSac = 0;
+  let totalPagoPrice = 0;
+  let htmlTabela = '';
 
   for (let mes = 1; mes <= n; mes++) {
-    const juros = saldoPrice * iMensal;
-    let amortizacao = parcelaConstantePrice - juros;
-    const amortExtra = parseFloat(simState.amortizacoesPrice[mes]) || 0;
-    let amortTotal = amortizacao + amortExtra;
+    const amortExtra = parseFloat(simState.amortizacoesExtras[mes]) || 0;
 
-    if (amortTotal > saldoPrice) amortTotal = saldoPrice;
+    // --- CÁLCULOS SAC ---
+    let jurosSac = 0;
+    let amortTotalSac = 0;
+    let parcelaSac = 0;
 
-    const parcelaFinal = amortTotal + juros;
-    saldoPrice -= amortTotal;
-    if (saldoPrice < 0) saldoPrice = 0;
+    if (saldoSac > 0) {
+      jurosSac = saldoSac * iMensal;
+      amortTotalSac = amortizacaoConstanteSac + amortExtra;
+      if (amortTotalSac > saldoSac) amortTotalSac = saldoSac;
+      parcelaSac = amortTotalSac + jurosSac;
+      saldoSac -= amortTotalSac;
+      if (saldoSac < 0) saldoSac = 0;
+      totalPagoSac += parcelaSac;
+    }
+
+    // --- CÁLCULOS PRICE ---
+    let jurosPrice = 0;
+    let amortTotalPrice = 0;
+    let parcelaPrice = 0;
+
+    if (saldoPrice > 0) {
+      jurosPrice = saldoPrice * iMensal;
+      let amortizacaoPriceBase = parcelaConstantePrice - jurosPrice;
+      amortTotalPrice = amortizacaoPriceBase + amortExtra;
+      if (amortTotalPrice > saldoPrice) amortTotalPrice = saldoPrice;
+      parcelaPrice = amortTotalPrice + jurosPrice;
+      saldoPrice -= amortTotalPrice;
+      if (saldoPrice < 0) saldoPrice = 0;
+      totalPagoPrice += parcelaPrice;
+    }
 
     const classeLinha = amortExtra > 0 ? 'class="linha-amortizada"' : '';
 
-    htmlPrice += `
+    htmlTabela += `
       <tr ${classeLinha}>
-        <td>${mes}</td>
-        <td>R$ ${parcelaFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${amortTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${juros.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${saldoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td><strong>${mes}</strong></td>
         <td>
-          <input type="number" class="input-amort-extra" data-tabela="price" data-mes="${mes}" 
-                 value="${simState.amortizacoesPrice[mes] || ''}" placeholder="0,00" onchange="atualizarAmortizacao(this)">
+          <input type="number" class="input-amort-extra" data-mes="${mes}" 
+                 value="${simState.amortizacoesExtras[mes] || ''}" placeholder="0,00" onchange="atualizarAmortizacaoUnificada(this)">
         </td>
+        <!-- SAC -->
+        <td>R$ ${parcelaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td>R$ ${jurosSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td>R$ ${saldoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <!-- PRICE -->
+        <td style="border-left: 2px solid #ddd;">R$ ${parcelaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td>R$ ${jurosPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td>R$ ${saldoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
       </tr>
     `;
 
-    if (saldoPrice === 0) break;
+    if (saldoSac === 0 && saldoPrice === 0) break;
   }
-  document.getElementById('tabela-price-body').innerHTML = htmlPrice;
+
+  // Renderiza corpo da tabela
+  document.getElementById('tabela-unificada-body').innerHTML = htmlTabela;
+
+  // Atualiza os Totais Gerais Pagos
+  document.getElementById('res-total-sac').innerText = `R$ ${totalPagoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  document.getElementById('res-total-price').innerText = `R$ ${totalPagoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
 /**
- * Atualização das Amortizações Extras
+ * Atualiza o valor de amortização extra unificado
  */
-function atualizarAmortizacao(inputEl) {
-  const tabela = inputEl.getAttribute('data-tabela');
+function atualizarAmortizacaoUnificada(inputEl) {
   const mes = inputEl.getAttribute('data-mes');
   const valor = parseFloat(inputEl.value) || 0;
 
-  if (tabela === 'sac') {
-    if (valor > 0) simState.amortizacoesSac[mes] = valor;
-    else delete simState.amortizacoesSac[mes];
-  } else if (tabela === 'price') {
-    if (valor > 0) simState.amortizacoesPrice[mes] = valor;
-    else delete simState.amortizacoesPrice[mes];
+  if (valor > 0) {
+    simState.amortizacoesExtras[mes] = valor;
+  } else {
+    delete simState.amortizacoesExtras[mes];
   }
 
-  gerarTabelasAmortizacao();
+  gerarTabelaUnificada();
 }
