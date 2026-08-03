@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=dfevice-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard MRV SP</title>
     <link rel="stylesheet" href="desktop.css">
     <style>
         /* ==========================================================================
-           CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES (CORRIGIDO)
+           CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES
            ========================================================================== */
         
         div.header {
@@ -17,7 +17,7 @@
             align-items: center !important;
             padding: 0 20px !important;
             box-sizing: border-box !important;
-            gap: 20px !important; /* Garante que título e botões nunca grudem */
+            gap: 20px !important;
         }
 
         .titulo-mrv-centro {
@@ -26,10 +26,10 @@
             font-weight: bold !important;
             text-transform: uppercase !important;
             text-align: left !important;
-            font-size: 1.1rem !important; /* Ajuste milimétrico para melhor legibilidade */
+            font-size: 1.1rem !important;
             color: #ffffff !important;
             z-index: 1 !important;
-            flex: 1 !important; /* Ocupa de forma inteligente o espaço dinâmico à esquerda */
+            flex: 1 !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
             white-space: nowrap !important;
@@ -42,7 +42,7 @@
             align-items: center !important;
             height: 100% !important;
             z-index: 10 !important;
-            flex-shrink: 0 !important; /* Impede os botões de esmagarem ou reduzirem de tamanho */
+            flex-shrink: 0 !important;
         }
 
         button#btn-documentos, 
@@ -53,11 +53,8 @@
             background-color: #febd11 !important;
             color: #004d24 !important;
             border-radius: 4px !important;
-            
-            /* Altura calibrada com sucesso */
             height: 34px !important;
             padding: 0 18px !important;
-            
             font-weight: bold !important;
             font-size: 0.8rem !important;
             text-transform: uppercase !important;
@@ -76,14 +73,13 @@
             background-color: #e0a60f !important;
         }
 
-        /* ESTILO EXCLUSIVO DO BOTÃO DE ANÚNCIO PARA DESTACAR NA REUNIÃO */
         button#btn-anuncio {
-            background-color: #f37021 !important; /* Laranja MRV vibrante */
+            background-color: #f37021 !important;
             color: #ffffff !important;
         }
 
         button#btn-anuncio:hover {
-            background-color: #dca206 !important; /* Muda para dourado no hover */
+            background-color: #dca206 !important;
         }
     </style>
 </head>
@@ -135,16 +131,123 @@
         </aside>
     </div>
 
-  <!-- ==========================================================================
-         MODAL SPEEDSIM (Estrutura Receptor Enxuta)
+    <!-- ==========================================================================
+         MODAL SPEEDSIM (EMBUTIDA DIRETA - SEM NECESSIDADE DE FETCH)
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
-        <!-- O conteúdo interno é injetado dinamicamente via simulador.html -->
+        <div class="modal-content-speedsim">
+            <span class="modal-close-speedsim" onclick="fecharSpeedSim()">&times;</span>
+            <h2 style="color: var(--mrv-verde); margin-bottom: 5px; text-transform: uppercase; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                📊 SpeedSim - Simulador Caixa MCMV & SBPE
+            </h2>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">
+                Simule financiamento, entrada parcelada e compare SAC vs PRICE com amortização em tempo real.
+            </p>
+            
+            <div class="modal-body">
+                <!-- Grid de Inputs Principais -->
+                <div class="speedsim-grid-inputs">
+                    <div class="speedsim-field">
+                        <label>Valor do Imóvel (R$)</label>
+                        <input type="number" id="sim-val-imovel" value="250000" placeholder="Ex: 250000" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Renda Bruta (R$)</label>
+                        <input type="number" id="sim-renda" value="4500" placeholder="Ex: 4500" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Data Nasc. Comprador</label>
+                        <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Sinal / Ato (R$)</label>
+                        <input type="number" id="sim-sinal" value="10000" placeholder="Ex: 10000" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>FGTS (R$)</label>
+                        <input type="number" id="sim-fgts" value="15000" placeholder="Ex: 15000" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Qtd. Parcelas Entrada</label>
+                        <input type="number" id="sim-num-parcelas" value="36" placeholder="Ex: 36" oninput="simularFluxo()">
+                    </div>
+                </div>
+
+                <!-- Banner de Resultados Rápidos Caixa -->
+                <div class="speedsim-banner-resultados">
+                    <div class="res-box">
+                        <span>Enquadramento</span>
+                        <div class="res-val" id="res-enquadramento" style="font-size: 0.95rem;">-</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Financiamento (Máx 80%)</span>
+                        <div class="res-val" id="res-financiamento">R$ 0,00</div>
+                        <small id="res-percent-financiado" style="font-size:0.65rem; color:#666;">-</small>
+                    </div>
+                    <div class="res-box">
+                        <span>Taxa de Juros</span>
+                        <div class="res-val" id="res-juros">0,00% a.a.</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Subsídio Estimado</span>
+                        <div class="res-val" id="res-subsidio" style="color: #2e7d32;">R$ 0,00</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Prazo Máximo</span>
+                        <div class="res-val" id="res-prazo-max">-</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Entrada Líquida</span>
+                        <div class="res-val" id="res-entrada-total" style="color: var(--mrv-laranja);">R$ 0,00</div>
+                        <small id="res-saldo-parcelado" style="font-size:0.65rem; color:#333; font-weight:bold;">-</small>
+                    </div>
+                </div>
+
+                <!-- CARDS DE COMPARAÇÃO DE TOTAL PAGO SAC vs PRICE -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="res-box" style="background-color: rgba(0, 113, 58, 0.08); border: 1px solid var(--mrv-verde);">
+                        <span style="color: var(--mrv-verde);">TOTAL GERAL PAGO (SISTEMA SAC)</span>
+                        <div class="res-val" id="res-total-sac" style="color: var(--mrv-verde); font-size: 1.25rem;">R$ 0,00</div>
+                    </div>
+                    <div class="res-box" style="background-color: rgba(0, 0, 0, 0.05); border: 1px solid #333;">
+                        <span style="color: #333;">TOTAL GERAL PAGO (SISTEMA PRICE)</span>
+                        <div class="res-val" id="res-total-price" style="color: #333; font-size: 1.25rem;">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <!-- TABELA UNIFICADA DE ROLAGEM ÚNICA COM AMORTIZAÇÃO COMPARTILHADA -->
+                <div class="speedsim-coluna-tabela">
+                    <div class="speedsim-scroll-wrapper" style="max-height: 400px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 50px;">Mês</th>
+                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 110px; background-color: #fffde7; color: #333;">Amortiz. Extra (R$)</th>
+                                    <th colspan="3" style="text-align: center; background-color: var(--mrv-verde); color: white;">SISTEMA SAC</th>
+                                    <th colspan="3" style="text-align: center; background-color: #333; color: white;">SISTEMA PRICE</th>
+                                </tr>
+                                <tr>
+                                    <!-- SAC -->
+                                    <th style="background-color: #e8f5e9;">Parcela</th>
+                                    <th style="background-color: #e8f5e9;">Juros</th>
+                                    <th style="background-color: #e8f5e9;">Saldo Dev.</th>
+                                    <!-- PRICE -->
+                                    <th style="background-color: #f5f5f5; border-left: 2px solid #ddd;">Parcela</th>
+                                    <th style="background-color: #f5f5f5;">Juros</th>
+                                    <th style="background-color: #f5f5f5;">Saldo Dev.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-unificada-body">
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Aguardando simulação...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
-
-
-</div>
     <script src="mapa-SP.js" defer></script>
     <script src="desktop.js" defer></script>
     <script src="anuncios.js" defer></script>
@@ -154,12 +257,10 @@
         window.addEventListener('load', () => {
             console.log("Todos os recursos e scripts foram totalmente carregados.");
             
-            // Verifica se a função iniciarApp foi declarada no desktop.js
             if (typeof iniciarApp === 'function') {
                 iniciarApp();
             } else {
                 console.error("Erro Crítico: A função 'iniciarApp' não foi encontrada no escopo global.");
-                // Tentativa de segurança caso haja delay no carregamento
                 setTimeout(() => {
                     if (typeof iniciarApp === 'function') {
                         iniciarApp();
