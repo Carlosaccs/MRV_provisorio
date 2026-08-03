@@ -135,30 +135,128 @@
         </aside>
     </div>
 
-    <!-- ==========================================================================
-         MODAL REAPROVEITADO (Mantendo ID original para o JS não quebrar)
+  <!-- ==========================================================================
+         MODAL SPEEDSIM INTEGRADO (Usando o id="modal-sobre" existente)
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2 style="color: #004d24; margin-bottom: 10px; text-transform: uppercase; font-size: 1.3rem;">
-                SpeedSim - Simulador Comparativo
+        <div class="modal-content-speedsim">
+            <span class="modal-close-speedsim" onclick="fecharSpeedSim()">&times;</span>
+            <h2 style="color: var(--mrv-verde); margin-bottom: 5px; text-transform: uppercase; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                📊 SpeedSim - Simulador Caixa MCMV & SBPE
             </h2>
-            <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">
+                Simule financiamento, entrada parcelada e o impacto de amortizações extras mensais (SAC vs PRICE).
+            </p>
             
             <div class="modal-body">
-                <!-- Base branca onde vamos colocar as tabelas e inputs da nova funcionalidade -->
-                <div style="padding: 30px; text-align: center; border: 2px dashed #ccc; background: #fafafa; border-radius: 6px; color: #666;">
-                    <span style="font-size: 2.5rem; display: block; margin-bottom: 10px;">📊</span>
-                    <strong>Área do Simulador Ativada com Sucesso!</strong>
-                    <p style="font-size: 0.85rem; margin-top: 5px; color: #888;">
-                        Esta é a base flutuante onde renderizaremos os inputs e as tabelas comparativas SAC vs PRICE.
-                    </p>
+                <!-- Grid de Inputs Principais -->
+                <div class="speedsim-grid-inputs">
+                    <div class="speedsim-field">
+                        <label>Valor do Imóvel (R$)</label>
+                        <input type="number" id="sim-val-imovel" value="250000" placeholder="Ex: 250000" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Renda Bruta (R$)</label>
+                        <input type="number" id="sim-renda" value="4500" placeholder="Ex: 4500" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Data Nasc. Comprador</label>
+                        <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Sinal / Ato (R$)</label>
+                        <input type="number" id="sim-sinal" value="10000" placeholder="Ex: 10000" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>FGTS (R$)</label>
+                        <input type="number" id="sim-fgts" value="15000" placeholder="Ex: 15000" oninput="simularFluxo()">
+                    </div>
+                    <div class="speedsim-field">
+                        <label>Qtd. Parcelas Entrada</label>
+                        <input type="number" id="sim-num-parcelas" value="36" placeholder="Ex: 36" oninput="simularFluxo()">
+                    </div>
                 </div>
+
+                <!-- Banner de Resultados Rápidos Caixa -->
+                <div class="speedsim-banner-resultados">
+                    <div class="res-box">
+                        <span>Enquadramento</span>
+                        <div class="res-val" id="res-enquadramento" style="font-size: 0.95rem;">-</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Financiamento (Máx 80%)</span>
+                        <div class="res-val" id="res-financiamento">R$ 0,00</div>
+                        <small id="res-percent-financiado" style="font-size:0.65rem; color:#666;">-</small>
+                    </div>
+                    <div class="res-box">
+                        <span>Taxa de Juros</span>
+                        <div class="res-val" id="res-juros">0,00% a.a.</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Subsídio Estimado</span>
+                        <div class="res-val" id="res-subsidio" style="color: #2e7d32;">R$ 0,00</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Prazo Máximo</span>
+                        <div class="res-val" id="res-prazo-max">-</div>
+                    </div>
+                    <div class="res-box">
+                        <span>Entrada Líquida</span>
+                        <div class="res-val" id="res-entrada-total" style="color: var(--mrv-laranja);">R$ 0,00</div>
+                        <small id="res-saldo-parcelado" style="font-size:0.65rem; color:#333; font-weight:bold;">-</small>
+                    </div>
+                </div>
+
+                <!-- Container de Tabelas SAC e PRICE Lado a Lado -->
+                <div class="speedsim-container-tabelas">
+                    <!-- Coluna Tabela SAC -->
+                    <div class="speedsim-coluna-tabela">
+                        <div class="speedsim-titulo-tabela sac">Tabela SAC (Parcelas Decrescentes)</div>
+                        <div class="speedsim-scroll-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mês</th>
+                                        <th>Parcela</th>
+                                        <th>Amortiz.</th>
+                                        <th>Juros</th>
+                                        <th>Saldo Dev.</th>
+                                        <th style="width: 90px;">Amort. Extra</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-sac-body">
+                                    <tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">Aguardando simulação...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Tabela PRICE -->
+                    <div class="speedsim-coluna-tabela">
+                        <div class="speedsim-titulo-tabela price">Tabela PRICE (Parcelas Constantes)</div>
+                        <div class="speedsim-scroll-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mês</th>
+                                        <th>Parcela</th>
+                                        <th>Amortiz.</th>
+                                        <th>Juros</th>
+                                        <th>Saldo Dev.</th>
+                                        <th style="width: 90px;">Amort. Extra</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-price-body">
+                                    <tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">Aguardando simulação...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
-
     <script src="mapa-SP.js" defer></script>
     <script src="desktop.js" defer></script>
     <script src="anuncios.js" defer></script>
