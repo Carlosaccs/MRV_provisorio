@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Com validação dinâmica de idade e prazo máximo (Teto Caixa: 80 anos e 6 meses / 966 meses)
+ * Com ajuste automático do prazo máximo pela idade e validação somente em caso de digitação excedente.
  */
 
 const CREDILAR_MATRIZ = [
@@ -97,18 +97,46 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === modal) fecharSpeedSim();
     });
   }
+
+  // Evento para quando o usuário alterar a data de nascimento (atualiza o prazo automaticamente sem alerta)
+  const inputNasc = document.getElementById('sim-data-nasc');
+  if (inputNasc) {
+    inputNasc.addEventListener('change', () => {
+      atualizarPrazoAutomaticoPorNascimento();
+      simularFluxo();
+    });
+  }
 });
 
 function abrirSpeedSim() {
   const modal = document.getElementById('modal-sobre');
   if (!modal) return;
   modal.style.display = 'block';
+  atualizarPrazoAutomaticoPorNascimento();
   simularFluxo();
 }
 
 function fecharSpeedSim() {
   const modal = document.getElementById('modal-sobre');
   if (modal) modal.style.display = 'none';
+}
+
+// Atualiza o campo de prazo de forma limpa ao trocar a data de nascimento (sem estourar aviso)
+function atualizarPrazoAutomaticoPorNascimento() {
+  const dataNascVal = document.getElementById('sim-data-nasc')?.value;
+  const inputPrazoEl = document.getElementById('sim-prazo');
+  const alertaEl = document.getElementById('alerta-prazo-modal');
+
+  if (!dataNascVal || !inputPrazoEl) return;
+
+  const idadeMeses = calcularIdadeEmMeses(dataNascVal);
+  const prazoMaximoPermitido = Math.max(0, LIMITE_IDADE_PRAZO_MESES - idadeMeses);
+  
+  // Define o teto máximo permitido (limitado a 420 caso seja jovem, ou o teto da idade se for mais velho)
+  const novoPrazo = Math.min(420, prazoMaximoPermitido);
+  
+  inputPrazoEl.value = novoPrazo;
+  if (alertaEl) alertaEl.style.display = 'none'; // Esconde qualquer alerta anterior
 }
 
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
@@ -136,19 +164,28 @@ function simularFluxo() {
   const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
   const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
 
-  // Lê a data de nascimento e valida/calcula o prazo máximo permitido pela Caixa
+  // Validação caso o usuário digite manualmente um prazo maior que o teto da idade
   const dataNascVal = document.getElementById('sim-data-nasc')?.value;
-  let prazoDesejadoInput = parseInt(document.getElementById('sim-prazo')?.value) || 420;
+  const inputPrazoEl = document.getElementById('sim-prazo');
+  const alertaEl = document.getElementById('alerta-prazo-modal');
+  
+  let prazoDesejadoInput = parseInt(inputPrazoEl?.value) || 420;
 
   if (dataNascVal) {
     const idadeMeses = calcularIdadeEmMeses(dataNascVal);
-    const prazoMaximoPermitido = LIMITE_IDADE_PRAZO_MESES - idadeMeses;
-    
-    // Trava o prazo caso ultrapasse o teto permitido pela idade (máximo de 420 ou o teto da idade)
+    const prazoMaximoPermitido = Math.max(0, LIMITE_IDADE_PRAZO_MESES - idadeMeses);
+
     if (prazoDesejadoInput > prazoMaximoPermitido) {
-      prazoDesejadoInput = prazoMaximoPermitido > 0 ? prazoMaximoPermitido : 0;
-      const inputPrazoEl = document.getElementById('sim-prazo');
+      // Se tentou forçar um número maior digitando, exibe o aviso e ajusta para baixo
+      prazoDesejadoInput = prazoMaximoPermitido;
       if (inputPrazoEl) inputPrazoEl.value = prazoDesejadoInput;
+      
+      if (alertaEl) {
+        alertaEl.style.display = 'block';
+        alertaEl.innerHTML = `<strong>Atenção:</strong> O prazo informado excede o limite máximo permitido pela norma da Caixa (Idade + Prazo ≤ 966 meses). O prazo foi ajustado automaticamente para o teto de <strong>${prazoMaximoPermitido} meses</strong>.`;
+      }
+    } else {
+      if (alertaEl) alertaEl.style.display = 'none';
     }
   }
 
