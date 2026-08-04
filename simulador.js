@@ -1,33 +1,38 @@
 /**
- * SpeedSim - Simulador MCMV / SBPE para SpeedBroker (Versão Calibrada Caixa)
+ * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
  */
 
 // ============================================================================
-// ⚙️ PARÂMETROS E REGRAS CAIXA ECONÔMICA FEDERAL (2026)
+// ⚙️ PARÂMETROS E REGRAS CAIXA ECONÔMICA FEDERAL
 // ============================================================================
 const CAIXA_CONFIG = {
-  // Limites de Renda MCMV (São Paulo / Região Metropolitana)
+  // Limites de Renda MCMV (Teto Família)
   rendaMaxFaixa1: 2850.00,
   rendaMaxFaixa2: 4700.00,
   rendaMaxFaixa3: 8400.00,
 
   tetoImovelMCMV: 350000.00,
 
-  // Tabela de Juros Efetivos Nominais (% a.a.)
-  // Com Cotista FGTS (3+ anos) / Sem Cotista
+  // Taxas Efetivas Nominais (% a.a.)
   jurosMCMV: {
     faixa1: { cotista: 4.25, normal: 4.75 },
     faixa2: { cotista: 5.25, normal: 5.75 },
-    faixa3: { cotista: 7.23, normal: 7.66 }, // Ajustado para 7.23% conforme simulação Caixa
+    faixa3: { cotista: 7.23, normal: 7.66 }
   },
   jurosSBPE: 9.50,
 
-  // Subsídio Máximo por Região
-  subsidioMaxSP: 55000.00,
+  // Tabela de Subsídios Fornecida (Para Regiões Metropolitanas / SP)
+  tabelaSubsidio: [
+    { rendaInicial: 0,       rendaFinal: 2000.00, subsidio: 55000.00 },
+    { rendaInicial: 2000.01, rendaFinal: 2500.00, subsidio: 52000.00 },
+    { rendaInicial: 2500.01, rendaFinal: 3000.00, subsidio: 47000.00 },
+    { rendaInicial: 3000.01, rendaFinal: 3500.00, subsidio: 42000.00 },
+    { rendaInicial: 3500.01, rendaFinal: 4000.00, subsidio: 36000.00 },
+    { rendaInicial: 4000.01, rendaFinal: 5000.00, subsidio: 30000.00 }
+  ],
 
-  // Regras de Margem
-  maxComprometimentoRenda: 0.30, // Máximo 30% da renda familiar
-  quotaMaxFinanciamento: 0.80,    // Máximo 80% do valor do imóvel
+  maxComprometimentoRenda: 0.30, // Máximo 30% da renda em parcela
+  quotaMaxFinanciamento: 0.80,   // Máximo 80% do imóvel
 
   prazoMaxAnos: 35,
   idadeMaxSomada: 80
@@ -41,9 +46,6 @@ let simState = {
   sinal: 0,
   fgts: 0,
   numParcelasEntrada: 1,
-  possuiDependente: true,
-  possui3AnosFgts: true,
-  municipio: 'SP',
   valorFinanciado: 0,
   taxaJurosAnual: 0,
   prazoMeses: 0,
@@ -93,6 +95,21 @@ function calcularIdade(dataNasc) {
 }
 
 /**
+ * Busca o subsídio na tabela configurada
+ */
+function obterSubsidioTabela(renda, possuiDependente) {
+  // Subsídio só é concedido se houver dependente / mais de um comprador
+  if (!possuiDependente) return 0;
+
+  for (const faixa of CAIXA_CONFIG.tabelaSubsidio) {
+    if (renda >= faixa.rendaInicial && renda <= faixa.rendaFinal) {
+      return faixa.subsidio;
+    }
+  }
+  return 0; // Acima de R$ 5.000,00 o subsídio é zero
+}
+
+/**
  * Cálculo Fiel de Juros e Subsídio MCMV
  */
 function calcularParametrosCaixa(renda, idade, valorImovel, possui3AnosFgts, possuiDependente) {
@@ -115,14 +132,7 @@ function calcularParametrosCaixa(renda, idade, valorImovel, possui3AnosFgts, pos
       jurosEfetivos = possui3AnosFgts ? CAIXA_CONFIG.jurosMCMV.faixa3.cotista : CAIXA_CONFIG.jurosMCMV.faixa3.normal;
     }
 
-    // Cálculo do Subsídio MCMV (Apenas Faixas 1 e 2 com dependente/mais de um comprador)
-    if (renda <= CAIXA_CONFIG.rendaMaxFaixa2 && possuiDependente) {
-      const fatorRenda = Math.max(0, (CAIXA_CONFIG.rendaMaxFaixa2 - renda) / CAIXA_CONFIG.rendaMaxFaixa2);
-      subsidioEstimado = Math.min(CAIXA_CONFIG.subsidioMaxSP, CAIXA_CONFIG.subsidioMaxSP * fatorRenda * 1.2);
-      subsidioEstimado = Math.min(subsidioEstimado, valorImovel * 0.20); // Teto de 20% do imóvel
-    } else {
-      subsidioEstimado = 0;
-    }
+    subsidioEstimado = obterSubsidioTabela(renda, possuiDependente);
   } else {
     programa = "SBPE (Caixa)";
     jurosEfetivos = CAIXA_CONFIG.jurosSBPE;
@@ -138,53 +148,64 @@ function calcularParametrosCaixa(renda, idade, valorImovel, possui3AnosFgts, pos
 }
 
 /**
- * Simulação de Fluxo com Limite da Parcela em 30% da Renda
+ * Simulação de Fluxo
  */
 function simularFluxo() {
   const elImovel = document.getElementById('sim-val-imovel');
   if (!elImovel) return;
 
   const valorImovel = parseFloat(elImovel.value) || 0;
-  const renda = parseFloat(document.getElementById('sim-renda').value) || 0;
-  const dataNasc = document.getElementById('sim-data-nasc').value;
-  const sinal = parseFloat(document.getElementById('sim-sinal').value) || 0;
-  const fgts = parseFloat(document.getElementById('sim-fgts').value) || 0;
-  const numParcelasEntrada = parseInt(document.getElementById('sim-num-parcelas').value) || 1;
-  const possui3AnosFgts = document.getElementById('sim-fgts-3anos').value === 'sim';
-  const possuiDependente = document.getElementById('sim-dependente').value === 'sim';
+  const renda = parseFloat(document.getElementById('sim-renda')?.value) || 0;
+  const dataNasc = document.getElementById('sim-data-nasc')?.value || '1995-05-15';
+  const sinal = parseFloat(document.getElementById('sim-sinal')?.value) || 0;
+  const fgts = parseFloat(document.getElementById('sim-fgts')?.value) || 0;
+  const numParcelasEntrada = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
+
+  // Proteção contra leitura de campos opcionais
+  const elFgts3Anos = document.getElementById('sim-fgts-3anos');
+  const possui3AnosFgts = elFgts3Anos ? (elFgts3Anos.value === 'sim') : true;
+
+  const elDependente = document.getElementById('sim-dependente');
+  const possuiDependente = elDependente ? (elDependente.value === 'sim') : true;
 
   if (valorImovel <= 0) return;
 
   const idade = calcularIdade(dataNasc);
   const params = calcularParametrosCaixa(renda, idade, valorImovel, possui3AnosFgts, possuiDependente);
 
-  // Limite de Financiamento por Quota (80%)
-  const maxFinanciamentoQuota = valorImovel * CAIXA_CONFIG.quotaMaxFinanciamento;
-
-  // Limite por Comprometimento de Renda (Máx 30% da Renda em Parcela)
-  const maxParcelaPermitida = renda * CAIXA_CONFIG.maxComprometimentoRenda;
-  const iMensal = Math.pow(1 + (params.jurosEfetivos / 100), 1 / 12) - 1;
-  const n = params.prazoMaxMeses;
-
-  // Financiamento Máximo suportado na PRICE
-  const maxFinanciamentoPriceCapacidade = maxParcelaPermitida * ((Math.pow(1 + iMensal, n) - 1) / (iMensal * Math.pow(1 + iMensal, n)));
-  const valorFinanciado = Math.min(maxFinanciamentoQuota, maxFinanciamentoPriceCapacidade);
-
+  // Cota Máxima de Financiamento (80%)
+  const valorFinanciado = valorImovel * CAIXA_CONFIG.quotaMaxFinanciamento;
   const percentFinanciado = ((valorFinanciado / valorImovel) * 100).toFixed(1);
+
   const subsidio = params.subsidioEstimado;
   const entradaTotal = Math.max(0, valorImovel - valorFinanciado - subsidio);
   const saldoEntradaParcelado = Math.max(0, entradaTotal - sinal - fgts);
   const valorParcelaEntrada = numParcelasEntrada > 0 ? (saldoEntradaParcelado / numParcelasEntrada) : 0;
 
-  // Atualiza os Cards da Modal
-  document.getElementById('res-enquadramento').innerText = params.programa;
-  document.getElementById('res-financiamento').innerText = `R$ ${valorFinanciado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-percent-financiado').innerText = `${percentFinanciado}% do imóvel`;
-  document.getElementById('res-juros').innerText = `${params.jurosEfetivos.toFixed(2)}% a.a.`;
-  document.getElementById('res-subsidio').innerText = `R$ ${subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-prazo-max').innerText = `${params.prazoMaxMeses} meses (${Math.floor(params.prazoMaxMeses / 12)} anos)`;
-  document.getElementById('res-entrada-total').innerText = `R$ ${entradaTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-saldo-parcelado').innerText = `${numParcelasEntrada}x de R$ ${valorParcelaEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  // Atualiza Interface
+  const elEnq = document.getElementById('res-enquadramento');
+  if (elEnq) elEnq.innerText = params.programa;
+
+  const elFin = document.getElementById('res-financiamento');
+  if (elFin) elFin.innerText = `R$ ${valorFinanciado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+  const elPerc = document.getElementById('res-percent-financiado');
+  if (elPerc) elPerc.innerText = `${percentFinanciado}% do imóvel`;
+
+  const elJur = document.getElementById('res-juros');
+  if (elJur) elJur.innerText = `${params.jurosEfetivos.toFixed(2)}% a.a.`;
+
+  const elSub = document.getElementById('res-subsidio');
+  if (elSub) elSub.innerText = `R$ ${subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+  const elPrazo = document.getElementById('res-prazo-max');
+  if (elPrazo) elPrazo.innerText = `${params.prazoMaxMeses} meses (${Math.floor(params.prazoMaxMeses / 12)} anos)`;
+
+  const elEnt = document.getElementById('res-entrada-total');
+  if (elEnt) elEnt.innerText = `R$ ${entradaTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+  const elSld = document.getElementById('res-saldo-parcelado');
+  if (elSld) elSld.innerText = `${numParcelasEntrada}x de R$ ${valorParcelaEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   // Salva Estado
   simState.valorFinanciado = valorFinanciado;
@@ -202,7 +223,8 @@ function gerarTabelaUnificada() {
   const n = simState.prazoMeses;
   const iMensal = Math.pow(1 + (simState.taxaJurosAnual / 100), 1 / 12) - 1;
 
-  if (!P || !n) return;
+  const tbody = document.getElementById('tabela-unificada-body');
+  if (!P || !n || !tbody) return;
 
   let saldoSac = P;
   let saldoPrice = P;
@@ -270,9 +292,13 @@ function gerarTabelaUnificada() {
     if (saldoSac === 0 && saldoPrice === 0) break;
   }
 
-  document.getElementById('tabela-unificada-body').innerHTML = htmlTabela;
-  document.getElementById('res-total-sac').innerText = `R$ ${totalPagoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  document.getElementById('res-total-price').innerText = `R$ ${totalPagoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  tbody.innerHTML = htmlTabela;
+
+  const elTotSac = document.getElementById('res-total-sac');
+  if (elTotSac) elTotSac.innerText = `R$ ${totalPagoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+  const elTotPrc = document.getElementById('res-total-price');
+  if (elTotPrc) elTotPrc.innerText = `R$ ${totalPagoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
 function atualizarAmortizacaoUnificada(inputEl) {
