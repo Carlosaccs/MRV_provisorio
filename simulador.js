@@ -50,9 +50,6 @@ let simState = {
   amortizacoesExtras: {}
 };
 
-/**
- * Trata entrada do usuário em tempo real aplicando a máscara de moeda
- */
 function tratarEntradaMoeda(input) {
   let digitos = input.value.replace(/\D/g, '');
   
@@ -62,7 +59,6 @@ function tratarEntradaMoeda(input) {
     return;
   }
 
-  // Formata como Moeda BR (R$ X.XXX,XX)
   let num = (parseInt(digitos, 10) / 100).toFixed(2);
   let partes = num.split('.');
   partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -72,9 +68,6 @@ function tratarEntradaMoeda(input) {
   simularFluxo();
 }
 
-/**
- * Converte string formatada de moeda para número float puro
- */
 function parseMoedaParaNumero(valorString) {
   if (!valorString) return 0;
   let limpo = valorString.replace(/[^\d]/g, '');
@@ -179,14 +172,14 @@ function simularFluxo() {
   const parcSacEntrada = numParcelas > 0 ? (entradaSacLequida / numParcelas) : 0;
 
   document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-price').innerText = `(${pctPrice}% do imóvel)`;
+  document.getElementById('res-pct-price').innerText = `(${pctPrice}% DO IMÓVEL)`;
   document.getElementById('res-entrada-price').innerText = `R$ ${entradaPriceLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-parcelas-price').innerText = `em ${numParcelas}x de R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  document.getElementById('res-parcelas-price').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-sac').innerText = `(${pctSac}% do imóvel)`;
+  document.getElementById('res-pct-sac').innerText = `(${pctSac}% DO IMÓVEL)`;
   document.getElementById('res-entrada-sac').innerText = `R$ ${entradaSacLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-parcelas-sac').innerText = `em ${numParcelas}x de R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  document.getElementById('res-parcelas-sac').innerText = `EM ${numParcelas}X DE R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
@@ -233,7 +226,7 @@ function gerarTabelaUnificada() {
   let htmlTabela = '';
 
   for (let mes = 1; mes <= n; mes++) {
-    const amortExtra = parseFloat(simState.amortizacoesExtras[mes]) || 0;
+    const amortExtra = simState.amortizacoesExtras[mes] || 0;
 
     // --- SAC ---
     let jurosSac = 0, amortTotalSac = 0, parcelaSac = 0;
@@ -263,13 +256,16 @@ function gerarTabelaUnificada() {
     }
 
     const classeLinha = amortExtra > 0 ? 'class="linha-amortizada"' : '';
+    const valorAmortExibido = amortExtra > 0 ? `R$ ${amortExtra.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '';
 
     htmlTabela += `
       <tr ${classeLinha}>
         <td><strong>${mes}</strong></td>
         <td>
-          <input type="number" class="input-amort-extra" data-mes="${mes}" 
-                 value="${simState.amortizacoesExtras[mes] || ''}" placeholder="0,00" onchange="atualizarAmortizacaoUnificada(this)">
+          <input type="text" class="input-amort-extra" data-mes="${mes}" 
+                 value="${valorAmortExibido}" placeholder="0,00" 
+                 style="width: 90px; height: 26px; text-align: right; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px;"
+                 oninput="tratarEntradaAmortizacaoTabela(this)">
         </td>
         <!-- SAC -->
         <td>R$ ${parcelaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
@@ -299,15 +295,28 @@ function gerarTabelaUnificada() {
   document.getElementById('res-price-diferenca').innerText = `R$ ${difPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
-function atualizarAmortizacaoUnificada(inputEl) {
+/**
+ * Aplica a máscara R$ X.XXX,XX na tabela em tempo real sem perder a posição do foco
+ */
+function tratarEntradaAmortizacaoTabela(inputEl) {
   const mes = inputEl.getAttribute('data-mes');
-  const valor = parseFloat(inputEl.value) || 0;
+  let digitos = inputEl.value.replace(/\D/g, '');
 
-  if (valor > 0) {
-    simState.amortizacoesExtras[mes] = valor;
-  } else {
+  if (!digitos) {
     delete simState.amortizacoesExtras[mes];
+    inputEl.value = '';
+    gerarTabelaUnificada();
+    return;
   }
+
+  let numFloat = parseFloat(digitos) / 100;
+  simState.amortizacoesExtras[mes] = numFloat;
+
+  let numFormatado = numFloat.toFixed(2);
+  let partes = numFormatado.split('.');
+  partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+  inputEl.value = `R$ ${partes.join(',')}`;
 
   gerarTabelaUnificada();
 }
