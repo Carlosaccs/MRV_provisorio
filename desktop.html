@@ -131,8 +131,8 @@
         </aside>
     </div>
 
-    <!-- ==========================================================================
-         MODAL SPEEDSIM (EMBUTIDA DIRETA - SEM NECESSIDADE DE FETCH)
+  <!-- ==========================================================================
+         MODAL SPEEDSIM - ATUALIZADA COM AVALIAÇÃO, REDUTOR E RESUMO BIFURCADO
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
         <div class="modal-content-speedsim">
@@ -141,83 +141,135 @@
                 📊 SpeedSim - Simulador Caixa MCMV & SBPE
             </h2>
             <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">
-                Simule financiamento, entrada parcelada e compare SAC vs PRICE com amortização em tempo real.
+                Simule financiamento com regras de Avaliação, Redutor de Taxa e Comparativo em tempo real.
             </p>
             
             <div class="modal-body">
                 <!-- Grid de Inputs Principais -->
                 <div class="speedsim-grid-inputs">
-                    <div class="speedsim-field">
-                        <label>Valor do Imóvel (R$)</label>
-                        <input type="number" id="sim-val-imovel" value="250000" placeholder="Ex: 250000" oninput="simularFluxo()">
+                    
+                    <!-- Campo com Radio Button: Valor do Imóvel / Valor de Avaliação -->
+                    <div class="speedsim-field" style="grid-column: span 2;">
+                        <label style="display: flex; gap: 15px; align-items: center; margin-bottom: 4px;">
+                            <span style="font-weight: bold; color: #333;">BASE DE FINANCIAMENTO:</span>
+                            <label style="font-weight: normal; cursor: pointer;">
+                                <input type="radio" name="base-financiamento" value="imovel" checked onchange="simularFluxo()"> Valor do Imóvel
+                            </label>
+                            <label style="font-weight: normal; cursor: pointer;">
+                                <input type="radio" name="base-financiamento" value="avaliacao" onchange="simularFluxo()"> Valor de Avaliação
+                            </label>
+                        </label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="sim-val-imovel" value="250000" placeholder="Valor do Imóvel (R$)" oninput="simularFluxo()">
+                            <input type="number" id="sim-val-avaliacao" value="260000" placeholder="Valor Avaliação (R$)" oninput="simularFluxo()">
+                        </div>
                     </div>
+
+                    <!-- Renda e Opção com/sem Redutor -->
                     <div class="speedsim-field">
                         <label>Renda Bruta (R$)</label>
                         <input type="number" id="sim-renda" value="4500" placeholder="Ex: 4500" oninput="simularFluxo()">
                     </div>
+
+                    <div class="speedsim-field">
+                        <label>Redutor de Taxa (Cotista FGTS)</label>
+                        <select id="sim-redutor" onchange="simularFluxo()">
+                            <option value="sim" selected>Com Redutor (3+ anos FGTS)</option>
+                            <option value="nao">Sem Redutor</option>
+                        </select>
+                    </div>
+
                     <div class="speedsim-field">
                         <label>Data Nasc. Comprador</label>
                         <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()">
                     </div>
+
                     <div class="speedsim-field">
-                        <label>Sinal / Ato (R$)</label>
-                        <input type="number" id="sim-sinal" value="10000" placeholder="Ex: 10000" oninput="simularFluxo()">
+                        <label>Compradores / Dependentes</label>
+                        <select id="sim-dependente" onchange="simularFluxo()">
+                            <option value="sim" selected>Mais de 1 Comprador / Dependente</option>
+                            <option value="nao">Apenas 1 Comprador (Sem dependente)</option>
+                        </select>
                     </div>
+
                     <div class="speedsim-field">
                         <label>FGTS (R$)</label>
                         <input type="number" id="sim-fgts" value="15000" placeholder="Ex: 15000" oninput="simularFluxo()">
                     </div>
+
                     <div class="speedsim-field">
                         <label>Qtd. Parcelas Entrada</label>
                         <input type="number" id="sim-num-parcelas" value="36" placeholder="Ex: 36" oninput="simularFluxo()">
                     </div>
                 </div>
 
-                <!-- Banner de Resultados Rápidos Caixa -->
-                <div class="speedsim-banner-resultados">
-                    <div class="res-box">
-                        <span>Enquadramento</span>
-                        <div class="res-val" id="res-enquadramento" style="font-size: 0.95rem;">-</div>
+                <!-- BANNER BIFURCADO: FINANCIAMENTO E ENTRADA (SAC vs PRICE) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <!-- Card Resumo SAC -->
+                    <div class="res-box" style="background-color: rgba(0, 113, 58, 0.05); border: 1.5px solid var(--mrv-verde); text-align: left; padding: 12px;">
+                        <span style="color: var(--mrv-verde); font-weight: bold; font-size: 0.85rem;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
+                        <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.5;">
+                            <div>Financiamento SAC: <strong id="res-finan-sac" style="color: var(--mrv-verde);">R$ 0,00</strong></div>
+                            <div>Entrada Líquida SAC: <strong id="res-entrada-sac" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
+                            <div id="res-parcelas-sac" style="font-weight: 600; color: #333;">Em 36 parcelas de: R$ 0,00</div>
+                        </div>
                     </div>
-                    <div class="res-box">
-                        <span>Financiamento (Máx 80%)</span>
-                        <div class="res-val" id="res-financiamento">R$ 0,00</div>
-                        <small id="res-percent-financiado" style="font-size:0.65rem; color:#666;">-</small>
-                    </div>
-                    <div class="res-box">
-                        <span>Taxa de Juros</span>
-                        <div class="res-val" id="res-juros">0,00% a.a.</div>
-                    </div>
-                    <div class="res-box">
-                        <span>Subsídio Estimado</span>
-                        <div class="res-val" id="res-subsidio" style="color: #2e7d32;">R$ 0,00</div>
-                    </div>
-                    <div class="res-box">
-                        <span>Prazo Máximo</span>
-                        <div class="res-val" id="res-prazo-max">-</div>
-                    </div>
-                    <div class="res-box">
-                        <span>Entrada Líquida</span>
-                        <div class="res-val" id="res-entrada-total" style="color: var(--mrv-laranja);">R$ 0,00</div>
-                        <small id="res-saldo-parcelado" style="font-size:0.65rem; color:#333; font-weight:bold;">-</small>
+
+                    <!-- Card Resumo PRICE -->
+                    <div class="res-box" style="background-color: rgba(0, 0, 0, 0.03); border: 1.5px solid #333; text-align: left; padding: 12px;">
+                        <span style="color: #333; font-weight: bold; font-size: 0.85rem;">SISTEMA PRICE (PARCELAS FIXAS)</span>
+                        <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.5;">
+                            <div>Financiamento PRICE: <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong></div>
+                            <div>Entrada Líquida PRICE: <strong id="res-entrada-price" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
+                            <div id="res-parcelas-price" style="font-weight: 600; color: #333;">Em 36 parcelas de: R$ 0,00</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- CARDS DE COMPARAÇÃO DE TOTAL PAGO SAC vs PRICE -->
+                <!-- CARDS DE TOTALIZADORES DUPLICADOS (TOTAL INICIAL, TOTAL AMORTIZADO E DIFERENÇA) -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="res-box" style="background-color: rgba(0, 113, 58, 0.08); border: 1px solid var(--mrv-verde);">
-                        <span style="color: var(--mrv-verde);">TOTAL GERAL PAGO (SISTEMA SAC)</span>
-                        <div class="res-val" id="res-total-sac" style="color: var(--mrv-verde); font-size: 1.25rem;">R$ 0,00</div>
+                    <!-- Totais SAC -->
+                    <div class="res-box" style="background-color: #f4fbf7; border: 1px solid var(--mrv-verde); text-align: center; padding: 10px;">
+                        <span style="color: var(--mrv-verde); font-size: 0.75rem;">MÉTRICAS TOTAIS SAC</span>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 6px; font-size: 0.75rem;">
+                            <div>
+                                <small style="display:block; color:#666;">Total Inicial</small>
+                                <strong id="res-sac-inicial">R$ 0,00</strong>
+                            </div>
+                            <div>
+                                <small style="display:block; color:#2e7d32;">Total Amortizado</small>
+                                <strong id="res-sac-amortizado" style="color:#2e7d32;">R$ 0,00</strong>
+                            </div>
+                            <div>
+                                <small style="display:block; color:#c62828;">Economia / Dif.</small>
+                                <strong id="res-sac-diferenca" style="color:#c62828;">R$ 0,00</strong>
+                            </div>
+                        </div>
                     </div>
-                    <div class="res-box" style="background-color: rgba(0, 0, 0, 0.05); border: 1px solid #333;">
-                        <span style="color: #333;">TOTAL GERAL PAGO (SISTEMA PRICE)</span>
-                        <div class="res-val" id="res-total-price" style="color: #333; font-size: 1.25rem;">R$ 0,00</div>
+
+                    <!-- Totais PRICE -->
+                    <div class="res-box" style="background-color: #f9f9f9; border: 1px solid #555; text-align: center; padding: 10px;">
+                        <span style="color: #333; font-size: 0.75rem;">MÉTRICAS TOTAIS PRICE</span>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 6px; font-size: 0.75rem;">
+                            <div>
+                                <small style="display:block; color:#666;">Total Inicial</small>
+                                <strong id="res-price-inicial">R$ 0,00</strong>
+                            </div>
+                            <div>
+                                <small style="display:block; color:#2e7d32;">Total Amortizado</small>
+                                <strong id="res-price-amortizado" style="color:#2e7d32;">R$ 0,00</strong>
+                            </div>
+                            <div>
+                                <small style="display:block; color:#c62828;">Economia / Dif.</small>
+                                <strong id="res-price-diferenca" style="color:#c62828;">R$ 0,00</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- TABELA UNIFICADA DE ROLAGEM ÚNICA COM AMORTIZAÇÃO COMPARTILHADA -->
                 <div class="speedsim-coluna-tabela">
-                    <div class="speedsim-scroll-wrapper" style="max-height: 400px;">
+                    <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr>
