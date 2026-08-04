@@ -248,20 +248,28 @@
                     <!-- Totais SAC -->
                     <div class="res-box" style="background-color: #f4fbf7; border: 1px solid var(--mrv-verde); text-align: center; padding: 10px;">
                         <span style="color: var(--mrv-verde); font-size: 0.75rem;">MÉTRICAS TOTAIS SAC</span>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 6px; font-size: 0.75rem;">
-                            <div>
-                                <small style="display:block; color:#666;">Total Inicial</small>
-                                <strong id="res-sac-inicial">R$ 0,00</strong>
+                        <!-- BANNER BIFURCADO: FINANCIAMENTO E ENTRADA (SAC vs PRICE) -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <!-- Card Resumo SAC -->
+                                <div class="res-box" style="background-color: rgba(0, 113, 58, 0.05); border: 1.5px solid var(--mrv-verde); text-align: left; padding: 12px;">
+                                    <span style="color: var(--mrv-verde); font-weight: bold; font-size: 0.85rem;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
+                                    <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.5;">
+                                        <div>Financiamento SAC: <strong id="res-finan-sac" style="color: var(--mrv-verde);">R$ 0,00</strong> <small id="res-pct-sac" style="color: #666; font-weight: normal;"></small></div>
+                                        <div>Entrada Líquida SAC: <strong id="res-entrada-sac" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
+                                        <div id="res-parcelas-sac" style="font-weight: 600; color: #333;">Em parcelas de: R$ 0,00</div>
+                                    </div>
+                                </div>
+            
+                                <!-- Card Resumo PRICE -->
+                                <div class="res-box" style="background-color: rgba(0, 0, 0, 0.03); border: 1.5px solid #333; text-align: left; padding: 12px;">
+                                    <span style="color: #333; font-weight: bold; font-size: 0.85rem;">SISTEMA PRICE (PARCELAS FIXAS)</span>
+                                    <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.5;">
+                                        <div>Financiamento PRICE: <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong> <small id="res-pct-price" style="color: #666; font-weight: normal;"></small></div>
+                                        <div>Entrada Líquida PRICE: <strong id="res-entrada-price" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
+                                        <div id="res-parcelas-price" style="font-weight: 600; color: #333;">Em parcelas de: R$ 0,00</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <small style="display:block; color:#2e7d32;">Total Amortizado</small>
-                                <strong id="res-sac-amortizado" style="color:#2e7d32;">R$ 0,00</strong>
-                            </div>
-                            <div>
-                                <small style="display:block; color:#c62828;">Economia / Dif.</small>
-                                <strong id="res-sac-diferenca" style="color:#c62828;">R$ 0,00</strong>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Totais PRICE -->
