@@ -3,7 +3,7 @@
  */
 
 // ============================================================================
-// ⚙️ MATRIZ CREDILAR MCMV / CAIXA (EXTRAÍDA DO PDF)
+// ⚙️ MATRIZ CREDILAR MCMV / CAIXA
 // ============================================================================
 const CREDILAR_MATRIZ = [
   { renda: 1000, finNormal: 56132.57, finRedutor: 59840.81, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
@@ -77,6 +77,8 @@ function fecharSpeedSim() {
 }
 
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
+  if (renda <= 0) return { taxa: 0, tetoFinanBase: 0, subsidio: 0 };
+
   let linha = CREDILAR_MATRIZ[0];
   for (let i = 0; i < CREDILAR_MATRIZ.length; i++) {
     if (renda >= CREDILAR_MATRIZ[i].renda) {
@@ -95,44 +97,55 @@ function simularFluxo() {
   const valImovel = parseFloat(document.getElementById('sim-val-imovel')?.value) || 0;
   const valAvaliacao = parseFloat(document.getElementById('sim-val-avaliacao')?.value) || valImovel;
   const renda = parseFloat(document.getElementById('sim-renda')?.value) || 0;
-  const comRedutor = document.getElementById('sim-redutor')?.value === 'sim';
-  const comDependente = document.getElementById('sim-dependente')?.value === 'sim';
+
+  // Rádios e Checkboxes
+  const comRedutor = document.querySelector('input[name="opt-redutor"]:checked')?.value === 'sim';
+  const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
+
   const fgts = parseFloat(document.getElementById('sim-fgts')?.value) || 0;
   const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
 
-  // Verifica qual base de financiamento foi selecionada via Radio Button
+  // Base selecionada
   const baseSelecionada = document.querySelector('input[name="base-financiamento"]:checked')?.value || 'imovel';
   const baseCalculo = (baseSelecionada === 'avaliacao') ? valAvaliacao : valImovel;
 
-  if (valImovel <= 0) return;
+  // Se o imóvel não foi digitado, zera e aguarda digitação
+  if (valImovel <= 0 || renda <= 0) {
+    document.getElementById('sim-subsidio-val').value = "R$ 0,00";
+    document.getElementById('res-finan-price').innerText = "R$ 0,00";
+    document.getElementById('res-entrada-price').innerText = "R$ 0,00";
+    document.getElementById('res-finan-sac').innerText = "R$ 0,00";
+    document.getElementById('res-entrada-sac').innerText = "R$ 0,00";
+    document.getElementById('tabela-unificada-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
+    return;
+  }
 
   const params = buscarParametrosCredilar(renda, comRedutor, comDependente);
   
-  // O banco financia até 80% do valor base (Imóvel ou Avaliação)
+  // Atualiza o input de Subsídio na tela
+  document.getElementById('sim-subsidio-val').value = `R$ ${params.subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+  // Teto de 80% da base de cálculo
   const limite80Base = baseCalculo * 0.80;
 
-  // Financiamento Máximo suportado
   const finanPriceCapacidade = Math.min(limite80Base, params.tetoFinanBase);
-  const finanSacCapacidade = finanPriceCapacidade * 0.92; // SAC financia ~8% a menos pelo limite da 1ª parcela
+  const finanSacCapacidade = finanPriceCapacidade * 0.92;
 
-  // Cálculos da Entrada Líquida (Valor do Imóvel - Financiamento - Subsídio - FGTS)
   const entradaPriceLequida = Math.max(0, valImovel - finanPriceCapacidade - params.subsidio - fgts);
   const entradaSacLequida = Math.max(0, valImovel - finanSacCapacidade - params.subsidio - fgts);
 
   const parcPriceEntrada = numParcelas > 0 ? (entradaPriceLequida / numParcelas) : 0;
   const parcSacEntrada = numParcelas > 0 ? (entradaSacLequida / numParcelas) : 0;
 
-  // Atualiza Resumo PRICE
+  // Resumos
   document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-entrada-price').innerText = `R$ ${entradaPriceLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-parcelas-price').innerText = `Em ${numParcelas}x de R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-  // Atualiza Resumo SAC
   document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-entrada-sac').innerText = `R$ ${entradaSacLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-parcelas-sac').innerText = `Em ${numParcelas}x de R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-  // Estado Global
   simState.valorFinanciadoPrice = finanPriceCapacidade;
   simState.valorFinanciadoSac = finanSacCapacidade;
   simState.taxaJurosAnual = params.taxa;
@@ -164,7 +177,7 @@ function gerarTabelaUnificada() {
   for (let mes = 1; mes <= n; mes++) {
     const amortExtra = parseFloat(simState.amortizacoesExtras[mes]) || 0;
 
-    // --- SAC ---
+    // SAC
     let jurosSac = 0, amortTotalSac = 0, parcelaSac = 0;
     if (saldoSac > 0) {
       jurosSac = saldoSac * iMensal;
@@ -178,7 +191,7 @@ function gerarTabelaUnificada() {
       totalInicialSac += (amortizacaoConstanteSac + jurosSac);
     }
 
-    // --- PRICE ---
+    // PRICE
     let jurosPrice = 0, amortTotalPrice = 0, parcelaPrice = 0;
     if (saldoPrice > 0) {
       jurosPrice = saldoPrice * iMensal;
@@ -218,7 +231,6 @@ function gerarTabelaUnificada() {
 
   tbody.innerHTML = htmlTabela;
 
-  // Atualiza Totais Duplicados (Inicial, Amortizado e Economia/Diferença)
   const difSac = totalInicialSac - totalPagoSacAmort;
   const difPrice = totalInicialPrice - totalPagoPriceAmort;
 
