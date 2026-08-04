@@ -131,6 +131,139 @@
         </aside>
     </div>
 
+<!DOCTYPE html>
+<html lang="pt-br" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard MRV SP</title>
+    <link rel="stylesheet" href="desktop.css">
+    <style>
+        /* ==========================================================================
+           CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES
+           ========================================================================== */
+        
+        div.header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 0 20px !important;
+            box-sizing: border-box !important;
+            gap: 20px !important;
+        }
+
+        .titulo-mrv-centro {
+            margin: 0 !important;
+            padding: 0 !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            text-align: left !important;
+            font-size: 1.1rem !important;
+            color: #ffffff !important;
+            z-index: 1 !important;
+            flex: 1 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        .container-botoes-mrv {
+            display: flex !important;
+            gap: 12px !important;
+            margin-left: auto !important;
+            align-items: center !important;
+            height: 100% !important;
+            z-index: 10 !important;
+            flex-shrink: 0 !important;
+        }
+
+        button#btn-documentos, 
+        button#btn-sobre,
+        button#btn-anuncio {
+            all: unset !important;
+            box-sizing: border-box !important;
+            background-color: #febd11 !important;
+            color: #004d24 !important;
+            border-radius: 4px !important;
+            height: 34px !important;
+            padding: 0 18px !important;
+            font-weight: bold !important;
+            font-size: 0.8rem !important;
+            text-transform: uppercase !important;
+            cursor: pointer !important;
+            text-align: center !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            transition: background-color 0.2s ease, transform 0.1s ease !important;
+            white-space: nowrap !important;
+        }
+
+        button#btn-documentos:hover, 
+        button#btn-sobre:hover {
+            background-color: #e0a60f !important;
+        }
+
+        button#btn-anuncio {
+            background-color: #f37021 !important;
+            color: #ffffff !important;
+        }
+
+        button#btn-anuncio:hover {
+            background-color: #dca206 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bloqueio-seguranca" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; color: #333; z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: Arial, sans-serif;">
+        <div style="max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eef0f2; text-align: center;">
+            <div id="icone-status" style="margin-bottom: 20px;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#e0e0e0"/>
+                    <path d="M12 8V12M12 16H12.01" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div id="resultado-validacao">
+                <h2 style="margin-top: 0; color: #444;">Processando...</h2>
+                <p>Conectando ao servidor de licenças do Speed Broker.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1 class="titulo-mrv-centro">
+            SPEED BROKER &nbsp;&bull;&nbsp; RESIDENCIAIS MRV EM SÃO PAULO &nbsp;&bull;&nbsp; JUN/26
+        </h1>
+        
+        <div class="container-botoes-mrv">
+            <button id="btn-anuncio">🚀 Anúncio Clique-Único (Breve)</button>
+            <button id="btn-documentos">Documentos</button>
+            <button id="btn-sobre">Speedsim</button>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <aside class="sidebar-esq" id="lista-imoveis">
+            <div style="padding:20px; color:#666; font-size: 0.8rem;">Carregando residenciais...</div>
+        </aside>
+        
+        <main class="conteudo-centro">
+            <div id="cidade-titulo">Selecione uma região no mapa</div> 
+            <div id="caixa-a"></div> 
+            <div id="caixa-b"></div> 
+        </main>
+
+        <aside class="sidebar-dir" id="ficha-tecnica">
+            <div style="text-align:center; color:#ccc; margin-top:100px;">
+                <p style="font-size: 30px;">📍</p>
+                <p>Clique em algum Residencial ou em alguma região verde do mapa</p>
+            </div>
+        </aside>
+    </div>
+
     <!-- ==========================================================================
          MODAL SPEEDSIM - MÁSCARA DE MOEDA APLICADA NO ONINPUT
          ========================================================================== -->
@@ -278,6 +411,64 @@
                     </div>
                 </div>
 
+                <!-- TABELA UNIFICADA -->
+                <div class="speedsim-coluna-tabela">
+                    <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 50px;">Mês</th>
+                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 110px; background-color: #fffde7; color: #333;">Amortiz. Extra (R$)</th>
+                                    <th colspan="3" style="text-align: center; background-color: var(--mrv-verde); color: white;">SISTEMA SAC</th>
+                                    <th colspan="3" style="text-align: center; background-color: #333; color: white;">SISTEMA PRICE</th>
+                                </tr>
+                                <tr>
+                                    <!-- SAC -->
+                                    <th style="background-color: #e8f5e9;">Parcela</th>
+                                    <th style="background-color: #e8f5e9;">Juros</th>
+                                    <th style="background-color: #e8f5e9;">Saldo Dev.</th>
+                                    <!-- PRICE -->
+                                    <th style="background-color: #f5f5f5; border-left: 2px solid #ddd;">Parcela</th>
+                                    <th style="background-color: #f5f5f5;">Juros</th>
+                                    <th style="background-color: #f5f5f5;">Saldo Dev.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-unificada-body">
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="mapa-SP.js" defer></script>
+    <script src="desktop.js" defer></script>
+    <script src="anuncios.js" defer></script>
+    <script src="simulador.js" defer></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            console.log("Todos os recursos e scripts foram totalmente carregados.");
+            
+            if (typeof iniciarApp === 'function') {
+                iniciarApp();
+            } else {
+                console.error("Erro Crítico: A função 'iniciarApp' não foi encontrada no escopo global.");
+                setTimeout(() => {
+                    if (typeof iniciarApp === 'function') {
+                        iniciarApp();
+                    } else {
+                        alert("Não foi possível iniciar o aplicativo. Verifique o console do navegador (F12) para detalhes.");
+                    }
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
                 <!-- TABELA UNIFICADA -->
                 <div class="speedsim-coluna-tabela">
                     <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
