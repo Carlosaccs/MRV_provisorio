@@ -1,5 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
+ * Com validação dinâmica de idade e prazo máximo (Teto Caixa: 80 anos e 6 meses / 966 meses)
  */
 
 const CREDILAR_MATRIZ = [
@@ -50,21 +51,32 @@ let simState = {
   amortizacoesExtras: {}
 };
 
+const LIMITE_IDADE_PRAZO_MESES = 966; // 80 anos e 6 meses regra Caixa
+
+function calcularIdadeEmMeses(dataNasc) {
+  if (!dataNasc) return 0;
+  const hoje = new Date();
+  const nascimento = new Date(dataNasc);
+  let anos = hoje.getFullYear() - nascimento.getFullYear();
+  let meses = hoje.getMonth() - nascimento.getMonth();
+  if (meses < 0 || (meses === 0 && hoje.getDate() < nascimento.getDate())) {
+    anos--;
+    meses += 12;
+  }
+  return (anos * 12) + meses;
+}
+
 function tratarEntradaMoeda(input) {
   let digitos = input.value.replace(/\D/g, '');
-  
   if (!digitos) {
     input.value = '';
     simularFluxo();
     return;
   }
-
   let num = (parseInt(digitos, 10) / 100).toFixed(2);
   let partes = num.split('.');
   partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  
   input.value = `R$ ${partes.join(',')}`;
-  
   simularFluxo();
 }
 
@@ -101,18 +113,15 @@ function fecharSpeedSim() {
 
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
   if (renda <= 0) return { taxa: 0, tetoFinanBase: 0, subsidio: 0 };
-
   let linha = CREDILAR_MATRIZ[0];
   for (let i = 0; i < CREDILAR_MATRIZ.length; i++) {
     if (renda >= CREDILAR_MATRIZ[i].renda) {
       linha = CREDILAR_MATRIZ[i];
     }
   }
-
   const taxa = comRedutor ? linha.txRedutor : linha.txNormal;
   const tetoFinanBase = comRedutor ? linha.finRedutor : linha.finNormal;
   const subsidio = comDependente ? linha.subDep : linha.subSozinho;
-
   return { taxa, tetoFinanBase, subsidio };
 }
 
@@ -126,6 +135,24 @@ function simularFluxo() {
 
   const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
   const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
+
+  // Lê a data de nascimento e valida/calcula o prazo máximo permitido pela Caixa
+  const dataNascVal = document.getElementById('sim-data-nasc')?.value;
+  let prazoDesejadoInput = parseInt(document.getElementById('sim-prazo')?.value) || 420;
+
+  if (dataNascVal) {
+    const idadeMeses = calcularIdadeEmMeses(dataNascVal);
+    const prazoMaximoPermitido = LIMITE_IDADE_PRAZO_MESES - idadeMeses;
+    
+    // Trava o prazo caso ultrapasse o teto permitido pela idade (máximo de 420 ou o teto da idade)
+    if (prazoDesejadoInput > prazoMaximoPermitido) {
+      prazoDesejadoInput = prazoMaximoPermitido > 0 ? prazoMaximoPermitido : 0;
+      const inputPrazoEl = document.getElementById('sim-prazo');
+      if (inputPrazoEl) inputPrazoEl.value = prazoDesejadoInput;
+    }
+  }
+
+  simState.prazoMeses = prazoDesejadoInput > 0 ? prazoDesejadoInput : 1;
 
   const baseSelecionada = document.querySelector('input[name="base-financiamento"]:checked')?.value || 'imovel';
   const baseCalculo = (baseSelecionada === 'avaliacao') ? valAvaliacao : valImovel;
@@ -190,6 +217,7 @@ function simularFluxo() {
 }
 
 function calcularTotaisIniciaisFixos(PSac, PPrice, n, iMensal) {
+  if (n <= 0) return { totalInicialSac: 0, totalInicialPrice: 0 };
   const parcelaPriceConstante = PPrice * ( (iMensal * Math.pow(1 + iMensal, n)) / (Math.pow(1 + iMensal, n) - 1) );
   const totalInicialPrice = parcelaPriceConstante * n;
 
@@ -211,7 +239,7 @@ function gerarTabelaUnificada() {
   const iMensal = Math.pow(1 + (simState.taxaJurosAnual / 100), 1 / 12) - 1;
 
   const tbody = document.getElementById('tabela-unificada-body');
-  if (!tbody || !PSac || !PPrice) return;
+  if (!tbody || !PSac || !PPrice || n <= 0) return;
 
   const { totalInicialSac, totalInicialPrice } = calcularTotaisIniciaisFixos(PSac, PPrice, n, iMensal);
 
@@ -228,7 +256,6 @@ function gerarTabelaUnificada() {
   for (let mes = 1; mes <= n; mes++) {
     const amortExtra = simState.amortizacoesExtras[mes] || 0;
 
-    // --- SAC ---
     let jurosSac = 0, amortTotalSac = 0, parcelaSac = 0;
     if (saldoSac > 0) {
       jurosSac = saldoSac * iMensal;
@@ -237,11 +264,9 @@ function gerarTabelaUnificada() {
       parcelaSac = amortTotalSac + jurosSac;
       saldoSac -= amortTotalSac;
       if (saldoSac < 0) saldoSac = 0;
-
       totalPagoSacComAmort += parcelaSac;
     }
 
-    // --- PRICE ---
     let jurosPrice = 0, amortTotalPrice = 0, parcelaPrice = 0;
     if (saldoPrice > 0) {
       jurosPrice = saldoPrice * iMensal;
@@ -251,7 +276,6 @@ function gerarTabelaUnificada() {
       parcelaPrice = amortTotalPrice + jurosPrice;
       saldoPrice -= amortTotalPrice;
       if (saldoPrice < 0) saldoPrice = 0;
-
       totalPagoPriceComAmort += parcelaPrice;
     }
 
@@ -268,11 +292,9 @@ function gerarTabelaUnificada() {
                  oninput="mascararDigitoTabela(this)"
                  onchange="confirmarAmortizacaoTabela(this)">
         </td>
-        <!-- SAC -->
         <td>R$ ${parcelaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
         <td>R$ ${jurosSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
         <td>R$ ${saldoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <!-- PRICE -->
         <td style="border-left: 2px solid #ddd;">R$ ${parcelaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
         <td>R$ ${jurosPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
         <td>R$ ${saldoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
@@ -296,37 +318,26 @@ function gerarTabelaUnificada() {
   document.getElementById('res-price-diferenca').innerText = `R$ ${difPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
-/**
- * Formata visualmente o valor enquanto o usuário digita (sem recriar a tabela)
- */
 function mascararDigitoTabela(inputEl) {
   let digitos = inputEl.value.replace(/\D/g, '');
-
   if (!digitos) {
     inputEl.value = '';
     return;
   }
-
   let numFloat = parseFloat(digitos) / 100;
   let numFormatado = numFloat.toFixed(2);
   let partes = numFormatado.split('.');
   partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
   inputEl.value = `R$ ${partes.join(',')}`;
 }
 
-/**
- * Grava o valor e recalcula a tabela inteira quando o usuário confirma (Enter ou clica fora)
- */
 function confirmarAmortizacaoTabela(inputEl) {
   const mes = inputEl.getAttribute('data-mes');
   const numFloat = parseMoedaParaNumero(inputEl.value);
-
   if (numFloat > 0) {
     simState.amortizacoesExtras[mes] = numFloat;
   } else {
     delete simState.amortizacoesExtras[mes];
   }
-
   gerarTabelaUnificada();
 }
