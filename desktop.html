@@ -81,6 +81,28 @@
         button#btn-anuncio:hover {
             background-color: #dca206 !important;
         }
+
+        /* ==========================================================================
+           FIXAÇÃO COMPLETA DO CABEÇALHO DA TABELA UNIFICADA (2 LINHAS STICKY)
+           ========================================================================== */
+        
+        .speedsim-coluna-tabela table thead tr:nth-child(1) th {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 10 !important;
+        }
+
+        .speedsim-coluna-tabela table thead tr:nth-child(2) th {
+            position: sticky !important;
+            top: 32px !important; /* Altura exata da primeira linha */
+            z-index: 9 !important;
+        }
+
+        /* Fundo fixo para a célula mesclada de Mês e Amortização Extra não deixarem passar conteúdo por baixo */
+        .speedsim-coluna-tabela table thead tr:nth-child(1) th[rowspan="2"] {
+            background-color: #f0f0f0 !important;
+            z-index: 11 !important;
+        }
     </style>
 </head>
 <body>
@@ -135,7 +157,7 @@
     </div>
 
     <!-- ==========================================================================
-         MODAL SPEEDSIM - CARDS AJUSTADOS EM EXATAMENTE 2 LINHAS
+         MODAL SPEEDSIM - CABEÇALHO DUPLO CONGELADO NA ROLAGEM
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
         <div class="modal-content-speedsim">
@@ -219,20 +241,18 @@
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE (EXATAMENTE EM 2 LINHAS CADA) -->
+                <!-- CARDS DE RESUMO SAC vs PRICE -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     
                     <!-- Card Resumo SAC -->
                     <div class="res-box" style="background-color: rgba(0, 113, 58, 0.05); border: 1.5px solid var(--mrv-verde); text-align: left; padding: 12px; border-radius: 6px;">
                         <span style="color: var(--mrv-verde); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 6px;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
                         <div style="font-size: 0.8rem; line-height: 1.8;">
-                            <!-- Linha 1: Financiamento + Porcentagem em um único fluxo em linha -->
                             <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
                                 <span>Financiamento SAC:</span>
                                 <strong id="res-finan-sac" style="color: var(--mrv-verde);">R$ 0,00</strong>
                                 <span id="res-pct-sac" style="color: #555; font-weight: 600;"></span>
                             </div>
-                            <!-- Linha 2: Entrada + Parcelamento em um único fluxo em linha -->
                             <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
                                 <span>Entrada Líquida SAC:</span>
                                 <strong id="res-entrada-sac" style="color: var(--mrv-laranja);">R$ 0,00</strong>
@@ -245,13 +265,11 @@
                     <div class="res-box" style="background-color: rgba(0, 0, 0, 0.03); border: 1.5px solid #333; text-align: left; padding: 12px; border-radius: 6px;">
                         <span style="color: #333; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 6px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
                         <div style="font-size: 0.8rem; line-height: 1.8;">
-                            <!-- Linha 1: Financiamento + Porcentagem em um único fluxo em linha -->
                             <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
                                 <span>Financiamento PRICE:</span>
                                 <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong>
                                 <span id="res-pct-price" style="color: #555; font-weight: 600;"></span>
                             </div>
-                            <!-- Linha 2: Entrada + Parcelamento em um único fluxo em linha -->
                             <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
                                 <span>Entrada Líquida PRICE:</span>
                                 <strong id="res-entrada-price" style="color: var(--mrv-laranja);">R$ 0,00</strong>
@@ -303,9 +321,9 @@
                     </div>
                 </div>
 
-                <!-- TABELA UNIFICADA INTERNA DA MODAL -->
+                <!-- TABELA UNIFICADA INTERNA DA MODAL COM CABEÇALHO DUPLO FIXO -->
                 <div class="speedsim-coluna-tabela">
-                    <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
+                    <div class="speedsim-scroll-wrapper" style="max-height: 380px; overflow-y: auto;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr>
@@ -316,13 +334,13 @@
                                 </tr>
                                 <tr>
                                     <!-- SAC -->
-                                    <th style="background-color: #e8f5e9;">Parcela</th>
-                                    <th style="background-color: #e8f5e9;">Juros</th>
-                                    <th style="background-color: #e8f5e9;">Saldo Dev.</th>
+                                    <th style="background-color: #e8f5e9; color: #333;">Parcela</th>
+                                    <th style="background-color: #e8f5e9; color: #333;">Juros</th>
+                                    <th style="background-color: #e8f5e9; color: #333;">Saldo Dev.</th>
                                     <!-- PRICE -->
-                                    <th style="background-color: #f5f5f5; border-left: 2px solid #ddd;">Parcela</th>
-                                    <th style="background-color: #f5f5f5;">Juros</th>
-                                    <th style="background-color: #f5f5f5;">Saldo Dev.</th>
+                                    <th style="background-color: #f5f5f5; color: #333; border-left: 2px solid #ddd;">Parcela</th>
+                                    <th style="background-color: #f5f5f5; color: #333;">Juros</th>
+                                    <th style="background-color: #f5f5f5; color: #333;">Saldo Dev.</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-unificada-body">
