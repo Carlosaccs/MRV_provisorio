@@ -131,76 +131,93 @@
         </aside>
     </div>
 
-  <!-- ==========================================================================
-         MODAL SPEEDSIM - ATUALIZADA COM AVALIAÇÃO, REDUTOR E RESUMO BIFURCADO
+ <!-- ==========================================================================
+         MODAL SPEEDSIM - LAYOUT REFORMULADO (INPUTS LIMPOS + RADIOS INLINE)
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
         <div class="modal-content-speedsim">
             <span class="modal-close-speedsim" onclick="fecharSpeedSim()">&times;</span>
             <h2 style="color: var(--mrv-verde); margin-bottom: 5px; text-transform: uppercase; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                📊 SpeedSim - Simulador Caixa MCMV & SBPE
+                📊 SpeedSim - Simulador MCMV
             </h2>
             <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">
-                Simule financiamento com regras de Avaliação, Redutor de Taxa e Comparativo em tempo real.
+                Simule financiamento com regras de Avaliação, PRICE / SAC e Comparativo em tempo real.
             </p>
             
             <div class="modal-body">
-                <!-- Grid de Inputs Principais -->
-                <div class="speedsim-grid-inputs">
+                <!-- GRID DE INPUTS IDÊNTICO AO RASCUNHO -->
+                <div style="background: #fcfcfc; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
                     
-                    <!-- Campo com Radio Button: Valor do Imóvel / Valor de Avaliação -->
-                    <div class="speedsim-field" style="grid-column: span 2;">
-                        <label style="display: flex; gap: 15px; align-items: center; margin-bottom: 4px;">
-                            <span style="font-weight: bold; color: #333;">BASE DE FINANCIAMENTO:</span>
-                            <label style="font-weight: normal; cursor: pointer;">
-                                <input type="radio" name="base-financiamento" value="imovel" checked onchange="simularFluxo()"> Valor do Imóvel
-                            </label>
-                            <label style="font-weight: normal; cursor: pointer;">
-                                <input type="radio" name="base-financiamento" value="avaliacao" onchange="simularFluxo()"> Valor de Avaliação
-                            </label>
-                        </label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="number" id="sim-val-imovel" value="250000" placeholder="Valor do Imóvel (R$)" oninput="simularFluxo()">
-                            <input type="number" id="sim-val-avaliacao" value="260000" placeholder="Valor Avaliação (R$)" oninput="simularFluxo()">
+                    <!-- LINHA 1 -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 12px;">
+                        
+                        <!-- Valor do Imóvel -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" id="rad-imovel" name="base-financiamento" value="imovel" checked onchange="simularFluxo()">
+                            <label for="rad-imovel" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Valor do imóvel:</label>
+                            <input type="number" id="sim-val-imovel" placeholder="R$ 0,00" style="width: 140px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
                         </div>
+
+                        <!-- Valor de Avaliação -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" id="rad-avaliacao" name="base-financiamento" value="avaliacao" onchange="simularFluxo()">
+                            <label for="rad-avaliacao" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Valor de avaliação:</label>
+                            <input type="number" id="sim-val-avaliacao" placeholder="R$ 0,00" style="width: 140px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
+                        </div>
+
+                        <!-- Renda Bruta -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="sim-renda" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Renda bruta:</label>
+                            <input type="number" id="sim-renda" placeholder="R$ 0,00" style="width: 130px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
+                        </div>
+
+                        <!-- Redutor Rádios -->
+                        <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+                            <label style="font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <input type="radio" id="redutor-sim" name="opt-redutor" value="sim" checked onchange="simularFluxo()"> Com redutor
+                            </label>
+                            <label style="font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <input type="radio" id="redutor-nao" name="opt-redutor" value="nao" onchange="simularFluxo()"> Sem redutor
+                            </label>
+                        </div>
+
                     </div>
 
-                    <!-- Renda e Opção com/sem Redutor -->
-                    <div class="speedsim-field">
-                        <label>Renda Bruta (R$)</label>
-                        <input type="number" id="sim-renda" value="4500" placeholder="Ex: 4500" oninput="simularFluxo()">
+                    <!-- LINHA 2 -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+                        
+                        <!-- Data Nascimento -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="sim-data-nasc" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Data nascimento:</label>
+                            <input type="date" id="sim-data-nasc" style="height: 32px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" onchange="simularFluxo()">
+                        </div>
+
+                        <!-- Dependente / +1 Comprador Checkbox/Radio -->
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <input type="checkbox" id="sim-dependente" checked style="width: 16px; height: 16px; cursor: pointer;" onchange="simularFluxo()">
+                            <label for="sim-dependente" style="font-size: 0.8rem; font-weight: bold; color: #333; cursor: pointer; white-space: nowrap;">Mais de um comprador/dependente</label>
+                        </div>
+
+                        <!-- FGTS -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="sim-fgts" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">FGTS:</label>
+                            <input type="number" id="sim-fgts" placeholder="R$ 0,00" style="width: 120px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
+                        </div>
+
+                        <!-- Parcelas Entrada -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="sim-num-parcelas" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Qtd. Parcelas entrada:</label>
+                            <input type="number" id="sim-num-parcelas" placeholder="Ex: 36" style="width: 80px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
+                        </div>
+
+                        <!-- Subsídio Calculado -->
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <label for="sim-subsidio-val" style="font-size: 0.8rem; font-weight: bold; color: #2e7d32; white-space: nowrap;">Subsídio:</label>
+                            <input type="text" id="sim-subsidio-val" readonly value="R$ 0,00" style="width: 120px; height: 32px; padding: 0 8px; border: 1px solid #a5d6a7; border-radius: 4px; background-color: #e8f5e9; font-weight: bold; color: #2e7d32; text-align: right;">
+                        </div>
+
                     </div>
 
-                    <div class="speedsim-field">
-                        <label>Redutor de Taxa (Cotista FGTS)</label>
-                        <select id="sim-redutor" onchange="simularFluxo()">
-                            <option value="sim" selected>Com Redutor (3+ anos FGTS)</option>
-                            <option value="nao">Sem Redutor</option>
-                        </select>
-                    </div>
-
-                    <div class="speedsim-field">
-                        <label>Data Nasc. Comprador</label>
-                        <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()">
-                    </div>
-
-                    <div class="speedsim-field">
-                        <label>Compradores / Dependentes</label>
-                        <select id="sim-dependente" onchange="simularFluxo()">
-                            <option value="sim" selected>Mais de 1 Comprador / Dependente</option>
-                            <option value="nao">Apenas 1 Comprador (Sem dependente)</option>
-                        </select>
-                    </div>
-
-                    <div class="speedsim-field">
-                        <label>FGTS (R$)</label>
-                        <input type="number" id="sim-fgts" value="15000" placeholder="Ex: 15000" oninput="simularFluxo()">
-                    </div>
-
-                    <div class="speedsim-field">
-                        <label>Qtd. Parcelas Entrada</label>
-                        <input type="number" id="sim-num-parcelas" value="36" placeholder="Ex: 36" oninput="simularFluxo()">
-                    </div>
                 </div>
 
                 <!-- BANNER BIFURCADO: FINANCIAMENTO E ENTRADA (SAC vs PRICE) -->
@@ -211,7 +228,7 @@
                         <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.5;">
                             <div>Financiamento SAC: <strong id="res-finan-sac" style="color: var(--mrv-verde);">R$ 0,00</strong></div>
                             <div>Entrada Líquida SAC: <strong id="res-entrada-sac" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
-                            <div id="res-parcelas-sac" style="font-weight: 600; color: #333;">Em 36 parcelas de: R$ 0,00</div>
+                            <div id="res-parcelas-sac" style="font-weight: 600; color: #333;">Em parcelas de: R$ 0,00</div>
                         </div>
                     </div>
 
@@ -221,7 +238,7 @@
                         <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.5;">
                             <div>Financiamento PRICE: <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong></div>
                             <div>Entrada Líquida PRICE: <strong id="res-entrada-price" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
-                            <div id="res-parcelas-price" style="font-weight: 600; color: #333;">Em 36 parcelas de: R$ 0,00</div>
+                            <div id="res-parcelas-price" style="font-weight: 600; color: #333;">Em parcelas de: R$ 0,00</div>
                         </div>
                     </div>
                 </div>
@@ -290,7 +307,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabela-unificada-body">
-                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Aguardando simulação...</td></tr>
+                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e renda para simular...</td></tr>
                             </tbody>
                         </table>
                     </div>
