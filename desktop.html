@@ -131,8 +131,8 @@
         </aside>
     </div>
 
-<!-- ==========================================================================
-         MODAL SPEEDSIM - REORGANIZADO EM 2 LINHAS E MÁSCARA DE MOEDA
+    <!-- ==========================================================================
+         MODAL SPEEDSIM - ESTRUTURA LIMPA E SEM DUPLICAÇÃO
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
         <div class="modal-content-speedsim">
@@ -216,15 +216,13 @@
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE (EXATAMENTE EM 2 LINHAS) -->
+                <!-- CARDS DE RESUMO SAC vs PRICE (EM 2 LINHAS) -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <!-- Card Resumo SAC -->
                     <div class="res-box" style="background-color: rgba(0, 113, 58, 0.05); border: 1.5px solid var(--mrv-verde); text-align: left; padding: 12px; border-radius: 6px;">
                         <span style="color: var(--mrv-verde); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 6px;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
                         <div style="font-size: 0.8rem; line-height: 1.8;">
-                            <!-- Linha 1: Financiamento + Porcentagem -->
                             <div>Financiamento SAC: <strong id="res-finan-sac" style="color: var(--mrv-verde);">R$ 0,00</strong> <span id="res-pct-sac" style="color: #555; font-weight: 600;"></span></div>
-                            <!-- Linha 2: Entrada + Valor da Parcela em sequencia -->
                             <div>Entrada Líquida SAC: <strong id="res-entrada-sac" style="color: var(--mrv-laranja);">R$ 0,00</strong> <span id="res-parcelas-sac" style="color: #333; font-weight: 600; margin-left: 8px;"></span></div>
                         </div>
                     </div>
@@ -233,9 +231,7 @@
                     <div class="res-box" style="background-color: rgba(0, 0, 0, 0.03); border: 1.5px solid #333; text-align: left; padding: 12px; border-radius: 6px;">
                         <span style="color: #333; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 6px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
                         <div style="font-size: 0.8rem; line-height: 1.8;">
-                            <!-- Linha 1: Financiamento + Porcentagem -->
                             <div>Financiamento PRICE: <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong> <span id="res-pct-price" style="color: #555; font-weight: 600;"></span></div>
-                            <!-- Linha 2: Entrada + Valor da Parcela em sequencia -->
                             <div>Entrada Líquida PRICE: <strong id="res-entrada-price" style="color: var(--mrv-laranja);">R$ 0,00</strong> <span id="res-parcelas-price" style="color: #333; font-weight: 600; margin-left: 8px;"></span></div>
                         </div>
                     </div>
@@ -282,39 +278,7 @@
                     </div>
                 </div>
 
-                <!-- TABELA UNIFICADA -->
-                <div class="speedsim-coluna-tabela">
-                    <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 50px;">Mês</th>
-                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 110px; background-color: #fffde7; color: #333;">Amortiz. Extra (R$)</th>
-                                    <th colspan="3" style="text-align: center; background-color: var(--mrv-verde); color: white;">SISTEMA SAC</th>
-                                    <th colspan="3" style="text-align: center; background-color: #333; color: white;">SISTEMA PRICE</th>
-                                </tr>
-                                <tr>
-                                    <!-- SAC -->
-                                    <th style="background-color: #e8f5e9;">Parcela</th>
-                                    <th style="background-color: #e8f5e9;">Juros</th>
-                                    <th style="background-color: #e8f5e9;">Saldo Dev.</th>
-                                    <!-- PRICE -->
-                                    <th style="background-color: #f5f5f5; border-left: 2px solid #ddd;">Parcela</th>
-                                    <th style="background-color: #f5f5f5;">Juros</th>
-                                    <th style="background-color: #f5f5f5;">Saldo Dev.</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-unificada-body">
-                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td> interior</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-                <!-- TABELA UNIFICADA -->
+                <!-- TABELA UNIFICADA INTERNA DA MODAL -->
                 <div class="speedsim-coluna-tabela">
                     <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
                         <table style="width: 100%; border-collapse: collapse;">
@@ -338,39 +302,6 @@
                             </thead>
                             <tbody id="tabela-unificada-body">
                                 <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-                <!-- TABELA UNIFICADA DE ROLAGEM ÚNICA COM AMORTIZAÇÃO COMPARTILHADA -->
-                <div class="speedsim-coluna-tabela">
-                    <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 50px;">Mês</th>
-                                    <th rowspan="2" style="vertical-align: middle; text-align: center; width: 110px; background-color: #fffde7; color: #333;">Amortiz. Extra (R$)</th>
-                                    <th colspan="3" style="text-align: center; background-color: var(--mrv-verde); color: white;">SISTEMA SAC</th>
-                                    <th colspan="3" style="text-align: center; background-color: #333; color: white;">SISTEMA PRICE</th>
-                                </tr>
-                                <tr>
-                                    <!-- SAC -->
-                                    <th style="background-color: #e8f5e9;">Parcela</th>
-                                    <th style="background-color: #e8f5e9;">Juros</th>
-                                    <th style="background-color: #e8f5e9;">Saldo Dev.</th>
-                                    <!-- PRICE -->
-                                    <th style="background-color: #f5f5f5; border-left: 2px solid #ddd;">Parcela</th>
-                                    <th style="background-color: #f5f5f5;">Juros</th>
-                                    <th style="background-color: #f5f5f5;">Saldo Dev.</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-unificada-body">
-                                <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e renda para simular...</td></tr>
                             </tbody>
                         </table>
                     </div>
