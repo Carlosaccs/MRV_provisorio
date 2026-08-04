@@ -264,8 +264,9 @@ function gerarTabelaUnificada() {
         <td>
           <input type="text" class="input-amort-extra" data-mes="${mes}" 
                  value="${valorAmortExibido}" placeholder="0,00" 
-                 style="width: 90px; height: 26px; text-align: right; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px;"
-                 oninput="tratarEntradaAmortizacaoTabela(this)">
+                 style="width: 95px; height: 26px; text-align: right; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px;"
+                 oninput="mascararDigitoTabela(this)"
+                 onchange="confirmarAmortizacaoTabela(this)">
         </td>
         <!-- SAC -->
         <td>R$ ${parcelaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
@@ -296,27 +297,36 @@ function gerarTabelaUnificada() {
 }
 
 /**
- * Aplica a máscara R$ X.XXX,XX na tabela em tempo real sem perder a posição do foco
+ * Formata visualmente o valor enquanto o usuário digita (sem recriar a tabela)
  */
-function tratarEntradaAmortizacaoTabela(inputEl) {
-  const mes = inputEl.getAttribute('data-mes');
+function mascararDigitoTabela(inputEl) {
   let digitos = inputEl.value.replace(/\D/g, '');
 
   if (!digitos) {
-    delete simState.amortizacoesExtras[mes];
     inputEl.value = '';
-    gerarTabelaUnificada();
     return;
   }
 
   let numFloat = parseFloat(digitos) / 100;
-  simState.amortizacoesExtras[mes] = numFloat;
-
   let numFormatado = numFloat.toFixed(2);
   let partes = numFormatado.split('.');
   partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  
+
   inputEl.value = `R$ ${partes.join(',')}`;
+}
+
+/**
+ * Grava o valor e recalcula a tabela inteira quando o usuário confirma (Enter ou clica fora)
+ */
+function confirmarAmortizacaoTabela(inputEl) {
+  const mes = inputEl.getAttribute('data-mes');
+  const numFloat = parseMoedaParaNumero(inputEl.value);
+
+  if (numFloat > 0) {
+    simState.amortizacoesExtras[mes] = numFloat;
+  } else {
+    delete simState.amortizacoesExtras[mes];
+  }
 
   gerarTabelaUnificada();
 }
