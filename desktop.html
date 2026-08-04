@@ -132,7 +132,7 @@
     </div>
 
     <!-- ==========================================================================
-         MODAL SPEEDSIM - ESTRUTURA LIMPA E SEM DUPLICAÇÃO
+         MODAL SPEEDSIM - MÁSCARA DE MOEDA APLICADA NO ONINPUT
          ========================================================================== -->
     <div id="modal-sobre" class="modal">
         <div class="modal-content-speedsim">
@@ -154,20 +154,20 @@
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <input type="radio" id="rad-imovel" name="base-financiamento" value="imovel" checked onchange="simularFluxo()">
                             <label for="rad-imovel" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Valor do imóvel:</label>
-                            <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" style="width: 140px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" onkeyup="aplicarMascaraMoeda(this)" oninput="simularFluxo()">
+                            <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" style="width: 140px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Valor de Avaliação -->
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <input type="radio" id="rad-avaliacao" name="base-financiamento" value="avaliacao" onchange="simularFluxo()">
                             <label for="rad-avaliacao" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Valor de avaliação:</label>
-                            <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" style="width: 140px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" onkeyup="aplicarMascaraMoeda(this)" oninput="simularFluxo()">
+                            <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" style="width: 140px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Renda Bruta -->
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label for="sim-renda" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Renda bruta:</label>
-                            <input type="text" id="sim-renda" placeholder="R$ 0,00" style="width: 130px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" onkeyup="aplicarMascaraMoeda(this)" oninput="simularFluxo()">
+                            <input type="text" id="sim-renda" placeholder="R$ 0,00" style="width: 130px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Redutor Rádios -->
@@ -198,7 +198,7 @@
                         <!-- FGTS -->
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <label for="sim-fgts" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">FGTS:</label>
-                            <input type="text" id="sim-fgts" placeholder="R$ 0,00" style="width: 120px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" onkeyup="aplicarMascaraMoeda(this)" oninput="simularFluxo()">
+                            <input type="text" id="sim-fgts" placeholder="R$ 0,00" style="width: 120px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Parcelas Entrada -->
@@ -216,7 +216,7 @@
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE (EM 2 LINHAS) -->
+                <!-- CARDS DE RESUMO SAC vs PRICE -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <!-- Card Resumo SAC -->
                     <div class="res-box" style="background-color: rgba(0, 113, 58, 0.05); border: 1.5px solid var(--mrv-verde); text-align: left; padding: 12px; border-radius: 6px;">
@@ -278,7 +278,7 @@
                     </div>
                 </div>
 
-                <!-- TABELA UNIFICADA INTERNA DA MODAL -->
+                <!-- TABELA UNIFICADA -->
                 <div class="speedsim-coluna-tabela">
                     <div class="speedsim-scroll-wrapper" style="max-height: 380px;">
                         <table style="width: 100%; border-collapse: collapse;">
