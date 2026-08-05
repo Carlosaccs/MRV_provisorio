@@ -83,6 +83,27 @@
         }
 
         /* ==========================================================================
+           ESTILIZAÇÃO DOS CARDS DE RESUMO COM ALINHAMENTO VERTICAL
+           ========================================================================== */
+        .res-grid-detalhes {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            row-gap: 4px;
+            column-gap: 10px;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .res-grid-detalhes span {
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .res-grid-detalhes strong {
+            font-size: 0.82rem;
+        }
+
+        /* ==========================================================================
            FIXAÇÃO COMPLETA DO CABEÇALHO DA TABELA UNIFICADA (2 LINHAS STICKY)
            ========================================================================== */
         
@@ -94,11 +115,10 @@
 
         .speedsim-coluna-tabela table thead tr:nth-child(2) th {
             position: sticky !important;
-            top: 32px !important; /* Altura exata da primeira linha */
+            top: 32px !important;
             z-index: 9 !important;
         }
 
-        /* Fundo fixo para a célula mesclada de Mês e Amortização Extra não deixarem passar conteúdo por baixo */
         .speedsim-coluna-tabela table thead tr:nth-child(1) th[rowspan="2"] {
             background-color: #f0f0f0 !important;
             z-index: 11 !important;
@@ -164,7 +184,7 @@
     </div>
 
     <!-- ==========================================================================
-         MODAL SPEEDSIM - CABEÇALHO DUPLO CONGELADO NA ROLAGEM
+         MODAL SPEEDSIM
          ========================================================================== -->
     <div id="modal-sobre" class="modal" style="display: none;">
         <div class="modal-content-speedsim">
@@ -177,117 +197,145 @@
             </p>
             
             <div class="modal-body">
-                <!-- GRID DE INPUTS REORGANIZADO -->
-                <div style="background: #fcfcfc; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
+                <!-- GRID DE INPUTS OTIMIZADO E COMPACTADO -->
+                <div style="background: #fcfcfc; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
                     
-                    <!-- LINHA 1 (Com FGTS subindo) -->
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 12px;">
+                    <!-- LINHA 1 (Encurtada + Sinal) -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px;">
                         <!-- Valor do Imóvel -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 4px;">
                             <input type="radio" id="rad-imovel" name="base-financiamento" value="imovel" checked onchange="simularFluxo()">
-                            <label for="rad-imovel" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Valor do imóvel:</label>
-                            <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" style="width: 125px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
+                            <label for="rad-imovel" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Valor imóvel:</label>
+                            <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" style="width: 105px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Valor de Avaliação -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="display: flex; align-items: center; gap: 4px;">
                             <input type="radio" id="rad-avaliacao" name="base-financiamento" value="avaliacao" onchange="simularFluxo()">
-                            <label for="rad-avaliacao" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Valor de avaliação:</label>
-                            <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" style="width: 125px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
+                            <label for="rad-avaliacao" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Avaliação:</label>
+                            <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" style="width: 105px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Renda Bruta -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <label for="sim-renda" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Renda bruta:</label>
-                            <input type="text" id="sim-renda" placeholder="R$ 0,00" style="width: 115px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label for="sim-renda" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Renda:</label>
+                            <input type="text" id="sim-renda" placeholder="R$ 0,00" style="width: 100px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
-                        <!-- FGTS (Subiu para a Linha 1) -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <label for="sim-fgts" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">FGTS:</label>
-                            <input type="text" id="sim-fgts" placeholder="R$ 0,00" style="width: 105px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
+                        <!-- FGTS -->
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label for="sim-fgts" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">FGTS:</label>
+                            <input type="text" id="sim-fgts" placeholder="R$ 0,00" style="width: 90px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
+                        </div>
+
+                        <!-- Novo Campo SINAL -->
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label for="sim-sinal" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Sinal:</label>
+                            <input type="text" id="sim-sinal" placeholder="R$ 0,00" style="width: 90px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
                         <!-- Redutor Rádios -->
-                        <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
-                            <label style="font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <label style="font-size: 0.78rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;">
                                 <input type="radio" id="redutor-sim" name="opt-redutor" value="sim" checked onchange="simularFluxo()"> Com redutor
                             </label>
-                            <label style="font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <label style="font-size: 0.78rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;">
                                 <input type="radio" id="redutor-nao" name="opt-redutor" value="nao" onchange="simularFluxo()"> Sem redutor
                             </label>
                         </div>
                     </div>
 
-                    <!-- LINHA 2 (Alinhada e limpa) -->
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                    <!-- LINHA 2 -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
                         <!-- Data Nascimento -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <label for="sim-data-nasc" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Data nascimento:</label>
-                            <input type="date" id="sim-data-nasc" style="height: 32px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" onchange="calcularPrazoMaximoPorIdade(); simularFluxo();">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label for="sim-data-nasc" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Data nasc:</label>
+                            <input type="date" id="sim-data-nasc" style="height: 30px; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px;" onchange="calcularPrazoMaximoPorIdade(); simularFluxo();">
                         </div>
 
                         <!-- Prazo Máximo Ajustável -->
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <span style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">máximo de:</span>
-                            <input type="number" id="sim-prazo-finan" value="420" style="width: 60px; height: 32px; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold;" onchange="validarPrazoFinanciamento(this)">
-                            <span style="font-size: 0.8rem; font-weight: bold; color: #333;">parcelas</span>
+                        <div style="display: flex; align-items: center; gap: 3px;">
+                            <span style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">máximo de:</span>
+                            <input type="number" id="sim-prazo-finan" value="420" style="width: 55px; height: 30px; padding: 0 2px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold;" onchange="validarPrazoFinanciamento(this)">
+                            <span style="font-size: 0.78rem; font-weight: bold; color: #333;">parcelas</span>
                         </div>
 
                         <!-- Dependente -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <input type="checkbox" id="sim-dependente" checked style="width: 16px; height: 16px; cursor: pointer;" onchange="simularFluxo()">
-                            <label for="sim-dependente" style="font-size: 0.8rem; font-weight: bold; color: #333; cursor: pointer; white-space: nowrap;">Mais de um comprador/dependente</label>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="sim-dependente" checked style="width: 15px; height: 15px; cursor: pointer;" onchange="simularFluxo()">
+                            <label for="sim-dependente" style="font-size: 0.78rem; font-weight: bold; color: #333; cursor: pointer; white-space: nowrap;">Mais de um comprador/dependente</label>
                         </div>
 
                         <!-- Parcelas Entrada -->
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <label for="sim-num-parcelas" style="font-size: 0.8rem; font-weight: bold; color: #333; white-space: nowrap;">Qtd. Parcelas entrada:</label>
-                            <input type="number" id="sim-num-parcelas" placeholder="Ex: 36" style="width: 65px; height: 32px; padding: 0 8px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label for="sim-num-parcelas" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Qtd. Parc. entrada:</label>
+                            <input type="number" id="sim-num-parcelas" placeholder="Ex: 36" style="width: 55px; height: 30px; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px;" oninput="simularFluxo()">
                         </div>
 
                         <!-- Subsídio -->
-                        <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
-                            <label for="sim-subsidio-val" style="font-size: 0.8rem; font-weight: bold; color: #2e7d32; white-space: nowrap;">Subsídio:</label>
-                            <input type="text" id="sim-subsidio-val" readonly value="R$ 0,00" style="width: 110px; height: 32px; padding: 0 8px; border: 1px solid #a5d6a7; border-radius: 4px; background-color: #e8f5e9; font-weight: bold; color: #2e7d32; text-align: right;">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-left: auto;">
+                            <label for="sim-subsidio-val" style="font-size: 0.78rem; font-weight: bold; color: #2e7d32; white-space: nowrap;">Subsídio:</label>
+                            <input type="text" id="sim-subsidio-val" readonly value="R$ 0,00" style="width: 100px; height: 30px; padding: 0 6px; border: 1px solid #a5d6a7; border-radius: 4px; background-color: #e8f5e9; font-weight: bold; color: #2e7d32; text-align: right;">
                         </div>
                     </div>
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE (Com % em Negrito Preto + Taxa a.a.) -->
+                <!-- CARDS DE RESUMO SAC vs PRICE COM LINHAS ADICIONAIS ALINHADAS -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     
                     <!-- Card Resumo SAC -->
-                    <div class="res-box" style="background-color: rgba(0, 113, 58, 0.05); border: 1.5px solid var(--mrv-verde, #00713a); text-align: left; padding: 12px; border-radius: 6px;">
-                        <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 6px;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
-                        <div style="font-size: 0.8rem; line-height: 1.8;">
-                            <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
-                                <span>Financiamento SAC:</span>
+                    <div class="res-box" style="background-color: rgba(0, 113, 58, 0.04); border: 1.5px solid var(--mrv-verde, #00713a); text-align: left; padding: 12px; border-radius: 6px;">
+                        <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
+                        
+                        <div class="res-grid-detalhes">
+                            <span>Financiamento SAC:</span>
+                            <div>
                                 <strong id="res-finan-sac" style="color: var(--mrv-verde, #00713a);">R$ 0,00</strong>
-                                <span id="res-pct-sac" style="color: #000; font-weight: bold;">(0.0% DO IMÓVEL &bull; 0,00% a.a.)</span>
+                                <span id="res-pct-sac" style="color: #000; font-weight: bold; font-size: 0.78rem; margin-left: 4px;"></span>
                             </div>
-                            <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
-                                <span>Entrada Líquida SAC:</span>
+
+                            <span>Entrada Total:</span>
+                            <strong id="res-entrada-total-sac" style="color: #333;">R$ 0,00</strong>
+
+                            <span>FGTS:</span>
+                            <strong id="res-fgts-sac" style="color: #555;">R$ 0,00</strong>
+
+                            <span>Sinal:</span>
+                            <strong id="res-sinal-sac" style="color: #555;">R$ 0,00</strong>
+
+                            <span style="font-weight: bold; color: #d32f2f;">Entrada Líquida SAC:</span>
+                            <div>
                                 <strong id="res-entrada-sac" style="color: var(--mrv-laranja, #f37021);">R$ 0,00</strong>
-                                <span id="res-parcelas-sac" style="color: #333; font-weight: 600; text-transform: uppercase;"></span>
+                                <span id="res-parcelas-sac" style="color: #333; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; margin-left: 4px;"></span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Card Resumo PRICE -->
-                    <div class="res-box" style="background-color: rgba(0, 0, 0, 0.03); border: 1.5px solid #333; text-align: left; padding: 12px; border-radius: 6px;">
-                        <span style="color: #333; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 6px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
-                        <div style="font-size: 0.8rem; line-height: 1.8;">
-                            <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
-                                <span>Financiamento PRICE:</span>
+                    <div class="res-box" style="background-color: rgba(0, 0, 0, 0.02); border: 1.5px solid #333; text-align: left; padding: 12px; border-radius: 6px;">
+                        <span style="color: #333; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
+                        
+                        <div class="res-grid-detalhes">
+                            <span>Financiamento PRICE:</span>
+                            <div>
                                 <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong>
-                                <span id="res-pct-price" style="color: #000; font-weight: bold;">(0.0% DO IMÓVEL &bull; 0,00% a.a.)</span>
+                                <span id="res-pct-price" style="color: #000; font-weight: bold; font-size: 0.78rem; margin-left: 4px;"></span>
                             </div>
-                            <div style="display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; white-space: nowrap;">
-                                <span>Entrada Líquida PRICE:</span>
+
+                            <span>Entrada Total:</span>
+                            <strong id="res-entrada-total-price" style="color: #333;">R$ 0,00</strong>
+
+                            <span>FGTS:</span>
+                            <strong id="res-fgts-price" style="color: #555;">R$ 0,00</strong>
+
+                            <span>Sinal:</span>
+                            <strong id="res-sinal-price" style="color: #555;">R$ 0,00</strong>
+
+                            <span style="font-weight: bold; color: #d32f2f;">Entrada Líquida PRICE:</span>
+                            <div>
                                 <strong id="res-entrada-price" style="color: var(--mrv-laranja, #f37021);">R$ 0,00</strong>
-                                <span id="res-parcelas-price" style="color: #333; font-weight: 600; text-transform: uppercase;"></span>
+                                <span id="res-parcelas-price" style="color: #333; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; margin-left: 4px;"></span>
                             </div>
                         </div>
                     </div>
@@ -374,22 +422,18 @@
     <script src="anuncios.js" defer></script>
     <script src="simulador.js" defer></script>
 
-    <!-- MOTOR DE CONTROLE, VALIDAÇÕES E MÁSCARAS INTEGRADO -->
+    <!-- MOTOR DE CONTROLE INTEGRADO -->
     <script>
         let limiteCalculadoAbsoluto = 420;
 
         function fecharSpeedSim() {
             const modal = document.getElementById('modal-sobre');
-            if (modal) {
-                modal.style.display = 'none';
-            }
+            if (modal) modal.style.display = 'none';
         }
 
         function abrirSpeedSim() {
             const modal = document.getElementById('modal-sobre');
-            if (modal) {
-                modal.style.display = 'block';
-            }
+            if (modal) modal.style.display = 'block';
         }
 
         function tratarEntradaMoeda(input) {
@@ -406,14 +450,6 @@
             if (typeof simularFluxo === 'function') simularFluxo();
         }
 
-        function obterValorNumerico(id) {
-            const elem = document.getElementById(id);
-            if (!elem || !elem.value) return 0;
-            let val = elem.value.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
-            return parseFloat(val) || 0;
-        }
-
-        /* CALCULO DE FRAÇÃO DE MESES PARA IDADE (RETORNANDO À PRECISÃO ANTERIOR) */
         function calcularPrazoMaximoPorIdade() {
             const campoData = document.getElementById('sim-data-nasc');
             const campoPrazo = document.getElementById('sim-prazo-finan');
@@ -440,29 +476,20 @@
             }
 
             const idadeEmMeses = (anos * 12) + meses;
-            const limiteMaximoRegra = 971; // 80 anos e 11 meses (971 meses)
+            const limiteMaximoRegra = 971; // 80 anos e 11 meses
             let saldoMeses = limiteMaximoRegra - idadeEmMeses;
 
-            if (saldoMeses > 420) {
-                saldoMeses = 420;
-            }
-
-            if (saldoMeses < 120) {
-                saldoMeses = 120;
-            }
+            if (saldoMeses > 420) saldoMeses = 420;
+            if (saldoMeses < 120) saldoMeses = 120;
 
             limiteCalculadoAbsoluto = saldoMeses;
-            if (campoPrazo) {
-                campoPrazo.value = saldoMeses;
-            }
+            if (campoPrazo) campoPrazo.value = saldoMeses;
         }
 
         function validarPrazoFinanciamento(input) {
             let val = parseInt(input.value, 10);
 
-            if (isNaN(val)) {
-                val = limiteCalculadoAbsoluto;
-            }
+            if (isNaN(val)) val = limiteCalculadoAbsoluto;
 
             if (val > limiteCalculadoAbsoluto) {
                 alert(`${limiteCalculadoAbsoluto} parcelas é o máximo e 120 é o mínimo para esta idade/simulação.`);
@@ -472,27 +499,18 @@
                 input.value = 120;
             }
 
-            if (typeof simularFluxo === 'function') {
-                simularFluxo();
-            }
+            if (typeof simularFluxo === 'function') simularFluxo();
         }
 
         window.addEventListener('load', () => {
-            console.log("Todos os recursos e scripts foram totalmente carregados.");
-            
             const btnSobre = document.getElementById('btn-sobre');
-            if (btnSobre) {
-                btnSobre.addEventListener('click', abrirSpeedSim);
-            }
+            if (btnSobre) btnSobre.addEventListener('click', abrirSpeedSim);
 
             if (typeof iniciarApp === 'function') {
                 iniciarApp();
             } else {
-                console.error("Erro Crítico: A função 'iniciarApp' não foi encontrada no escopo global.");
                 setTimeout(() => {
-                    if (typeof iniciarApp === 'function') {
-                        iniciarApp();
-                    }
+                    if (typeof iniciarApp === 'function') iniciarApp();
                 }, 500);
             }
         });
