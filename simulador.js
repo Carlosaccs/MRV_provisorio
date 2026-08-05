@@ -196,6 +196,14 @@ function simularFluxo() {
 
   if (valImovel <= 0 || renda <= 0) {
     document.getElementById('sim-subsidio-val').value = "R$ 0,00";
+    
+    // Atualiza campo de taxa de juros zerado caso não haja simulação válida
+    const elTaxaJuros = document.getElementById('sim-taxa-juros') || document.getElementById('sim-taxa-val');
+    if (elTaxaJuros) {
+      if (elTaxaJuros.tagName === 'INPUT') elTaxaJuros.value = "0,00 %";
+      else elTaxaJuros.innerText = "0,00 %";
+    }
+
     document.getElementById('res-finan-price').innerText = "R$ 0,00";
     document.getElementById('res-pct-price').innerText = "";
     document.getElementById('res-entrada-price').innerText = "R$ 0,00";
@@ -220,6 +228,14 @@ function simularFluxo() {
   const params = buscarParametrosCredilar(renda, comRedutor, comDependente);
   
   document.getElementById('sim-subsidio-val').value = `R$ ${params.subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+  // Atualiza dinamicamente a taxa de juros ao ano na tela
+  const elTaxaJuros = document.getElementById('sim-taxa-juros') || document.getElementById('sim-taxa-val');
+  if (elTaxaJuros) {
+    const txFormatada = `${params.taxa.toFixed(2).replace('.', ',')} % a.a.`;
+    if (elTaxaJuros.tagName === 'INPUT') elTaxaJuros.value = txFormatada;
+    else elTaxaJuros.innerText = txFormatada;
+  }
 
   const limite80Base = baseCalculo * 0.80;
 
