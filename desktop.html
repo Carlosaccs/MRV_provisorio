@@ -83,24 +83,29 @@
         }
 
         /* ==========================================================================
-           ESTILIZAÇÃO DOS CARDS DE RESUMO COM ALINHAMENTO VERTICAL
+           ESTILIZAÇÃO DOS CARDS DE RESUMO COM 1 ÚNICA LINHA POR ITEM
            ========================================================================== */
         .res-grid-detalhes {
             display: grid;
-            grid-template-columns: 140px 1fr;
-            row-gap: 4px;
-            column-gap: 10px;
+            grid-template-columns: 130px 1fr;
+            row-gap: 5px;
+            column-gap: 8px;
             align-items: center;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
         }
 
-        .res-grid-detalhes span {
+        .res-grid-detalhes > span {
             color: #555;
             white-space: nowrap;
         }
 
-        .res-grid-detalhes strong {
-            font-size: 0.82rem;
+        .res-linha-inline {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* ==========================================================================
@@ -197,10 +202,10 @@
             </p>
             
             <div class="modal-body">
-                <!-- GRID DE INPUTS OTIMIZADO E COMPACTADO -->
+                <!-- GRID DE INPUTS COMPACTADO -->
                 <div style="background: #fcfcfc; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
                     
-                    <!-- LINHA 1 (Encurtada + Sinal) -->
+                    <!-- LINHA 1 -->
                     <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px;">
                         <!-- Valor do Imóvel -->
                         <div style="display: flex; align-items: center; gap: 4px;">
@@ -228,7 +233,7 @@
                             <input type="text" id="sim-fgts" placeholder="R$ 0,00" style="width: 90px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
-                        <!-- Novo Campo SINAL -->
+                        <!-- Sinal -->
                         <div style="display: flex; align-items: center; gap: 4px;">
                             <label for="sim-sinal" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Sinal:</label>
                             <input type="text" id="sim-sinal" placeholder="R$ 0,00" style="width: 90px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
@@ -281,7 +286,7 @@
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE COM LINHAS ADICIONAIS ALINHADAS -->
+                <!-- CARDS DE RESUMO SAC vs PRICE COM LINHAS ÚNICAS -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     
                     <!-- Card Resumo SAC -->
@@ -289,25 +294,31 @@
                         <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
                         
                         <div class="res-grid-detalhes">
-                            <span>Financiamento SAC:</span>
-                            <div>
+                            <span>FINANCIAMENTO SAC:</span>
+                            <div class="res-linha-inline">
                                 <strong id="res-finan-sac" style="color: var(--mrv-verde, #00713a);">R$ 0,00</strong>
-                                <span id="res-pct-sac" style="color: #000; font-weight: bold; font-size: 0.78rem; margin-left: 4px;"></span>
+                                <span id="res-pct-sac" style="color: #000; font-weight: bold;"></span>
                             </div>
 
-                            <span>Entrada Total:</span>
-                            <strong id="res-entrada-total-sac" style="color: #333;">R$ 0,00</strong>
+                            <span>ENTRADA TOTAL:</span>
+                            <div class="res-linha-inline">
+                                <strong id="res-entrada-total-sac" style="color: #333;">R$ 0,00</strong>
+                            </div>
 
                             <span>FGTS:</span>
-                            <strong id="res-fgts-sac" style="color: #555;">R$ 0,00</strong>
+                            <div class="res-linha-inline">
+                                <strong id="res-fgts-sac" style="color: #555;">R$ 0,00</strong>
+                            </div>
 
-                            <span>Sinal:</span>
-                            <strong id="res-sinal-sac" style="color: #555;">R$ 0,00</strong>
+                            <span>SINAL:</span>
+                            <div class="res-linha-inline">
+                                <strong id="res-sinal-sac" style="color: #555;">R$ 0,00</strong>
+                            </div>
 
-                            <span style="font-weight: bold; color: #d32f2f;">Entrada Líquida SAC:</span>
-                            <div>
+                            <span style="font-weight: bold; color: #d32f2f;">ENTRADA LÍQUIDA SAC:</span>
+                            <div class="res-linha-inline">
                                 <strong id="res-entrada-sac" style="color: var(--mrv-laranja, #f37021);">R$ 0,00</strong>
-                                <span id="res-parcelas-sac" style="color: #333; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; margin-left: 4px;"></span>
+                                <span id="res-parcelas-sac" style="color: #333; font-weight: 600; text-transform: uppercase;"></span>
                             </div>
                         </div>
                     </div>
@@ -317,25 +328,31 @@
                         <span style="color: #333; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
                         
                         <div class="res-grid-detalhes">
-                            <span>Financiamento PRICE:</span>
-                            <div>
+                            <span>FINANCIAMENTO PRICE:</span>
+                            <div class="res-linha-inline">
                                 <strong id="res-finan-price" style="color: #333;">R$ 0,00</strong>
-                                <span id="res-pct-price" style="color: #000; font-weight: bold; font-size: 0.78rem; margin-left: 4px;"></span>
+                                <span id="res-pct-price" style="color: #000; font-weight: bold;"></span>
                             </div>
 
-                            <span>Entrada Total:</span>
-                            <strong id="res-entrada-total-price" style="color: #333;">R$ 0,00</strong>
+                            <span>ENTRADA TOTAL:</span>
+                            <div class="res-linha-inline">
+                                <strong id="res-entrada-total-price" style="color: #333;">R$ 0,00</strong>
+                            </div>
 
                             <span>FGTS:</span>
-                            <strong id="res-fgts-price" style="color: #555;">R$ 0,00</strong>
+                            <div class="res-linha-inline">
+                                <strong id="res-fgts-price" style="color: #555;">R$ 0,00</strong>
+                            </div>
 
-                            <span>Sinal:</span>
-                            <strong id="res-sinal-price" style="color: #555;">R$ 0,00</strong>
+                            <span>SINAL:</span>
+                            <div class="res-linha-inline">
+                                <strong id="res-sinal-price" style="color: #555;">R$ 0,00</strong>
+                            </div>
 
-                            <span style="font-weight: bold; color: #d32f2f;">Entrada Líquida PRICE:</span>
-                            <div>
+                            <span style="font-weight: bold; color: #d32f2f;">ENTRADA LÍQUIDA PRICE:</span>
+                            <div class="res-linha-inline">
                                 <strong id="res-entrada-price" style="color: var(--mrv-laranja, #f37021);">R$ 0,00</strong>
-                                <span id="res-parcelas-price" style="color: #333; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; margin-left: 4px;"></span>
+                                <span id="res-parcelas-price" style="color: #333; font-weight: 600; text-transform: uppercase;"></span>
                             </div>
                         </div>
                     </div>
