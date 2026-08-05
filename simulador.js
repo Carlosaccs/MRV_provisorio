@@ -122,7 +122,13 @@ function simularFluxo() {
   const limite80Base = baseCalculo * 0.80;
 
   const finanPriceCapacidade = Math.min(limite80Base, params.tetoFinanBase);
-  const finanSacCapacidade = finanPriceCapacidade * 0.92;
+
+  const prestacaoMaximaRenda = renda * 0.30;
+  const iMensalMCMV = Math.pow(1 + (params.taxa / 100), 1 / 12) - 1;
+  const fatorSacPrimeiraParc = (1 / simState.prazoMeses) + iMensalMCMV;
+  const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
+ 
+  const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
   const pctPrice = ((finanPriceCapacidade / valImovel) * 100).toFixed(1);
   const pctSac = ((finanSacCapacidade / valImovel) * 100).toFixed(1);
