@@ -46,7 +46,6 @@
         }
 
         button#btn-documentos, 
-        button#btn-sobre,
         button#btn-anuncio {
             all: unset !important;
             box-sizing: border-box !important;
@@ -54,7 +53,7 @@
             color: #004d24 !important;
             border-radius: 4px !important;
             height: 34px !important;
-            padding: 0 18px !important;
+            padding: 0 16px !important;
             font-weight: bold !important;
             font-size: 0.8rem !important;
             text-transform: uppercase !important;
@@ -68,8 +67,7 @@
             white-space: nowrap !important;
         }
 
-        button#btn-documentos:hover, 
-        button#btn-sobre:hover {
+        button#btn-documentos:hover {
             background-color: #e0a60f !important;
         }
 
@@ -82,27 +80,57 @@
             background-color: #dca206 !important;
         }
 
+        /* BOTÃO SPEEDSIM DESTACADO E IMPONENTE */
+        button#btn-sobre {
+            all: unset !important;
+            box-sizing: border-box !important;
+            background-color: #00713a !important;
+            color: #ffffff !important;
+            border: 1px solid #00562c !important;
+            border-radius: 4px !important;
+            height: 34px !important;
+            padding: 0 18px !important;
+            font-weight: bold !important;
+            font-size: 0.82rem !important;
+            text-transform: uppercase !important;
+            cursor: pointer !important;
+            text-align: center !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease !important;
+            white-space: nowrap !important;
+        }
+
+        button#btn-sobre:hover {
+            background-color: #008a47 !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+        }
+
         /* ==========================================================================
-           ESTILIZAÇÃO DOS CARDS DE RESUMO COM 1 ÚNICA LINHA POR ITEM
+           ESTILIZAÇÃO PADRONIZADA DOS CARDS DE RESUMO (SAC & PRICE IGUAIS)
            ========================================================================== */
         .res-grid-detalhes {
             display: grid;
-            grid-template-columns: 130px 1fr;
-            row-gap: 5px;
-            column-gap: 8px;
+            grid-template-columns: 145px 1fr;
+            row-gap: 6px;
+            column-gap: 10px;
             align-items: center;
             font-size: 0.78rem;
         }
 
         .res-grid-detalhes > span {
-            color: #555;
+            color: #444;
+            font-weight: 600;
             white-space: nowrap;
         }
 
         .res-linha-inline {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -164,7 +192,7 @@
         <div class="container-botoes-mrv">
             <button id="btn-anuncio">🚀 Anúncio Clique-Único (Breve)</button>
             <button id="btn-documentos">Documentos</button>
-            <button id="btn-sobre">Speedsim</button>
+            <button id="btn-sobre">📊 SPEEDSIM simulador de MCMV</button>
         </div>
     </div>
 
@@ -286,7 +314,7 @@
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE COM LINHAS ÚNICAS -->
+                <!-- CARDS DE RESUMO SAC vs PRICE TOTALMENTE PADRONIZADOS -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     
                     <!-- Card Resumo SAC -->
@@ -323,9 +351,9 @@
                         </div>
                     </div>
 
-                    <!-- Card Resumo PRICE -->
-                    <div class="res-box" style="background-color: rgba(0, 0, 0, 0.02); border: 1.5px solid #333; text-align: left; padding: 12px; border-radius: 6px;">
-                        <span style="color: #333; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
+                    <!-- Card Resumo PRICE (PADRONIZADO COM A MESMA PALETA E LARGURA DE COLUNA) -->
+                    <div class="res-box" style="background-color: rgba(0, 113, 58, 0.04); border: 1.5px solid var(--mrv-verde, #00713a); text-align: left; padding: 12px; border-radius: 6px;">
+                        <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
                         
                         <div class="res-grid-detalhes">
                             <span>FINANCIAMENTO PRICE:</span>
