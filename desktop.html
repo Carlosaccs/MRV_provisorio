@@ -80,42 +80,37 @@
             background-color: #dca206 !important;
         }
 
-/* BOTÃO SPEEDSIM EM AZUL MÉDIO DESTACADO */
-button#btn-sobre {
-    all: unset !important;
-    box-sizing: border-box !important;
-    background-color: #0066cc !important; /* Azul Médio Vibrante */
-    color: #ffffff !important;
-    border: 1px solid #004488 !important;
-    border-radius: 4px !important;
-    height: 34px !important;
-    padding: 0 18px !important;
-    font-weight: bold !important;
-    font-size: 0.82rem !important;
-    text-transform: uppercase !important;
-    cursor: pointer !important;
-    text-align: center !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
-    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease !important;
-    white-space: nowrap !important;
-}
-
-button#btn-sobre:hover {
-    background-color: #004e9a !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.35) !important;
-}
+        /* BOTÃO SPEEDSIM DESTACADO EM AZUL MÉDIO VIBRANTE */
+        button#btn-sobre {
+            all: unset !important;
+            box-sizing: border-box !important;
+            background-color: #0066cc !important;
+            color: #ffffff !important;
+            border: 1px solid #004488 !important;
+            border-radius: 4px !important;
+            height: 34px !important;
+            padding: 0 18px !important;
+            font-weight: bold !important;
+            font-size: 0.82rem !important;
+            text-transform: uppercase !important;
+            cursor: pointer !important;
+            text-align: center !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease !important;
+            white-space: nowrap !important;
+        }
 
         button#btn-sobre:hover {
-            background-color: #008a47 !important;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+            background-color: #004e9a !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.35) !important;
         }
 
         /* ==========================================================================
-           ESTILIZAÇÃO PADRONIZADA DOS CARDS DE RESUMO (SAC & PRICE IGUAIS)
+           ESTILIZAÇÃO PADRONIZADA DOS CARDS DE RESUMO & BOTÕES DE IMPRESSÃO
            ========================================================================== */
         .res-grid-detalhes {
             display: grid;
@@ -139,6 +134,23 @@ button#btn-sobre:hover {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .btn-imprimir-card {
+            background-color: #ffffff;
+            color: var(--mrv-verde, #00713a);
+            border: 1px solid var(--mrv-verde, #00713a);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-imprimir-card:hover {
+            background-color: var(--mrv-verde, #00713a);
+            color: #ffffff;
         }
 
         /* ==========================================================================
@@ -197,7 +209,7 @@ button#btn-sobre:hover {
         <div class="container-botoes-mrv">
             <button id="btn-anuncio">🚀 Anúncio Clique-Único (Breve)</button>
             <button id="btn-documentos">Documentos</button>
-            <button id="btn-sobre">📊 SPEEDSIM simulador de MCMV</button>
+            <button id="btn-sobre">📊 SPEEDSIM SIMULADOR DE MCMV</button>
         </div>
     </div>
 
@@ -319,12 +331,15 @@ button#btn-sobre:hover {
 
                 </div>
 
-                <!-- CARDS DE RESUMO SAC vs PRICE TOTALMENTE PADRONIZADOS -->
+                <!-- CARDS DE RESUMO SAC vs PRICE COM BOTÃO DE IMPRESSÃO -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     
                     <!-- Card Resumo SAC -->
                     <div class="res-box" style="background-color: rgba(0, 113, 58, 0.04); border: 1.5px solid var(--mrv-verde, #00713a); text-align: left; padding: 12px; border-radius: 6px;">
-                        <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem;">SISTEMA SAC (PARCELAS DECRESCENTES)</span>
+                            <button class="btn-imprimir-card" onclick="imprimirFichaSimulacao('SAC')">🖨️ Imprimir SAC</button>
+                        </div>
                         
                         <div class="res-grid-detalhes">
                             <span>FINANCIAMENTO SAC:</span>
@@ -356,9 +371,12 @@ button#btn-sobre:hover {
                         </div>
                     </div>
 
-                    <!-- Card Resumo PRICE (PADRONIZADO COM A MESMA PALETA E LARGURA DE COLUNA) -->
+                    <!-- Card Resumo PRICE -->
                     <div class="res-box" style="background-color: rgba(0, 113, 58, 0.04); border: 1.5px solid var(--mrv-verde, #00713a); text-align: left; padding: 12px; border-radius: 6px;">
-                        <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 8px;">SISTEMA PRICE (PARCELAS FIXAS)</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: var(--mrv-verde, #00713a); font-weight: bold; font-size: 0.85rem;">SISTEMA PRICE (PARCELAS FIXAS)</span>
+                            <button class="btn-imprimir-card" onclick="imprimirFichaSimulacao('PRICE')">🖨️ Imprimir PRICE</button>
+                        </div>
                         
                         <div class="res-grid-detalhes">
                             <span>FINANCIAMENTO PRICE:</span>
@@ -550,6 +568,133 @@ button#btn-sobre:hover {
             }
 
             if (typeof simularFluxo === 'function') simularFluxo();
+        }
+
+        /* FUNÇÃO PARA IMPRESSÃO DA FICHA DE SIMULAÇÃO */
+        function imprimirFichaSimulacao(tipoSistema) {
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            const renda = document.getElementById('sim-renda')?.value || 'R$ 0,00';
+            const sinal = document.getElementById('sim-sinal')?.value || 'R$ 0,00';
+            const fgts = document.getElementById('sim-fgts')?.value || 'R$ 0,00';
+            
+            const rawDataNasc = document.getElementById('sim-data-nasc')?.value;
+            let dataNasc = 'Não informada';
+            if (rawDataNasc) {
+                const p = rawDataNasc.split('-');
+                if (p.length === 3) dataNasc = `${p[2]}/${p[1]}/${p[0]}`;
+            }
+
+            const dependente = document.getElementById('sim-dependente')?.checked ? 'Sim' : 'Não';
+            const valImovel = document.getElementById('sim-val-imovel')?.value || 'R$ 0,00';
+            const prazo = (document.getElementById('sim-prazo-finan')?.value || '420') + ' meses';
+            const numParcEntrada = document.getElementById('sim-num-parcelas')?.value || '1';
+
+            let finanVal = 'R$ 0,00';
+            let taxaAA = '';
+            let entradaTotal = 'R$ 0,00';
+            let entradaLiquida = 'R$ 0,00';
+            let parcEntradaValor = 'R$ 0,00';
+            let primeiraParc = 'R$ 0,00';
+            let ultimaParc = 'R$ 0,00';
+
+            const tbody = document.getElementById('tabela-unificada-body');
+            const linhas = tbody ? tbody.getElementsByTagName('tr') : [];
+
+            if (tipoSistema === 'SAC') {
+                finanVal = document.getElementById('res-finan-sac')?.innerText || 'R$ 0,00';
+                taxaAA = document.getElementById('res-pct-sac')?.innerText || '';
+                entradaTotal = document.getElementById('res-entrada-total-sac')?.innerText || 'R$ 0,00';
+                entradaLiquida = document.getElementById('res-entrada-sac')?.innerText || 'R$ 0,00';
+                
+                const textoParc = document.getElementById('res-parcelas-sac')?.innerText || '';
+                const match = textoParc.match(/DE\s+(R\$\s*[\d\.,]+)/i);
+                if (match) parcEntradaValor = match[1];
+
+                if (linhas.length > 0) {
+                    const cols1 = linhas[0].getElementsByTagName('td');
+                    if (cols1.length >= 5) primeiraParc = cols1[2].innerText;
+
+                    const colsUlt = linhas[linhas.length - 1].getElementsByTagName('td');
+                    if (colsUlt.length >= 5) ultimaParc = colsUlt[2].innerText;
+                }
+            } else {
+                finanVal = document.getElementById('res-finan-price')?.innerText || 'R$ 0,00';
+                taxaAA = document.getElementById('res-pct-price')?.innerText || '';
+                entradaTotal = document.getElementById('res-entrada-total-price')?.innerText || 'R$ 0,00';
+                entradaLiquida = document.getElementById('res-entrada-price')?.innerText || 'R$ 0,00';
+
+                const textoParc = document.getElementById('res-parcelas-price')?.innerText || '';
+                const match = textoParc.match(/DE\s+(R\$\s*[\d\.,]+)/i);
+                if (match) parcEntradaValor = match[1];
+
+                if (linhas.length > 0) {
+                    const cols1 = linhas[0].getElementsByTagName('td');
+                    if (cols1.length >= 8) primeiraParc = cols1[5].innerText;
+
+                    const colsUlt = linhas[linhas.length - 1].getElementsByTagName('td');
+                    if (colsUlt.length >= 8) ultimaParc = colsUlt[5].innerText;
+                }
+            }
+
+            const win = window.open('', '_blank', 'width=800,height=900');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Simulação MCMV - ${tipoSistema}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        th, td { border: 1px solid #333; padding: 8px 12px; text-align: left; font-size: 0.9rem; }
+                        th { background-color: #f2f2f2; text-align: center; font-size: 1.05rem; text-transform: uppercase; }
+                        .secao-header { background-color: #fafafa; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th colspan="2">SIMULAÇÃO DE VALORES MCMV – SISTEMA DE AMORTIZAÇÃO ${tipoSistema}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="width: 50%;">Data:</td><td><strong>${hoje}</strong></td></tr>
+                            <tr><td>Renda:</td><td><strong>${renda}</strong></td></tr>
+                            <tr><td>Recursos para o Sinal:</td><td><strong>${sinal}</strong></td></tr>
+                            <tr><td>FGTS:</td><td><strong>${fgts}</strong></td></tr>
+                            <tr><td>Data nascimento:</td><td><strong>${dataNasc}</strong></td></tr>
+                            <tr><td>Mais de 1 comprador ou dependente:</td><td><strong>${dependente}</strong></td></tr>
+                            <tr><td>Valor do imóvel:</td><td><strong>${valImovel}</strong></td></tr>
+                            
+                            <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
+
+                            <tr><td>FINANCIAMENTO:</td><td><strong>${finanVal} ${taxaAA}</strong></td></tr>
+                            <tr><td>Prazo:</td><td><strong>${prazo}</strong></td></tr>
+                            <tr><td>1ª prestação:</td><td><strong>${primeiraParc}</strong></td></tr>
+                            <tr><td>Última prestação:</td><td><strong>${ultimaParc}</strong></td></tr>
+                            
+                            <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
+
+                            <tr><td>ENTRADA TOTAL:</td><td><strong>${entradaTotal}</strong></td></tr>
+                            <tr>
+                                <td style="vertical-align: top;">Forma de pagamento da Entrada:</td>
+                                <td>
+                                    ${sinal !== 'R$ 0,00' ? `<strong>${sinal}</strong> de sinal<br>` : ''}
+                                    ${fgts !== 'R$ 0,00' ? `<strong>${fgts}</strong> de FGTS<br>` : ''}
+                                    mais <strong>${numParcEntrada} parcelas</strong> no valor de <strong>${parcEntradaValor}</strong> cada corrigidas pelo INCC
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
         }
 
         window.addEventListener('load', () => {
