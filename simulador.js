@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Com ajuste automático do prazo máximo pela idade e validação somente em caso de digitação excedente.
+ * Com sincronização perfeita de prazos e exibição da taxa a.a. nos resumos.
  */
 
 const CREDILAR_MATRIZ = [
@@ -51,92 +51,11 @@ let simState = {
   amortizacoesExtras: {}
 };
 
-const LIMITE_IDADE_PRAZO_MESES = 966; // 80 anos e 6 meses regra Caixa
-
-function calcularIdadeEmMeses(dataNasc) {
-  if (!dataNasc) return 0;
-  const hoje = new Date();
-  const nascimento = new Date(dataNasc);
-  let anos = hoje.getFullYear() - nascimento.getFullYear();
-  let meses = hoje.getMonth() - nascimento.getMonth();
-  if (meses < 0 || (meses === 0 && hoje.getDate() < nascimento.getDate())) {
-    anos--;
-    meses += 12;
-  }
-  return (anos * 12) + meses;
-}
-
-function tratarEntradaMoeda(input) {
-  let digitos = input.value.replace(/\D/g, '');
-  if (!digitos) {
-    input.value = '';
-    simularFluxo();
-    return;
-  }
-  let num = (parseInt(digitos, 10) / 100).toFixed(2);
-  let partes = num.split('.');
-  partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  input.value = `R$ ${partes.join(',')}`;
-  simularFluxo();
-}
-
 function parseMoedaParaNumero(valorString) {
   if (!valorString) return 0;
   let limpo = valorString.replace(/[^\d]/g, '');
   if (!limpo) return 0;
   return parseFloat(limpo) / 100;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const btnSpeedsim = document.getElementById('btn-sobre');
-  if (btnSpeedsim) btnSpeedsim.addEventListener('click', abrirSpeedSim);
-
-  const modal = document.getElementById('modal-sobre');
-  if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) fecharSpeedSim();
-    });
-  }
-
-  // Evento para quando o usuário alterar a data de nascimento (atualiza o prazo automaticamente sem alerta)
-  const inputNasc = document.getElementById('sim-data-nasc');
-  if (inputNasc) {
-    inputNasc.addEventListener('change', () => {
-      atualizarPrazoAutomaticoPorNascimento();
-      simularFluxo();
-    });
-  }
-});
-
-function abrirSpeedSim() {
-  const modal = document.getElementById('modal-sobre');
-  if (!modal) return;
-  modal.style.display = 'block';
-  atualizarPrazoAutomaticoPorNascimento();
-  simularFluxo();
-}
-
-function fecharSpeedSim() {
-  const modal = document.getElementById('modal-sobre');
-  if (modal) modal.style.display = 'none';
-}
-
-// Atualiza o campo de prazo de forma limpa ao trocar a data de nascimento (sem estourar aviso)
-function atualizarPrazoAutomaticoPorNascimento() {
-  const dataNascVal = document.getElementById('sim-data-nasc')?.value;
-  const inputPrazoEl = document.getElementById('sim-prazo');
-  const alertaEl = document.getElementById('alerta-prazo-modal');
-
-  if (!dataNascVal || !inputPrazoEl) return;
-
-  const idadeMeses = calcularIdadeEmMeses(dataNascVal);
-  const prazoMaximoPermitido = Math.max(0, LIMITE_IDADE_PRAZO_MESES - idadeMeses);
-  
-  // Define o teto máximo permitido (limitado a 420 caso seja jovem, ou o teto da idade se for mais velho)
-  const novoPrazo = Math.min(420, prazoMaximoPermitido);
-  
-  inputPrazoEl.value = novoPrazo;
-  if (alertaEl) alertaEl.style.display = 'none'; // Esconde qualquer alerta anterior
 }
 
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
@@ -164,30 +83,9 @@ function simularFluxo() {
   const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
   const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
 
-  // Validação caso o usuário digite manualmente um prazo maior que o teto da idade
-  const dataNascVal = document.getElementById('sim-data-nasc')?.value;
-  const inputPrazoEl = document.getElementById('sim-prazo');
-  const alertaEl = document.getElementById('alerta-prazo-modal');
-  
+  // CORREÇÃO CRÍTICA: Busca pelo ID correto do campo de prazo (sim-prazo-finan)
+  const inputPrazoEl = document.getElementById('sim-prazo-finan');
   let prazoDesejadoInput = parseInt(inputPrazoEl?.value) || 420;
-
-  if (dataNascVal) {
-    const idadeMeses = calcularIdadeEmMeses(dataNascVal);
-    const prazoMaximoPermitido = Math.max(0, LIMITE_IDADE_PRAZO_MESES - idadeMeses);
-
-    if (prazoDesejadoInput > prazoMaximoPermitido) {
-      // Se tentou forçar um número maior digitando, exibe o aviso e ajusta para baixo
-      prazoDesejadoInput = prazoMaximoPermitido;
-      if (inputPrazoEl) inputPrazoEl.value = prazoDesejadoInput;
-      
-      if (alertaEl) {
-        alertaEl.style.display = 'block';
-        alertaEl.innerHTML = `<strong>Atenção:</strong> O prazo informado excede o limite máximo permitido pela norma da Caixa (Idade + Prazo ≤ 966 meses). O prazo foi ajustado automaticamente para o teto de <strong>${prazoMaximoPermitido} meses</strong>.`;
-      }
-    } else {
-      if (alertaEl) alertaEl.style.display = 'none';
-    }
-  }
 
   simState.prazoMeses = prazoDesejadoInput > 0 ? prazoDesejadoInput : 1;
 
@@ -196,21 +94,13 @@ function simularFluxo() {
 
   if (valImovel <= 0 || renda <= 0) {
     document.getElementById('sim-subsidio-val').value = "R$ 0,00";
-    
-    // Atualiza campo de taxa de juros zerado caso não haja simulação válida
-    const elTaxaJuros = document.getElementById('sim-taxa-juros') || document.getElementById('sim-taxa-val');
-    if (elTaxaJuros) {
-      if (elTaxaJuros.tagName === 'INPUT') elTaxaJuros.value = "0,00 %";
-      else elTaxaJuros.innerText = "0,00 %";
-    }
-
     document.getElementById('res-finan-price').innerText = "R$ 0,00";
-    document.getElementById('res-pct-price').innerText = "";
+    document.getElementById('res-pct-price').innerHTML = "";
     document.getElementById('res-entrada-price').innerText = "R$ 0,00";
     document.getElementById('res-parcelas-price').innerText = "";
 
     document.getElementById('res-finan-sac').innerText = "R$ 0,00";
-    document.getElementById('res-pct-sac').innerText = "";
+    document.getElementById('res-pct-sac').innerHTML = "";
     document.getElementById('res-entrada-sac').innerText = "R$ 0,00";
     document.getElementById('res-parcelas-sac').innerText = "";
 
@@ -229,14 +119,6 @@ function simularFluxo() {
   
   document.getElementById('sim-subsidio-val').value = `R$ ${params.subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
 
-  // Atualiza dinamicamente a taxa de juros ao ano na tela
-  const elTaxaJuros = document.getElementById('sim-taxa-juros') || document.getElementById('sim-taxa-val');
-  if (elTaxaJuros) {
-    const txFormatada = `${params.taxa.toFixed(2).replace('.', ',')} % a.a.`;
-    if (elTaxaJuros.tagName === 'INPUT') elTaxaJuros.value = txFormatada;
-    else elTaxaJuros.innerText = txFormatada;
-  }
-
   const limite80Base = baseCalculo * 0.80;
 
   const finanPriceCapacidade = Math.min(limite80Base, params.tetoFinanBase);
@@ -251,13 +133,16 @@ function simularFluxo() {
   const parcPriceEntrada = numParcelas > 0 ? (entradaPriceLequida / numParcelas) : 0;
   const parcSacEntrada = numParcelas > 0 ? (entradaSacLequida / numParcelas) : 0;
 
+  // CORREÇÃO DOS TEXTOS COM TAXA DE JUROS A.A. EM NEGRITO
+  const txFormatada = params.taxa.toFixed(2).replace('.', ',');
+
   document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-price').innerText = `(${pctPrice}% DO IMÓVEL)`;
+  document.getElementById('res-pct-price').innerHTML = `<strong>(${pctPrice}% DO IMÓVEL &bull; ${txFormatada}% a.a.)</strong>`;
   document.getElementById('res-entrada-price').innerText = `R$ ${entradaPriceLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-parcelas-price').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-sac').innerText = `(${pctSac}% DO IMÓVEL)`;
+  document.getElementById('res-pct-sac').innerHTML = `<strong>(${pctSac}% DO IMÓVEL &bull; ${txFormatada}% a.a.)</strong>`;
   document.getElementById('res-entrada-sac').innerText = `R$ ${entradaSacLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-parcelas-sac').innerText = `EM ${numParcelas}X DE R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
@@ -288,7 +173,7 @@ function calcularTotaisIniciaisFixos(PSac, PPrice, n, iMensal) {
 function gerarTabelaUnificada() {
   const PSac = simState.valorFinanciadoSac;
   const PPrice = simState.valorFinanciadoPrice;
-  const n = simState.prazoMeses;
+  const n = simState.prazoMeses; // Agora receberá exatamente os 304 meses da tela
   const iMensal = Math.pow(1 + (simState.taxaJurosAnual / 100), 1 / 12) - 1;
 
   const tbody = document.getElementById('tabela-unificada-body');
