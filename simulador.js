@@ -96,7 +96,8 @@ function simularFluxo() {
     document.getElementById('sim-subsidio-val').value = "R$ 0,00";
     
     // Zera elementos do SAC
-    document.getElementById('res-finan-sac').innerText = "R$ 0,00";
+    // Dentro de simularFluxo() no simulador.js:
+    document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     document.getElementById('res-pct-sac').innerHTML = "";
     document.getElementById('res-entrada-total-sac').innerText = "R$ 0,00";
     document.getElementById('res-fgts-sac').innerText = "R$ 0,00";
@@ -105,7 +106,7 @@ function simularFluxo() {
     document.getElementById('res-parcelas-sac').innerText = "";
 
     // Zera elementos do PRICE
-    document.getElementById('res-finan-price').innerText = "R$ 0,00";
+    document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     document.getElementById('res-pct-price').innerHTML = "";
     document.getElementById('res-entrada-total-price').innerText = "R$ 0,00";
     document.getElementById('res-fgts-price').innerText = "R$ 0,00";
