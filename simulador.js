@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Com sincronização perfeita de prazos e exibição da taxa a.a. nos resumos.
+ * Com suporte a Sinal (Ato), calculo rigoroso de capacidade SAC pela 1ª parcela e exibição alinhada.
  */
 
 const CREDILAR_MATRIZ = [
@@ -81,9 +81,9 @@ function simularFluxo() {
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
   const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
+  const sinal = parseMoedaParaNumero(document.getElementById('sim-sinal')?.value); // Lendo valor do Sinal
   const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
 
-  // CORREÇÃO CRÍTICA: Busca pelo ID correto do campo de prazo (sim-prazo-finan)
   const inputPrazoEl = document.getElementById('sim-prazo-finan');
   let prazoDesejadoInput = parseInt(inputPrazoEl?.value) || 420;
 
@@ -94,22 +94,24 @@ function simularFluxo() {
 
   if (valImovel <= 0 || renda <= 0) {
     document.getElementById('sim-subsidio-val').value = "R$ 0,00";
-    document.getElementById('res-finan-price').innerText = "R$ 0,00";
-    document.getElementById('res-pct-price').innerHTML = "";
-    document.getElementById('res-entrada-price').innerText = "R$ 0,00";
-    document.getElementById('res-parcelas-price').innerText = "";
-
+    
+    // Zera elementos do SAC
     document.getElementById('res-finan-sac').innerText = "R$ 0,00";
     document.getElementById('res-pct-sac').innerHTML = "";
+    document.getElementById('res-entrada-total-sac').innerText = "R$ 0,00";
+    document.getElementById('res-fgts-sac').innerText = "R$ 0,00";
+    document.getElementById('res-sinal-sac').innerText = "R$ 0,00";
     document.getElementById('res-entrada-sac').innerText = "R$ 0,00";
     document.getElementById('res-parcelas-sac').innerText = "";
 
-    document.getElementById('res-sac-inicial').innerText = "R$ 0,00";
-    document.getElementById('res-sac-amortizado').innerText = "R$ 0,00";
-    document.getElementById('res-sac-diferenca').innerText = "R$ 0,00";
-    document.getElementById('res-price-inicial').innerText = "R$ 0,00";
-    document.getElementById('res-price-amortizado').innerText = "R$ 0,00";
-    document.getElementById('res-price-diferenca').innerText = "R$ 0,00";
+    // Zera elementos do PRICE
+    document.getElementById('res-finan-price').innerText = "R$ 0,00";
+    document.getElementById('res-pct-price').innerHTML = "";
+    document.getElementById('res-entrada-total-price').innerText = "R$ 0,00";
+    document.getElementById('res-fgts-price').innerText = "R$ 0,00";
+    document.getElementById('res-sinal-price').innerText = "R$ 0,00";
+    document.getElementById('res-entrada-price').innerText = "R$ 0,00";
+    document.getElementById('res-parcelas-price').innerText = "";
 
     document.getElementById('tabela-unificada-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
     return;
@@ -121,36 +123,51 @@ function simularFluxo() {
 
   const limite80Base = baseCalculo * 0.80;
 
+  // PRICE: Limitado a 80% ou teto da faixa
   const finanPriceCapacidade = Math.min(limite80Base, params.tetoFinanBase);
 
+  // SAC: Calculado pela Capacidade Financeira Exata da 1ª Parcela (30% da renda)
   const prestacaoMaximaRenda = renda * 0.30;
   const iMensalMCMV = Math.pow(1 + (params.taxa / 100), 1 / 12) - 1;
   const fatorSacPrimeiraParc = (1 / simState.prazoMeses) + iMensalMCMV;
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
- 
+
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
+  // Percentuais
   const pctPrice = ((finanPriceCapacidade / valImovel) * 100).toFixed(1);
   const pctSac = ((finanSacCapacidade / valImovel) * 100).toFixed(1);
 
-  const entradaPriceLequida = Math.max(0, valImovel - finanPriceCapacidade - params.subsidio - fgts);
-  const entradaSacLequida = Math.max(0, valImovel - finanSacCapacidade - params.subsidio - fgts);
+  // Cálculos de Entrada
+  const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade - params.subsidio);
+  const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade - params.subsidio);
 
-  const parcPriceEntrada = numParcelas > 0 ? (entradaPriceLequida / numParcelas) : 0;
-  const parcSacEntrada = numParcelas > 0 ? (entradaSacLequida / numParcelas) : 0;
+  // Entrada Líquida subtraindo FGTS e Sinal
+  const entradaLiquidaPrice = Math.max(0, entradaTotalPrice - fgts - sinal);
+  const entradaLiquidaSac = Math.max(0, entradaTotalSac - fgts - sinal);
 
-  // CORREÇÃO DOS TEXTOS COM TAXA DE JUROS A.A. EM NEGRITO
+  const parcPriceEntrada = numParcelas > 0 ? (entradaLiquidaPrice / numParcelas) : 0;
+  const parcSacEntrada = numParcelas > 0 ? (entradaLiquidaSac / numParcelas) : 0;
+
   const txFormatada = params.taxa.toFixed(2).replace('.', ',');
 
-  document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-price').innerHTML = `<strong>(${pctPrice}% DO IMÓVEL &bull; ${txFormatada}% a.a.)</strong>`;
-  document.getElementById('res-entrada-price').innerText = `R$ ${entradaPriceLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-parcelas-price').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
+  // EXIBIÇÃO NO CARD SAC
   document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-sac').innerHTML = `<strong>(${pctSac}% DO IMÓVEL &bull; ${txFormatada}% a.a.)</strong>`;
-  document.getElementById('res-entrada-sac').innerText = `R$ ${entradaSacLequida.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-pct-sac').innerHTML = `(${pctSac}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
+  document.getElementById('res-entrada-total-sac').innerText = `R$ ${entradaTotalSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-fgts-sac').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-sinal-sac').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-entrada-sac').innerText = `R$ ${entradaLiquidaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
   document.getElementById('res-parcelas-sac').innerText = `EM ${numParcelas}X DE R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+  // EXIBIÇÃO NO CARD PRICE
+  document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-pct-price').innerHTML = `(${pctPrice}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
+  document.getElementById('res-entrada-total-price').innerText = `R$ ${entradaTotalPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-fgts-price').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-sinal-price').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-entrada-price').innerText = `R$ ${entradaLiquidaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  document.getElementById('res-parcelas-price').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
@@ -179,7 +196,7 @@ function calcularTotaisIniciaisFixos(PSac, PPrice, n, iMensal) {
 function gerarTabelaUnificada() {
   const PSac = simState.valorFinanciadoSac;
   const PPrice = simState.valorFinanciadoPrice;
-  const n = simState.prazoMeses; // Agora receberá exatamente os 304 meses da tela
+  const n = simState.prazoMeses;
   const iMensal = Math.pow(1 + (simState.taxaJurosAnual / 100), 1 / 12) - 1;
 
   const tbody = document.getElementById('tabela-unificada-body');
