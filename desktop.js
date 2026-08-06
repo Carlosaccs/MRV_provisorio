@@ -10,6 +10,7 @@ const GERENTES_AUTORIZADOS = {
   "development": "Carlos",
   "carlos7sp2-11992617026": "Carlos",
   "isnaldo2z3v": "Isnaldo",
+  "isnaldo8iss-11992617026",:"Isnaldo VIBRA",
   "cauli2gtn-11992617026": "Cauli Gestor SP3",
   "lacerda7c23-11992617026": "Lacerda Gerente SP2",
   
