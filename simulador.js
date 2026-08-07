@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Com suporte a Sinal (Ato), calculo rigoroso de capacidade SAC pela 1ª parcela e exibição alinhada.
+ * Com suporte a Sinal (Ato), Bom Pagador, cálculo rigoroso de capacidade SAC pela 1ª parcela e exibição alinhada.
  */
 
 const CREDILAR_MATRIZ = [
@@ -20,26 +20,26 @@ const CREDILAR_MATRIZ = [
   { renda: 3600, finNormal: 178225.19, finRedutor: 189017.84, txNormal: 6.00, txRedutor: 5.50, subSozinho: 715,   subDep: 2333 },
   { renda: 3800, finNormal: 192129.97, finRedutor: 199970.42, txNormal: 6.00, txRedutor: 5.50, subSozinho: 657,   subDep: 2142 },
   { renda: 4000, finNormal: 198879.60, finRedutor: 210923.01, txNormal: 6.00, txRedutor: 5.50, subSozinho: 644,   subDep: 2099 },
-  { renda: 4200, finNormal: 187094.40, finRedutor: 197652.27, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,     subDep: 0 },
-  { renda: 4400, finNormal: 196330.05, finRedutor: 207409.11, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,     subDep: 0 },
-  { renda: 4700, finNormal: 210183.54, finRedutor: 220000.00, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,     subDep: 0 },
-  { renda: 5000, finNormal: 220000.00, finRedutor: 220000.00, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,     subDep: 0 },
-  { renda: 5200, finNormal: 202128.80, finRedutor: 212636.86, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 5400, finNormal: 210317.57, finRedutor: 221251.33, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 5600, finNormal: 218506.34, finRedutor: 229865.81, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 5800, finNormal: 226695.10, finRedutor: 238480.29, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 6000, finNormal: 234883.87, finRedutor: 247094.76, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 6200, finNormal: 243072.64, finRedutor: 255709.24, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 6400, finNormal: 251261.41, finRedutor: 264323.72, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 6600, finNormal: 264363.62, finRedutor: 278158.95, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 6800, finNormal: 267638.94, finRedutor: 281552.67, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 7000, finNormal: 275827.71, finRedutor: 290167.14, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 7200, finNormal: 284016.48, finRedutor: 298781.62, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 7400, finNormal: 292205.24, finRedutor: 307396.10, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 7600, finNormal: 300394.01, finRedutor: 316010.57, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 7800, finNormal: 308582.78, finRedutor: 320000.00, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 8000, finNormal: 320000.00, finRedutor: 320000.00, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 },
-  { renda: 8400, finNormal: 320000.00, finRedutor: 320000.00, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,     subDep: 0 }
+  { renda: 4200, finNormal: 187094.40, finRedutor: 197652.27, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,      subDep: 0 },
+  { renda: 4400, finNormal: 196330.05, finRedutor: 207409.11, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,      subDep: 0 },
+  { renda: 4700, finNormal: 210183.54, finRedutor: 220000.00, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,      subDep: 0 },
+  { renda: 5000, finNormal: 220000.00, finRedutor: 220000.00, txNormal: 7.00, txRedutor: 6.50, subSozinho: 0,      subDep: 0 },
+  { renda: 5200, finNormal: 202128.80, finRedutor: 212636.86, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 5400, finNormal: 210317.57, finRedutor: 221251.33, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 5600, finNormal: 218506.34, finRedutor: 229865.81, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 5800, finNormal: 226695.10, finRedutor: 238480.29, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 6000, finNormal: 234883.87, finRedutor: 247094.76, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 6200, finNormal: 243072.64, finRedutor: 255709.24, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 6400, finNormal: 251261.41, finRedutor: 264323.72, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 6600, finNormal: 264363.62, finRedutor: 278158.95, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 6800, finNormal: 267638.94, finRedutor: 281552.67, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 7000, finNormal: 275827.71, finRedutor: 290167.14, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 7200, finNormal: 284016.48, finRedutor: 298781.62, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 7400, finNormal: 292205.24, finRedutor: 307396.10, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 7600, finNormal: 300394.01, finRedutor: 316010.57, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 7800, finNormal: 308582.78, finRedutor: 320000.00, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 8000, finNormal: 320000.00, finRedutor: 320000.00, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 },
+  { renda: 8400, finNormal: 320000.00, finRedutor: 320000.00, txNormal: 8.16, txRedutor: 7.66, subSozinho: 0,      subDep: 0 }
 ];
 
 let simState = {
@@ -81,7 +81,12 @@ function simularFluxo() {
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
   const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
-  const sinal = parseMoedaParaNumero(document.getElementById('sim-sinal')?.value); // Lendo valor do Sinal
+  const sinal = parseMoedaParaNumero(document.getElementById('sim-sinal')?.value);
+  
+  // Captura o valor digitado no campo Bom Pagador (tenta com e sem prefixo)
+  const bomPagadorInput = document.getElementById('sim-bom-pagador') || document.getElementById('sim-bom-pagador-val');
+  const bomPagador = parseMoedaParaNumero(bomPagadorInput?.value);
+
   const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
 
   const inputPrazoEl = document.getElementById('sim-prazo-finan');
@@ -96,31 +101,37 @@ function simularFluxo() {
     document.getElementById('sim-subsidio-val').value = "R$ 0,00";
     
     // Zera elementos do SAC
-    // Dentro de simularFluxo() no simulador.js:
-    document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    document.getElementById('res-pct-sac').innerHTML = "";
-    document.getElementById('res-entrada-total-sac').innerText = "R$ 0,00";
-    document.getElementById('res-fgts-sac').innerText = "R$ 0,00";
-    document.getElementById('res-sinal-sac').innerText = "R$ 0,00";
-    document.getElementById('res-entrada-sac').innerText = "R$ 0,00";
-    document.getElementById('res-parcelas-sac').innerText = "";
+    const elFinanSac = document.getElementById('res-finan-sac');
+    if (elFinanSac) elFinanSac.innerText = "R$ 0,00";
+    if (document.getElementById('res-pct-sac')) document.getElementById('res-pct-sac').innerHTML = "";
+    if (document.getElementById('res-entrada-total-sac')) document.getElementById('res-entrada-total-sac').innerText = "R$ 0,00";
+    if (document.getElementById('res-fgts-sac')) document.getElementById('res-fgts-sac').innerText = "R$ 0,00";
+    if (document.getElementById('res-sinal-sac')) document.getElementById('res-sinal-sac').innerText = "R$ 0,00";
+    if (document.getElementById('res-bom-pagador-sac')) document.getElementById('res-bom-pagador-sac').innerText = "R$ 0,00";
+    if (document.getElementById('res-entrada-sac')) document.getElementById('res-entrada-sac').innerText = "R$ 0,00";
+    if (document.getElementById('res-parcelas-sac')) document.getElementById('res-parcelas-sac').innerText = "";
 
     // Zera elementos do PRICE
-    document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    document.getElementById('res-pct-price').innerHTML = "";
-    document.getElementById('res-entrada-total-price').innerText = "R$ 0,00";
-    document.getElementById('res-fgts-price').innerText = "R$ 0,00";
-    document.getElementById('res-sinal-price').innerText = "R$ 0,00";
-    document.getElementById('res-entrada-price').innerText = "R$ 0,00";
-    document.getElementById('res-parcelas-price').innerText = "";
+    const elFinanPrice = document.getElementById('res-finan-price');
+    if (elFinanPrice) elFinanPrice.innerText = "R$ 0,00";
+    if (document.getElementById('res-pct-price')) document.getElementById('res-pct-price').innerHTML = "";
+    if (document.getElementById('res-entrada-total-price')) document.getElementById('res-entrada-total-price').innerText = "R$ 0,00";
+    if (document.getElementById('res-fgts-price')) document.getElementById('res-fgts-price').innerText = "R$ 0,00";
+    if (document.getElementById('res-sinal-price')) document.getElementById('res-sinal-price').innerText = "R$ 0,00";
+    if (document.getElementById('res-bom-pagador-price')) document.getElementById('res-bom-pagador-price').innerText = "R$ 0,00";
+    if (document.getElementById('res-entrada-price')) document.getElementById('res-entrada-price').innerText = "R$ 0,00";
+    if (document.getElementById('res-parcelas-price')) document.getElementById('res-parcelas-price').innerText = "";
 
-    document.getElementById('tabela-unificada-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
+    const tbody = document.getElementById('tabela-unificada-body');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
     return;
   }
 
   const params = buscarParametrosCredilar(renda, comRedutor, comDependente);
   
-  document.getElementById('sim-subsidio-val').value = `R$ ${params.subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('sim-subsidio-val')) {
+    document.getElementById('sim-subsidio-val').value = `R$ ${params.subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  }
 
   const limite80Base = baseCalculo * 0.80;
 
@@ -139,13 +150,13 @@ function simularFluxo() {
   const pctPrice = ((finanPriceCapacidade / valImovel) * 100).toFixed(1);
   const pctSac = ((finanSacCapacidade / valImovel) * 100).toFixed(1);
 
-  // Cálculos de Entrada
+  // Cálculos de Entrada Total
   const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade - params.subsidio);
   const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade - params.subsidio);
 
-  // Entrada Líquida subtraindo FGTS e Sinal
-  const entradaLiquidaPrice = Math.max(0, entradaTotalPrice - fgts - sinal);
-  const entradaLiquidaSac = Math.max(0, entradaTotalSac - fgts - sinal);
+  // Entrada Líquida subtraindo FGTS, Sinal e BOM PAGADOR
+  const entradaLiquidaPrice = Math.max(0, entradaTotalPrice - fgts - sinal - bomPagador);
+  const entradaLiquidaSac = Math.max(0, entradaTotalSac - fgts - sinal - bomPagador);
 
   const parcPriceEntrada = numParcelas > 0 ? (entradaLiquidaPrice / numParcelas) : 0;
   const parcSacEntrada = numParcelas > 0 ? (entradaLiquidaSac / numParcelas) : 0;
@@ -153,22 +164,24 @@ function simularFluxo() {
   const txFormatada = params.taxa.toFixed(2).replace('.', ',');
 
   // EXIBIÇÃO NO CARD SAC
-  document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-sac').innerHTML = `(${pctSac}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
-  document.getElementById('res-entrada-total-sac').innerText = `R$ ${entradaTotalSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-fgts-sac').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-sinal-sac').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-entrada-sac').innerText = `R$ ${entradaLiquidaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-parcelas-sac').innerText = `EM ${numParcelas}X DE R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-finan-sac')) document.getElementById('res-finan-sac').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-pct-sac')) document.getElementById('res-pct-sac').innerHTML = `(${pctSac}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
+  if (document.getElementById('res-entrada-total-sac')) document.getElementById('res-entrada-total-sac').innerText = `R$ ${entradaTotalSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-fgts-sac')) document.getElementById('res-fgts-sac').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-sinal-sac')) document.getElementById('res-sinal-sac').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-bom-pagador-sac')) document.getElementById('res-bom-pagador-sac').innerText = `R$ ${bomPagador.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-entrada-sac')) document.getElementById('res-entrada-sac').innerText = `R$ ${entradaLiquidaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-parcelas-sac')) document.getElementById('res-parcelas-sac').innerText = `EM ${numParcelas}X DE R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   // EXIBIÇÃO NO CARD PRICE
-  document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-pct-price').innerHTML = `(${pctPrice}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
-  document.getElementById('res-entrada-total-price').innerText = `R$ ${entradaTotalPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-fgts-price').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-sinal-price').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-entrada-price').innerText = `R$ ${entradaLiquidaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  document.getElementById('res-parcelas-price').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-finan-price')) document.getElementById('res-finan-price').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-pct-price')) document.getElementById('res-pct-price').innerHTML = `(${pctPrice}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
+  if (document.getElementById('res-entrada-total-price')) document.getElementById('res-entrada-total-price').innerText = `R$ ${entradaTotalPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-fgts-price')) document.getElementById('res-fgts-price').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-sinal-price')) document.getElementById('res-sinal-price').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-bom-pagador-price')) document.getElementById('res-bom-pagador-price').innerText = `R$ ${bomPagador.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-entrada-price')) document.getElementById('res-entrada-price').innerText = `R$ ${entradaLiquidaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+  if (document.getElementById('res-parcelas-price')) document.getElementById('res-parcelas-price').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
@@ -271,13 +284,13 @@ function gerarTabelaUnificada() {
   const difSac = Math.max(0, totalInicialSac - totalPagoSacComAmort);
   const difPrice = Math.max(0, totalInicialPrice - totalPagoPriceComAmort);
 
-  document.getElementById('res-sac-inicial').innerText = `R$ ${totalInicialSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  document.getElementById('res-sac-amortizado').innerText = `R$ ${totalPagoSacComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  document.getElementById('res-sac-diferenca').innerText = `R$ ${difSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-sac-inicial')) document.getElementById('res-sac-inicial').innerText = `R$ ${totalInicialSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-sac-amortizado')) document.getElementById('res-sac-amortizado').innerText = `R$ ${totalPagoSacComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-sac-diferenca')) document.getElementById('res-sac-diferenca').innerText = `R$ ${difSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-  document.getElementById('res-price-inicial').innerText = `R$ ${totalInicialPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  document.getElementById('res-price-amortizado').innerText = `R$ ${totalPagoPriceComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  document.getElementById('res-price-diferenca').innerText = `R$ ${difPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-price-inicial')) document.getElementById('res-price-inicial').innerText = `R$ ${totalInicialPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-price-amortizado')) document.getElementById('res-price-amortizado').innerText = `R$ ${totalPagoPriceComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  if (document.getElementById('res-price-diferenca')) document.getElementById('res-price-diferenca').innerText = `R$ ${difPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
 function mascararDigitoTabela(inputEl) {
