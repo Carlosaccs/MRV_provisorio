@@ -255,6 +255,12 @@
                             <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" style="width: 105px; height: 30px; padding: 0 6px; border: 1px solid #ccc; border-radius: 4px;" oninput="tratarEntradaMoeda(this)">
                         </div>
 
+                        <!-- NOVO CAMPO: Bom Pagador (Posicionado entre Avaliação e Renda) -->
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <label for="sim-bom-pagador" style="font-size: 0.78rem; font-weight: bold; color: #2e7d32; white-space: nowrap;">Bom Pagador:</label>
+                            <input type="text" id="sim-bom-pagador" placeholder="R$ 0,00" style="width: 95px; height: 30px; padding: 0 6px; border: 1px solid #a5d6a7; border-radius: 4px; background-color: #f1f8e9;" oninput="tratarEntradaMoeda(this)">
+                        </div>
+
                         <!-- Renda Bruta -->
                         <div style="display: flex; align-items: center; gap: 4px;">
                             <label for="sim-renda" style="font-size: 0.78rem; font-weight: bold; color: #333; white-space: nowrap;">Renda:</label>
@@ -352,6 +358,11 @@
                                 <strong id="res-sinal-sac" style="color: #555;">R$ 0,00</strong>
                             </div>
 
+                            <span>BOM PAGADOR:</span>
+                            <div class="res-linha-inline">
+                                <strong id="res-bom-pagador-sac" style="color: #2e7d32;">R$ 0,00</strong>
+                            </div>
+
                             <span style="font-weight: bold; color: #d32f2f;">ENTRADA LÍQUIDA SAC:</span>
                             <div class="res-linha-inline">
                                 <strong id="res-entrada-sac" style="color: var(--mrv-laranja, #f37021);">R$ 0,00</strong>
@@ -387,6 +398,11 @@
                             <span>SINAL:</span>
                             <div class="res-linha-inline">
                                 <strong id="res-sinal-price" style="color: #555;">R$ 0,00</strong>
+                            </div>
+
+                            <span>BOM PAGADOR:</span>
+                            <div class="res-linha-inline">
+                                <strong id="res-bom-pagador-price" style="color: #2e7d32;">R$ 0,00</strong>
                             </div>
 
                             <span style="font-weight: bold; color: #d32f2f;">ENTRADA LÍQUIDA PRICE:</span>
@@ -569,12 +585,13 @@
             if (typeof simularFluxo === 'function') simularFluxo();
         }
 
-        /* FUNÇÃO PARA IMPRESSÃO DA FICHA DE SIMULAÇÃO */
+        /* FUNÇÃO PARA IMPRESSÃO DA FICHA DE SIMULAÇÃO (ATUALIZADA COM BOM PAGADOR) */
         function imprimirFichaSimulacao(tipoSistema) {
             const hoje = new Date().toLocaleDateString('pt-BR');
             const renda = document.getElementById('sim-renda')?.value || 'R$ 0,00';
             const sinal = document.getElementById('sim-sinal')?.value || 'R$ 0,00';
             const fgts = document.getElementById('sim-fgts')?.value || 'R$ 0,00';
+            const bomPagador = document.getElementById('sim-bom-pagador')?.value || 'R$ 0,00';
             
             const rawDataNasc = document.getElementById('sim-data-nasc')?.value;
             let dataNasc = 'Não informada';
@@ -661,6 +678,7 @@
                             <tr><td>Renda:</td><td><strong>${renda}</strong></td></tr>
                             <tr><td>Recursos para o Sinal:</td><td><strong>${sinal}</strong></td></tr>
                             <tr><td>FGTS:</td><td><strong>${fgts}</strong></td></tr>
+                            <tr><td>Desconto Bom Pagador:</td><td><strong>${bomPagador}</strong></td></tr>
                             <tr><td>Data nascimento:</td><td><strong>${dataNasc}</strong></td></tr>
                             <tr><td>Mais de 1 comprador ou dependente:</td><td><strong>${dependente}</strong></td></tr>
                             <tr><td>Valor do imóvel:</td><td><strong>${valImovel}</strong></td></tr>
@@ -680,6 +698,7 @@
                                 <td>
                                     ${sinal !== 'R$ 0,00' ? `<strong>${sinal}</strong> de sinal<br>` : ''}
                                     ${fgts !== 'R$ 0,00' ? `<strong>${fgts}</strong> de FGTS<br>` : ''}
+                                    ${bomPagador !== 'R$ 0,00' ? `<strong>${bomPagador}</strong> de desconto Bom Pagador<br>` : ''}
                                     mais <strong>${numParcEntrada} parcelas</strong> no valor de <strong>${parcEntradaValor}</strong> cada corrigidas pelo INCC
                                 </td>
                             </tr>
