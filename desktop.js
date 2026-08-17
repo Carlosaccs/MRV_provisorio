@@ -6,11 +6,14 @@ const URL_API_GOOGLE = "https://script.google.com/macros/s/AKfycbwXlu0K9kGfFa0yx
 
 // LISTA DE GERENTES ATUALIZADA RIGOROSAMENTE - VERSÃO EMERGENCIAL
 const GERENTES_AUTORIZADOS = {
+
   "development": "Carlos",
   "carlos7sp2-11992617026": "Carlos",
   "isnaldo2z3v": "Isnaldo",
+  
   "cauli2gtn-11992617026": "Cauli Gestor SP3",
   "lacerda7c23-11992617026": "Lacerda Gerente SP2",
+
   "carlos8beta":"Carlos SP2 BETA",
   "kauan8beta":"Kauan SP3 BETA",
   "edson8beta": "Edson SP2 BETA",
@@ -20,6 +23,7 @@ const GERENTES_AUTORIZADOS = {
   "antonio8beta": "Antonio SP2 BETA",
   "renato8beta":"Renato SP2 BETA",
   "edu8beta-pix11992617026":"Edu SP3 BETA",
+  
   "cicero7mir-pix11992617026": "Cicero SP2",
   "marco7hng-pix11992617026": "Marco SP2",
   "rosangela7jnv-pix11992617026": "Rosangela SP2",
@@ -32,6 +36,7 @@ const GERENTES_AUTORIZADOS = {
   "mizael7irf-pix11992617026": "Mizael SP2",
   "renato7bff-pix11992617026": "Renato SP2",
   "ivone7hti-pix11992617026": "Ivone SP2",
+
 };
 
 function obterParametroUrl(nome) {
@@ -48,17 +53,22 @@ const iconeStatus = document.getElementById('icone-status');
 
 // Executa a validação de forma imediata assim que o script carrega
 (function executarControleSeguranca() {
+  
+  // 1. BLOQUEIO SE A URL FOR INCOMPLETA OU COM GERENTE NÃO CADASTRADO
+  // CORRIGIDO: Agora aponta corretamente para GERENTES_AUTORIZADOS
   if (!codigoRef || !GERENTES_AUTORIZADOS[codigoRef]) {
     localStorage.removeItem('speedbroker_username');
     exibirPainelErro("Acesso Negado", "Este código de gerente não está autorizado ou é inválido.");
     throw new Error("Acesso interrompido: Chave de referência inválida.");
   }
 
+  // 2. SOLICITAÇÃO OU CAPTURA DO USUÁRIO (GUIA ANÔNIMA / PRIMEIRO ACESSO)
   let nomeCorretor = localStorage.getItem('speedbroker_username');
 
   if (!nomeCorretor) {
     exibirFormularioIdentificacao();
   } else {
+    // Gerente válido com usuário salvo: envia o log em background e libera imediatamente!
     registrarAcessoPlanilha(codigoRef, nomeCorretor);
     liberarInterfaceDashboard();
   }
@@ -91,6 +101,8 @@ function exibirFormularioIdentificacao() {
         return;
       }
       localStorage.setItem('speedbroker_username', nomeDigitado);
+      
+      // Envia os dados para salvar na planilha e libera a tela na hora
       registrarAcessoPlanilha(codigoRef, nomeDigitado);
       liberarInterfaceDashboard();
     });
@@ -99,10 +111,19 @@ function exibirFormularioIdentificacao() {
 
 function registrarAcessoPlanilha(ref, usuario) {
   const urlFinal = `${URL_API_GOOGLE}?ref=${ref}&userID=${encodeURIComponent(usuario)}&_cb=${new Date().getTime()}`;
+  
   console.log("Tentando registrar acesso na planilha...");
-  fetch(urlFinal, { method: 'GET' })
-  .then(() => { console.log("Requisição de log enviada com sucesso para o servidor."); })
-  .catch(erro => { console.warn("Aviso: Registro processado no servidor."); });
+  
+  // CORRIGIDO: Retirado o 'no-cors' para evitar o bloqueio de requisição do Google Sheets
+  fetch(urlFinal, { 
+    method: 'GET'
+  })
+  .then(() => {
+    console.log("Requisição de log enviada com sucesso para o servidor.");
+  })
+  .catch(erro => {
+    console.warn("Aviso: Registro processado no servidor.");
+  });
 }
 
 function liberarInterfaceDashboard() {
@@ -133,6 +154,9 @@ function exibirPainelErro(titulo, message) {
   if (document.getElementById('caixa-a')) document.getElementById('caixa-a').innerHTML = '';
 }
 
+// O SEU BLOCO1 COMEÇA EXATAMENTE ABAIXO DESTA LINHA
+
+
 /* ==========================================================================
    BLOCO 01: CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
    ========================================================================== */
@@ -158,46 +182,42 @@ const COL = {
     ESTANDE: 31 
 };
 
+
+
 /* ==========================================================================
-   BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS
+   BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS (CORRIGIDO)
    ========================================================================== */
 async function iniciarApp() {
     try { 
         await Promise.all([carregarPlanilha(), carregarAbaDocumentos()]);
         configurarBotaoDocumentos(); 
-        configurarBotaoSpeedsim();
+        configurarBotaoSpeedsim(); // Ativa o modal mapeando as classes corretas do HTML
     } catch (err) { 
         console.error(err); 
     }
 }
 
-document.addEventListener('DOMContentLoaded', iniciarApp);
-
 function configurarBotaoSpeedsim() {
     const btnSpeedsim = document.getElementById('btn-sobre');
     const modalSobre = document.getElementById('modal-sobre');
+    // Ajustado para buscar pela classe contida no seu HTML (.modal-close)
     const btnFechar = document.querySelector('.modal-close');
 
     if (btnSpeedsim && modalSobre) {
+        // Vincula o clique do botão superior à abertura do modal
         btnSpeedsim.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Força a atualização do iframe do simulador sem cache
-            const iframeSimulador = modalSobre.querySelector('iframe');
-            if (iframeSimulador) {
-                const srcBase = iframeSimulador.src.split('?')[0];
-                iframeSimulador.src = `${srcBase}?v=${new Date().getTime()}`;
-            }
-
             modalSobre.style.display = 'block';
         });
     }
 
     if (btnFechar && modalSobre) {
+        // Vincula o clique no 'X' (.modal-close) para fechar
         btnFechar.addEventListener('click', () => {
             modalSobre.style.display = 'none';
         });
 
+        // Fecha se o corretor clicar na área escura fora da base branca
         window.addEventListener('click', (event) => {
             if (event.target === modalSobre) {
                 modalSobre.style.display = 'none';
@@ -220,7 +240,9 @@ function configurarBotaoDocumentos() {
 
             const painel = document.getElementById('ficha-tecnica');
             if (painel) {
-                let htmlDocs = `<div style="padding: 10px 0;">`;
+                let htmlDocs = `
+                    <div style="padding: 10px 0;">
+                `;
 
                 if (DOCUMENTOS_GERAIS.length === 0) {
                     htmlDocs += `
@@ -235,6 +257,7 @@ function configurarBotaoDocumentos() {
 
                 htmlDocs += `</div>`;
                 painel.innerHTML = htmlDocs;
+                
                 inicializarHoverMiniaturas();
             }
         });
@@ -243,9 +266,12 @@ function configurarBotaoDocumentos() {
 
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
+    
     let link = url.trim();
+    
     if (link.includes('drive.google.com')) {
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
+        
         if (match && match[1]) {
             return `https://drive.google.com/file/d/${match[1]}/view?usp=sharing`;
         }
@@ -255,9 +281,12 @@ function formatarLinkSeguro(url) {
 
 function formatarLinkPreview(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
+    
     let link = url.trim();
+    
     if (link.includes('drive.google.com')) {
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
+        
         if (match && match[1]) {
             return `https://drive.google.com/file/d/${match[1]}/preview`;
         }
@@ -267,6 +296,7 @@ function formatarLinkPreview(url) {
 
 function inicializarHoverMiniaturas() {
     const botoesAbrir = document.querySelectorAll('.card-btn-abrir');
+    
     botoesAbrir.forEach(botao => {
         const urlPreview = botao.getAttribute('data-preview');
         if (!urlPreview) return;
@@ -346,7 +376,7 @@ function abrirDocumentoDireto(url) {
 
 /* ==========================================================================
    BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
-   ========================================================================== */
+   ========================================================================= */
 async function carregarAbaDocumentos() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_DOCS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Documentos&v=${new Date().getTime()}`;
@@ -401,7 +431,11 @@ async function carregarPlanilha() {
             if (!idPath || nomeImovel.length <= 1 || isNaN(ordem)) return null;
 
             const cat = (colunas[COL.CATEGORIA] || "").toUpperCase();
+            
+            // Captura o valor bruto da coluna de Garagem
             let valorBrutoGaragem = colunas[32];
+            
+            // Tratamento rigoroso: se for "0", vazio, undefined ou nulo, garante que exiba corretamente
             let dadoGaragem = "---";
             if (valorBrutoGaragem !== undefined && valorBrutoGaragem !== null && valorBrutoGaragem.toString().trim() !== "") {
                 dadoGaragem = valorBrutoGaragem.toString().trim();
@@ -454,6 +488,7 @@ function obterHtmlZona(zona, tipo) {
     return `<span style="font-size:10px; font-weight:bold; color:#666;">${zona}</span>`;
 }
 
+// REVISADO: Agora reconhece também as regiões fora de SP de forma dinâmica
 function detectarClasseZona(zona) {
     if (!zona) return "";
     const z = zona.toUpperCase().trim();
@@ -474,8 +509,8 @@ function navegarVitrine(nome) {
 
 function comandoSelecao(idPath, nomePath, fonte) {
     const idNorm = idPath.toLowerCase().replace(/\s/g, '');
-    const noGSP = typeof MAPA_GSP !== 'undefined' && MAPA_GSP.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
-    const noInterior = typeof MAPA_INTERIOR !== 'undefined' && MAPA_INTERIOR.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
+    const noGSP = MAPA_GSP.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
+    const noInterior = MAPA_INTERIOR.paths.some(p => p.id.toLowerCase().replace(/\s/g, '') === idNorm);
     
     if (noGSP && mapaAtivo !== 'GSP') trocarMapas(false);
     if (noInterior && mapaAtivo !== 'INTERIOR') trocarMapas(false);
@@ -493,7 +528,7 @@ function comandoSelecao(idPath, nomePath, fonte) {
     if (elMapa) elMapa.classList.add('ativo');
 
     gerarListaLateral();
-    const todosPaths = (typeof MAPA_GSP !== 'undefined' ? MAPA_GSP.paths : []).concat(typeof MAPA_INTERIOR !== 'undefined' ? MAPA_INTERIOR.paths : []);
+    const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
     const nomeOficial = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || pathAtivo;
     
     atualizarTituloSuperior(nomeOficial);
@@ -505,7 +540,7 @@ function atualizarTituloSuperior(texto) {
     if (!titulo) return;
     if (texto) { titulo.innerText = `MRV EM ${texto.toUpperCase()}`; } 
     else if (pathAtivo) {
-        const todosPaths = (typeof MAPA_GSP !== 'undefined' ? MAPA_GSP.paths : []).concat(typeof MAPA_INTERIOR !== 'undefined' ? MAPA_INTERIOR.paths : []);
+        const todosPaths = MAPA_GSP.paths.concat(MAPA_INTERIOR.paths);
         const nomeFixo = todosPaths.find(p => p.id.toLowerCase().replace(/\s/g, '') === pathAtivo)?.name || "";
         titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
     } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
@@ -516,7 +551,7 @@ function atualizarTituloSuperior(texto) {
    ========================================================================== */
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
-    if (!container || !dados) return;
+    if (!container) return;
     container.style.display = "flex"; 
     container.style.alignItems = "center";
     container.style.justifyContent = "center"; 
@@ -552,7 +587,6 @@ function renderizarNoContainer(id, dados, interativo) {
 }
 
 function desenharMapas() {
-    if (typeof MAPA_GSP === 'undefined' || typeof MAPA_INTERIOR === 'undefined') return;
     renderizarNoContainer('caixa-a', (mapaAtivo === 'GSP') ? MAPA_GSP : MAPA_INTERIOR, true);
     renderizarNoContainer('caixa-b', (mapaAtivo === 'GSP') ? MAPA_INTERIOR : MAPA_GSP, false);
     const cb = document.getElementById('caixa-b');
@@ -586,6 +620,7 @@ function gerarListaLateral() {
                 </div>`;
     }).join('');
 }
+
 
 /* ==========================================================================
    BLOCO 07: CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA)
@@ -634,7 +669,6 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     
     let html = ""; 
     
-    // Lista de outros imóveis na mesma cidade/região
     if(outros.length > 0) {
         html += `<div style="margin-bottom:6px;">${outros.map(i => {
             const classeZ = detectarClasseZona(i.zona); 
@@ -644,10 +678,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
-        // Título e Região
         html += `<div class="titulo-vitrine-faixa" style="background-color: var(--mrv-verde); color: white; padding: 6px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.75rem;">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;        
-        
-        // Seção de Localização e Endereço
         html += `
         <div style="padding: 2px 0 5px 0;">
             <div style="font-size:0.8rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
@@ -659,9 +690,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>
         </div>`;
 
-        // Painel Principal de Informações do Residencial
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
-        
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #444444; color: #ffffff; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #555555; height: 32px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">${selecionado.campanha}</div>`;
         }
@@ -674,17 +703,21 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             const nEst = parseInt(estoqueRaw);
             if (!isNaN(nEst) && nEst < 6) corEstoque = "#ff5252"; 
         }
+        const valorEstoqueColorido = `<span style="color: ${corEstoque}">${selecionado.estoque || "---"} UN.</span>`;
 
+        // Linha inteira estável do Limitador
         html += `
         <div class="grid-cell full-width" style="display: flex; justify-content: center; align-items: center; padding: 6px 10px; background-color: #444444; color: #ffffff; border-bottom: 1px solid #555555; box-sizing: border-box; width: 100%; height: 32px;">
             <strong style="font-size: 0.75rem; text-align: center; word-break: break-word; font-weight: bold; letter-spacing: 0.3px;">${selecionado.limitador}</strong>
         </div>`;
 
+        // Linha inteira estável da Casa Paulista
         html += `
         <div class="grid-cell full-width" style="display: flex; justify-content: center; align-items: center; padding: 6px 10px; background-color: #444444; color: #ffffff; border-bottom: 1px solid #555555; box-sizing: border-box; width: 100%; height: 32px;">
             <strong style="font-size: 0.75rem; text-align: center; word-break: break-word; font-weight: bold; letter-spacing: 0.3px;">${selecionado.casa_paulista}</strong>
         </div>`;
 
+        // Linha inferior dividida perfeitamente em 4 colunas iguais
         html += `
         <div style="display: flex; width: 100%; background-color: #444444; color: #ffffff; border-bottom: 1px solid #555555; box-sizing: border-box; height: 32px;">
             <div style="flex: 1; padding: 6px 4px; border-right: 1px solid #555555; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
@@ -692,48 +725,119 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                 <strong style="font-size: 0.68rem; color: #ffffff; margin-left: 2px;">${selecionado.entrega}</strong>
             </div>
             <div style="flex: 1; padding: 6px 4px; border-right: 1px solid #555555; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
-                <label style="font-size: 0.58rem; font-weight: bold; color: #a5d6a7; text-transform: uppercase;">Estoque</label>
-                <strong style="font-size: 0.68rem; color: ${corEstoque}; margin-left: 2px;">${selecionado.estoque || "---"} UN.</strong>
+                <label style="font-size: 0.58rem; font-weight: bold; color: #a5d6a7; text-transform: uppercase;">Obra</label>
+                <strong style="font-size: 0.68rem; color: #ffffff; margin-left: 2px;">${selecionado.obra || 0}%</strong>
             </div>
             <div style="flex: 1; padding: 6px 4px; border-right: 1px solid #555555; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
-                <label style="font-size: 0.58rem; font-weight: bold; color: #a5d6a7; text-transform: uppercase;">Obra</label>
-                <strong style="font-size: 0.68rem; color: #ffffff; margin-left: 2px;">${selecionado.obra}%</strong>
+                <label style="font-size: 0.58rem; font-weight: bold; color: #a5d6a7; text-transform: uppercase;">Estoque</label>
+                <strong style="font-size: 0.68rem; margin-left: 2px;">${valorEstoqueColorido}</strong>
             </div>
             <div style="flex: 1; padding: 6px 4px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
-                <label style="font-size: 0.58rem; font-weight: bold; color: #a5d6a7; text-transform: uppercase;">Vaga</label>
+                <label style="font-size: 0.58rem; font-weight: bold; color: #a5d6a7; text-transform: uppercase;">Garagem</label>
                 <strong style="font-size: 0.68rem; color: #ffffff; margin-left: 2px;">${selecionado.garagem}</strong>
             </div>
-        </div></div>`;
+        </div>`;
 
-        if (selecionado.tipologiasH && selecionado.tipologiasH !== "---") {
-            html += `<div style="font-size:0.75rem; background:#e8f5e9; color:#1b5e20; padding:6px; border-radius:4px; margin-bottom:6px;"><strong>Tipologias:</strong> ${selecionado.tipologiasH}</div>`;
+        let precoReal = "CONSULTAR";
+        if (selecionado.tipologiasH) {
+            const lines = selecionado.tipologiasH.split(';').map(l => l.trim()).filter(l => l !== "");
+            lines.forEach(linhaStr => {
+                const colsArr = inlineLimpa = linhaStr.split(',').map(c => c.trim());
+                if (colsArr.length > 1 && colsArr[1] !== "" && colsArr[0].toLowerCase().includes("partir")) {
+                    precoReal = colsArr[1];
+                }
+            });
         }
 
-        // Materiais do Empreendimento
-        let htmlMateriais = "";
-        htmlMateriais += criarCardMaterial("Book Cliente", selecionado.linkCliente, "📖");
-        htmlMateriais += criarCardMaterial("Book Corretor", selecionado.linkCorretor, "📋");
-        htmlMateriais += extrairLinks(selecionado.linksVideos, "🎥");
-        htmlMateriais += extrairLinks(selecionado.linksPlantas, "📐");
-        htmlMateriais += extrairLinks(selecionado.linksImplant, "🏗️");
-        htmlMateriais += extrairLinks(selecionado.linksDiversos, "📁");
-        htmlMateriais += criarCardMaterial("Estande de Vendas", selecionado.estande, "📍");
-
-        if (htmlMateriais !== "") {
-            html += `<div style="margin-top:8px;"><strong>Materiais do Empreendimento:</strong>${htmlMateriais}</div>`;
+        html += `
+        <div style="background-color: var(--mrv-laranja); color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; height: 32px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+            À PARTIR DE: ${precoReal}
+        </div>`;
+        
+        html += `</div>`;
+       
+        html += `<div style="border-radius: 4px; overflow: hidden; border: 1px solid #ddd; margin-top: 6px;">`;
+        if(selecionado.estande && selecionado.estande !== "---" && selecionado.estande !== "") {
+            const urlMapsEstande = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selecionado.estande)}`;
+            html += `
+            <div style="background: #e8f5e9; border-left: 6px solid #2e7d32; padding: 6px 10px; border-bottom: 1px solid #ddd;">
+                <label style="display:block; font-size:0.55rem; font-weight:bold; color:#2e7d32; text-transform:uppercase; margin-bottom:1px;">📍 Estande de Vendas</label>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <p style="margin:0; font-size:0.68rem; color:#444; line-height:1.3; flex:1;">${selecionado.estande}</p>
+                    <div style="display:flex; gap:3px; margin-left:5px;">
+                        <a href="${urlMapsEstande}" target="_blank" class="btn-maps">MAPS</a>
+                        <button onclick="copiarTexto('${urlMapsEstande}', 'Link do estande copied!')" class="btn-maps" style="border:none; cursor:pointer;">LINK</button>
+                    </div>
+                </div>
+            </div>`;
         }
 
-        if (selecionado.observacoes && selecionado.observacoes !== "---") {
-            html += `<div style="margin-top:8px; font-size:0.75rem; background:#fffde7; padding:6px; border-left:3px solid #fbc02d;"><strong>Observações:</strong> ${selecionado.observacoes}</div>`;
-        }
+        const criarBoxDiferencial = (label, texto, corFundo, corBorda, temBorda) => {
+            if(!texto || texto === "---" || texto === "") return "";
+            return `
+            <div style="background: ${corFundo}; border-left: 6px solid ${corBorda}; padding: 6px 10px; ${temBorda ? 'border-bottom: 1px solid #ddd;' : ''}">
+                <label style="display:block; font-size:0.52rem; font-weight:bold; color:${corBorda}; text-transform:uppercase; margin-bottom:1px;">${label}</label>
+                <p style="margin:0; font-size:0.65rem; color:#444; line-height:1.3;">${texto}</p>
+            </div>`;
+        };
+        html += criarBoxDiferencial('💡 Observação Importante', selecionado.observacoes, '#fff9c4', '#fbc02d', true);
+        html += criarBoxDiferencial('📍 Localização', selecionado.localizacao, '#fdf2e9', '#f37021', true);
+        html += criarBoxDiferencial('🚍 Mobilidade', selecionado.mobilidade, '#f1f8e9', '#2e7d32', true);
+        html += criarBoxDiferencial('🎭 Cultura e Lazer', selecionado.lazer, '#e3f2fd', '#1565c0', true);
+        html += criarBoxDiferencial('🛒 Comércio', selecionado.comercio, '#ffebee', '#c62828', true);
+        html += criarBoxDiferencial('🏥 Saúde e Educação', selecionado.saude, '#f3e5f5', '#6a1b9a', false);
+        html += `</div>`;
 
+        let materiaisHtml = "";
+         materiaisHtml += criarCardMaterial('Book Cliente', selecionado.linkCliente, '📄');
+         materiaisHtml += criarCardMaterial('Book Corretor', selecionado.linkCorretor, '💼');
+         materiaisHtml += extrairLinks(selecionado.linksVideos, '🎬');
+         materiaisHtml += extrairLinks(selecionado.linksPlantas, '📐');
+         materiaisHtml += extrairLinks(selecionado.linksImplant, '📍');
+         materiaisHtml += extrairLinks(selecionado.linksDiversos, '✨');
+        
+        if (materiaisHtml !== "") {
+            html += `<div style="margin-top: 10px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DE APOIO</label>
+                ${materiaisHtml}
+            </div>`;
+        }
     } else {
-        html += `<div class="titulo-vitrine-faixa" style="background-color: #333; color: white; padding: 6px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.75rem;">COMPLEXO: ${selecionado.nomeFull.toUpperCase()}</div>`;
-        if (selecionado.descLonga && selecionado.descLonga !== "---") {
-            html += `<div style="font-size:0.8rem; color:#555; line-height:1.4; margin-bottom:10px;">${selecionado.descLonga}</div>`;
+        let corComplexo = "#333";
+        const zUpper = selecionado.zona.toUpperCase().trim();
+        
+        if (zUpper === 'ZO') corComplexo = "#ff9d42"; 
+        else if (zUpper === 'ZL') corComplexo = "#003399";
+        else if (zUpper === 'ZN') corComplexo = "#ffd700";
+        else if (zUpper === 'ZS') corComplexo = "#ff33aa";
+        else if (zUpper.includes("VALE")) corComplexo = "#8e44ad"; 
+        else if (zUpper.includes("CAMPINAS")) corComplexo = "#16a085"; 
+
+        let corTexto = (zUpper === 'ZN') ? "#333" : "white";
+
+        html += `<div class="titulo-vitrine-faixa" style="background-color: ${corComplexo}; color: ${corTexto}; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.8rem;">
+                    ${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}
+                 </div>`;
+                 
+        html += `<div class="box-complexo-full" style="border: 1px solid ${corComplexo}; border-radius: 4px; padding: 10px; background: #fff;">
+                    <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>📍 ${selecionado.endereco}</span> 
+                        <span style="display:flex; gap:3px;">
+                            <a href="${urlMapsResidencial}" target="_blank" class="btn-maps">MAPS</a>
+                            <button onclick="copiarTexto('${urlMapsResidencial}', 'Link de localização copiado!')" class="btn-maps" style="border:none; cursor:pointer;">LINK</button>
+                        </span>
+                    </p>
+                    <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
+                 </div>`;
+                 
+        let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
+        if (materiaisComplexo !== "") { 
+            html += `<div style="margin-top: 10px; padding: 0 5px;">
+                <label style="display:block; font-size:0.6rem; font-weight:bold; color:#888; text-transform:uppercase; margin-bottom:4px; border-bottom:1px solid #eee;">MATERIAIS DO COMPLEXO</label>
+                ${materiaisComplexo}
+            </div>`;
         }
     }
-
     painel.innerHTML = html;
     inicializarHoverMiniaturas();
 }
