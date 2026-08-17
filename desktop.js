@@ -182,7 +182,7 @@ function configurarBotaoSpeedsim() {
         btnSpeedsim.addEventListener('click', (e) => {
             e.preventDefault();
             
-            // Força a atualização do conteúdo caso haja um iframe dinâmico para o simulador.html
+            // Força a atualização do iframe do simulador sem cache
             const iframeSimulador = modalSobre.querySelector('iframe');
             if (iframeSimulador) {
                 const srcBase = iframeSimulador.src.split('?')[0];
@@ -346,7 +346,7 @@ function abrirDocumentoDireto(url) {
 
 /* ==========================================================================
    BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
-   ========================================================================= */
+   ========================================================================== */
 async function carregarAbaDocumentos() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_DOCS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Documentos&v=${new Date().getTime()}`;
@@ -634,6 +634,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     
     let html = ""; 
     
+    // Lista de outros imóveis na mesma cidade/região
     if(outros.length > 0) {
         html += `<div style="margin-bottom:6px;">${outros.map(i => {
             const classeZ = detectarClasseZona(i.zona); 
@@ -643,7 +644,10 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
     }
 
     if (selecionado.tipo === 'R') {
+        // Título e Região
         html += `<div class="titulo-vitrine-faixa" style="background-color: var(--mrv-verde); color: white; padding: 6px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.75rem;">RES. ${selecionado.nome.toUpperCase()} — ${selecionado.regiao}</div>`;        
+        
+        // Seção de Localização e Endereço
         html += `
         <div style="padding: 2px 0 5px 0;">
             <div style="font-size:0.8rem; color:#444; display:flex; justify-content:space-between; align-items:center;">
@@ -655,7 +659,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             </div>
         </div>`;
 
+        // Painel Principal de Informações do Residencial
         html += `<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">`;
+        
         if(selecionado.campanha && selecionado.campanha !== "---" && selecionado.campanha !== "") {
             html += `<div style="background: #444444; color: #ffffff; font-weight: bold; font-size: 0.7rem; text-align: center; padding: 4px; border-bottom: 1px solid #555555; height: 32px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">${selecionado.campanha}</div>`;
         }
@@ -703,6 +709,7 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
             html += `<div style="font-size:0.75rem; background:#e8f5e9; color:#1b5e20; padding:6px; border-radius:4px; margin-bottom:6px;"><strong>Tipologias:</strong> ${selecionado.tipologiasH}</div>`;
         }
 
+        // Materiais do Empreendimento
         let htmlMateriais = "";
         htmlMateriais += criarCardMaterial("Book Cliente", selecionado.linkCliente, "📖");
         htmlMateriais += criarCardMaterial("Book Corretor", selecionado.linkCorretor, "📋");
