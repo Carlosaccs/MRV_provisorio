@@ -481,6 +481,8 @@ path.commrv:hover, path.ativo {
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #999; }
 
+
+
 /* ==========================================================================
    11. BLOCO DE DETALHES DO RESIDENCIAL (PADRONIZADO)
    ========================================================================== */
@@ -640,12 +642,12 @@ path.commrv:hover, path.ativo {
    ========================================================================== */
 .modal-content-speedsim {
     background-color: white;
-    margin: 2% auto;
+    margin: 20px auto !important;
     padding: 25px;
     border-radius: 12px;
-    width: 96%;
-    max-width: 1280px; /* Janela ampla para as planilhas lado a lado */
-    max-height: 90vh;
+    width: 98% !important;       /* Aumentado de 96% para 98% para aproveitar melhor as bordas */
+    max-width: 1500px !important; /* Aumentado de 1280px para 1500px para dar bastante amplitude */
+    max-height: 92vh;
     overflow-y: auto;
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     position: relative;
