@@ -1,4 +1,4 @@
-<div class="modal-content-speedsim">
+<div class="modal-content-speedsim" style="width: 95%; max-width: 1200px; margin: 20px auto;">
     <span class="modal-close-speedsim" onclick="fecharSpeedSim()">&times;</span>
     <h2 style="color: var(--mrv-verde); margin-bottom: 5px; text-transform: uppercase; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
         📊 SpeedSim - Simulador Caixa MCMV & SBPE
@@ -8,8 +8,8 @@
     </p>
     
     <div class="modal-body">
-        <!-- Grid de Inputs Principais -->
-        <div class="speedsim-grid-inputs">
+        <!-- Grid de Inputs Principais (Alargado e com Recursos + Subsídio) -->
+        <div class="speedsim-grid-inputs" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
             <div class="speedsim-field">
                 <label>Valor do Imóvel (R$)</label>
                 <input type="number" id="sim-val-imovel" value="250000" placeholder="Ex: 250000" oninput="simularFluxo()">
@@ -23,7 +23,7 @@
                 <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()">
             </div>
             <div class="speedsim-field">
-                <label>Sinal / Ato (R$)</label>
+                <label>Recursos (R$)</label>
                 <input type="number" id="sim-sinal" value="10000" placeholder="Ex: 10000" oninput="simularFluxo()">
             </div>
             <div class="speedsim-field">
@@ -31,6 +31,14 @@
                 <input type="number" id="sim-fgts" value="15000" placeholder="Ex: 15000" oninput="simularFluxo()">
             </div>
             <div class="speedsim-field">
+                <label>Subsídio (R$)</label>
+                <input type="number" id="sim-subsidio-input" value="0" placeholder="Ex: 0" oninput="simularFluxo()">
+            </div>
+        </div>
+
+        <!-- Linha Secundaria de Opcoes / Parcelamento da Entrada -->
+        <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px; margin-bottom: 15px;">
+            <div class="speedsim-field" style="width: 200px;">
                 <label>Qtd. Parcelas Entrada</label>
                 <input type="number" id="sim-num-parcelas" value="36" placeholder="Ex: 36" oninput="simularFluxo()">
             </div>
