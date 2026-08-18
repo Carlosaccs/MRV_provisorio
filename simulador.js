@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Código Unificado e Corrigido (Ajustes de IDs, ATO 0,2%, Rec. Próprios e Padrão 30 Parcelas)
+ * Código Unificado e Corrigido (Recursos/Sinal, Ato, Padrão 30 Meses)
  */
 
 // 1. CARREGAMENTO DO MODAL E IMPRESSÃO
@@ -20,10 +20,21 @@ function abrirSpeedSim() {
                 }
                 const modalInjetado = document.getElementById('modal-speedsim');
                 if (modalInjetado) modalInjetado.style.display = 'flex';
-                inicializarPadrõesCampos();
+                
+                // Força valor 30 na inicialização após injetar HTML
+                forcarQtdParcelas30();
             })
             .catch(err => console.error('Erro ao carregar simulador.html:', err));
     }
+}
+
+function forcarQtdParcelas30() {
+    // Procura por todos os possíveis IDs do campo de quantidade de parcelas de entrada
+    const ids = ['sim-qtd-parc-entrada', 'qtd-parc-entrada', 'sim-qtd-entrada'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = 30;
+    });
 }
 
 function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, dataNasc, dependente, valImovel, finanVal, taxaAA, prazo, primeiraParc, ultimaParc, entradaTotal, numParcEntrada, parcEntradaValor) {
@@ -182,13 +193,6 @@ function atualizarTextoSeExiste(id, valor) {
   if (el) el.innerText = valor;
 }
 
-function inicializarPadrõesCampos() {
-  const inputQtdEntrada = document.getElementById('sim-qtd-parc-entrada');
-  if (inputQtdEntrada) {
-    inputQtdEntrada.value = 30;
-  }
-}
-
 // 4. CÁLCULO DE PRAZO MÁXIMO BASEADO NA DATA DE NASCIMENTO
 function calcularPrazoMaximoPorDataNasc() {
   const inputDataNasc = document.getElementById('sim-data-nasc');
@@ -245,7 +249,8 @@ function simularFluxo() {
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
   const fgts = obterValorNumerico('sim-fgts');
-  // Busca do valor do campo de recursos (suporta 'sim-recursos' ou o antigo 'sim-sinal')
+  
+  // Tenta capturar o campo Recursos pelo ID atual ou pelo legado "sim-sinal"
   const recursos = obterValorNumerico('sim-recursos') || obterValorNumerico('sim-sinal');
   const bomPagador = obterValorNumerico('sim-bom-pagador');
 
@@ -282,27 +287,23 @@ function simularFluxo() {
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
-  // 1. ENTRADA TOTAL = VALOR IMÓVEL - FINANCIAMENTO
+  // ENTRADA TOTAL
   const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade);
   const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade);
 
-  // 2. ENTRADA BRUTA = ENTRADA TOTAL - SUBSÍDIO - FGTS - BOM PAGADOR
+  // ENTRADA BRUTA
   const entradaBrutaSac = Math.max(0, entradaTotalSac - params.subsidio - fgts - bomPagador);
   const entradaBrutaPrice = Math.max(0, entradaTotalPrice - params.subsidio - fgts - bomPagador);
 
-  // EXIBIÇÃO NOS CARDS
+  // VALORES BÁSICOS
   atualizarTextoSeExiste('sac-val-financiamento', formatarMoeda(finanSacCapacidade));
   atualizarTextoSeExiste('price-val-financiamento', formatarMoeda(finanPriceCapacidade));
 
   atualizarTextoSeExiste('sac-val-entrada-total', formatarMoeda(entradaTotalSac));
-  atualizarTextoSeExiste('sac-res-entrada-total', formatarMoeda(entradaTotalSac));
   atualizarTextoSeExiste('price-val-entrada-total', formatarMoeda(entradaTotalPrice));
-  atualizarTextoSeExiste('price-res-entrada-total', formatarMoeda(entradaTotalPrice));
 
   atualizarTextoSeExiste('sac-val-entrada-bruta', formatarMoeda(entradaBrutaSac));
-  atualizarTextoSeExiste('sac-res-entrada-bruta', formatarMoeda(entradaBrutaSac));
   atualizarTextoSeExiste('price-val-entrada-bruta', formatarMoeda(entradaBrutaPrice));
-  atualizarTextoSeExiste('price-res-entrada-bruta', formatarMoeda(entradaBrutaPrice));
 
   atualizarTextoSeExiste('sac-val-fgts', formatarMoeda(fgts));
   atualizarTextoSeExiste('price-val-fgts', formatarMoeda(fgts));
@@ -313,11 +314,9 @@ function simularFluxo() {
   atualizarTextoSeExiste('sac-val-subsidio', formatarMoeda(params.subsidio));
   atualizarTextoSeExiste('price-val-subsidio', formatarMoeda(params.subsidio));
 
-  // 3. REC. PRÓPRIOS = VALOR DO CAMPO "RECURSOS"
+  // REC. PRÓPRIOS ASSUMEM O VALOR DE RECURSOS/SINAL
   atualizarTextoSeExiste('sac-val-rec-proprios', formatarMoeda(recursos));
-  atualizarTextoSeExiste('sac-res-rec-proprios', formatarMoeda(recursos));
   atualizarTextoSeExiste('price-val-rec-proprios', formatarMoeda(recursos));
-  atualizarTextoSeExiste('price-res-rec-proprios', formatarMoeda(recursos));
 
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
@@ -337,11 +336,21 @@ function simularFluxo() {
 // 6. ATO, SINAL E ENTRADA LÍQUIDA
 function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const prefix = sistema.toLowerCase();
-  const valAto = obterValorNumerico(`${prefix}-input-ato`);
   
+  // Tenta encontrar o input pelo padrão ou com seletores dinâmicos
+  let inputAto = document.getElementById(`${prefix}-input-ato`) || document.querySelector(`.${prefix}-ato`);
+  let valAto = 0;
+
+  if (inputAto) {
+    valAto = parseMoedaParaNumero(inputAto.value);
+  }
+
+  // Porcentagem do ATO em relação ao valor do imóvel
   const pctAto = valImovel > 0 ? ((valAto / valImovel) * 100).toFixed(1) : "0.0";
   const pctEl = document.getElementById(`${prefix}-pct-ato`);
-  if (pctEl) pctEl.value = `${pctAto}%`;
+  if (pctEl) {
+    pctEl.value = `${pctAto}%`;
+  }
 
   const metaSinal = valImovel * 0.015;
   const valSinal = Math.max(0, metaSinal - valAto);
@@ -360,18 +369,16 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const valParcSinalEl = document.getElementById(`${prefix}-val-parc-sinal`);
   if (valParcSinalEl) valParcSinalEl.innerText = formatarMoedaNum(valParcSinal);
 
-  // CÁLCULO SALDO RECURSOS
+  // SALDO RECURSOS = RECURSOS - ATO
   const saldoRecursos = Math.max(0, recursos - valAto);
   atualizarTextoSeExiste(`${prefix}-val-saldo-recursos`, formatarMoeda(saldoRecursos));
-  atualizarTextoSeExiste(`${prefix}-res-saldo-recursos`, formatarMoeda(saldoRecursos));
 
   // ENTRADA LÍQUIDA = ENTRADA BRUTA - REC. PRÓPRIOS
   const entradaLiquida = Math.max(0, entradaBruta - recursos);
   atualizarTextoSeExiste(`${prefix}-val-entrada-liquida`, formatarMoeda(entradaLiquida));
-  atualizarTextoSeExiste(`${prefix}-res-entrada-liquida`, formatarMoeda(entradaLiquida));
 
-  // PARCELAS DE ENTRADA (PADRÃO GARANTIDO EM 30)
-  const inputQtdGlobal = document.getElementById('sim-qtd-parc-entrada');
+  // PARCELAS DE ENTRADA (PADRÃO 30)
+  const inputQtdGlobal = document.getElementById('sim-qtd-parc-entrada') || document.getElementById('qtd-parc-entrada');
   const qtdGlobal = parseInt(inputQtdGlobal?.value) || 30;
 
   let parcEntradaEl = document.getElementById(`${prefix}-parc-entrada`);
@@ -379,7 +386,6 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
 
   const valParcEntrada = numParcEntrada > 0 ? entradaLiquida / numParcEntrada : 0;
   atualizarTextoSeExiste(`${prefix}-val-parc-entrada`, formatarMoedaNum(valParcEntrada));
-  atualizarTextoSeExiste(`${prefix}-res-parc-entrada`, formatarMoedaNum(valParcEntrada));
 }
 
 function validarAto(sistema, apenasAtualizar) {
@@ -391,10 +397,10 @@ function validarAto(sistema, apenasAtualizar) {
   const pctAtoEl = document.getElementById(`${prefixo}-pct-ato`);
   if (!inputAto) return;
 
-  const atoMinimo = valImovel * 0.002;
-  let valorAtoDigitado = obterValorNumerico(`${prefixo}-input-ato`);
+  const atoMinimo = valImovel * 0.002; // 0,2% do valor do imóvel
+  let valorAtoDigitado = parseMoedaParaNumero(inputAto.value);
 
-  // SE TIVER EM BRANCO OU ABAIXO DO MÍNIMO DE 0,2%
+  // Mínimo de 0,2% do imóvel
   if (valorAtoDigitado < atoMinimo) {
     if (!apenasAtualizar && valorAtoDigitado > 0) {
       alert(`O valor mínimo para o ATO é de 0,2% do valor do imóvel (${formatarMoeda(atoMinimo)}).`);
@@ -415,8 +421,8 @@ function validarAto(sistema, apenasAtualizar) {
 
 function zeraValoresCards() {
   const ids = [
-    'sac-val-financiamento', 'sac-val-entrada-total', 'sac-res-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-val-entrada-bruta', 'sac-res-entrada-bruta', 'sac-val-rec-proprios', 'sac-res-rec-proprios', 'sac-val-saldo-recursos', 'sac-res-saldo-recursos', 'sac-val-entrada-liquida', 'sac-res-entrada-liquida',
-    'price-val-financiamento', 'price-val-entrada-total', 'price-res-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-val-entrada-bruta', 'price-res-entrada-bruta', 'price-val-rec-proprios', 'price-res-rec-proprios', 'price-val-saldo-recursos', 'price-res-saldo-recursos', 'price-val-entrada-liquida', 'price-res-entrada-liquida'
+    'sac-val-financiamento', 'sac-val-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-val-entrada-bruta', 'sac-val-rec-proprios', 'sac-val-saldo-recursos', 'sac-val-entrada-liquida',
+    'price-val-financiamento', 'price-val-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-val-entrada-bruta', 'price-val-rec-proprios', 'price-val-saldo-recursos', 'price-val-entrada-liquida'
   ];
   ids.forEach(id => {
     atualizarTextoSeExiste(id, "R$ 0,00");
@@ -547,7 +553,7 @@ function confirmarAmortizacaoTabela(inputEl) {
 
 // 8. EVENT LISTENERS
 document.addEventListener('DOMContentLoaded', () => {
-  inicializarPadrõesCampos();
+  forcarQtdParcelas30();
 
   const btnSobre = document.getElementById('btn-sobre');
   if (btnSobre) {
@@ -562,13 +568,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const inputQtdEntrada = document.getElementById('sim-qtd-parc-entrada');
-  if (inputQtdEntrada) {
-    inputQtdEntrada.value = 30;
-    inputQtdEntrada.addEventListener('change', simularFluxo);
-  }
+  // ATRIBUIÇÃO DOS EVENTOS AOS CAMPOS DE RECURSOS / SINAL
+  ['sim-recursos', 'sim-sinal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', simularFluxo);
+      el.addEventListener('change', simularFluxo);
+    }
+  });
 
-  // ATRIBUIÇÃO EVENTOS ATO
+  // ATRIBUIÇÃO DOS EVENTOS DO ATO
   ['sac', 'price'].forEach(prefix => {
     const inputAto = document.getElementById(`${prefix}-input-ato`);
     if (inputAto) {
