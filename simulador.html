@@ -1,142 +1,248 @@
-<div class="modal-content-speedsim" style="width: 95%; max-width: 1200px; margin: 20px auto;">
+<div class="modal-content-speedsim" style="width: 98%; max-width: 1300px; margin: 10px auto;">
     <span class="modal-close-speedsim" onclick="fecharSpeedSim()">&times;</span>
     <h2 style="color: var(--mrv-verde); margin-bottom: 5px; text-transform: uppercase; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-        📊 SpeedSim - Simulador Caixa MCMV & SBPE
+        📊 SPEEDSIM - SIMULADOR MCMV
     </h2>
     <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">
-        Simule financiamento, entrada parcelada e compare SAC vs PRICE com amortização em tempo real.
+        Simule financiamento com regras de Avaliação, PRICE / SAC e Comparativo em tempo real.
     </p>
     
     <div class="modal-body">
-        <!-- Grid de Inputs Principais -->
-        <div class="speedsim-grid-inputs" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
-            <div class="speedsim-field">
-                <label>Valor do Imóvel (R$)</label>
-                <input type="number" id="sim-val-imovel" value="250000" placeholder="Ex: 250000" oninput="simularFluxo()">
+        <!-- Inputs Principais da Caixa Superior -->
+        <div class="speedsim-grid-inputs" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label><input type="radio" name="base-financiamento" value="imovel" checked onchange="simularFluxo()"> Valor imóvel:</label>
+                <input type="text" id="sim-val-imovel" value="250.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 110px;">
             </div>
-            <div class="speedsim-field">
-                <label>Renda Bruta (R$)</label>
-                <input type="number" id="sim-renda" value="4500" placeholder="Ex: 4500" oninput="simularFluxo()">
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label><input type="radio" name="base-financiamento" value="avaliacao" onchange="simularFluxo()"> Avaliação:</label>
+                <input type="text" id="sim-val-avaliacao" value="250.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 110px;">
             </div>
-            <div class="speedsim-field">
-                <label>Data Nasc. Comprador</label>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label style="color: var(--mrv-verde); font-weight: bold;">Bom Pagador:</label>
+                <input type="text" id="sim-bom-pagador" value="0,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 90px;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label>Renda:</label>
+                <input type="text" id="sim-renda" value="4.500,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 90px;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label>FGTS:</label>
+                <input type="text" id="sim-fgts" value="15.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 90px;">
+            </div>
+
+            <!-- TÍTULO TROCADO DE 'SINAL' PARA 'RECURSOS' -->
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label>Recursos:</label>
+                <input type="text" id="sim-sinal" value="10.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 90px;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label><input type="radio" name="opt-redutor" value="sim" checked onchange="simularFluxo()"> Com redutor</label>
+                <label><input type="radio" name="opt-redutor" value="nao" onchange="simularFluxo()"> Sem redutor</label>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 20px;">
+            <div>
+                <label>Data nasc:</label>
                 <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()">
             </div>
-            <div class="speedsim-field">
-                <label>Recursos (R$)</label>
-                <input type="number" id="sim-sinal" value="10000" placeholder="Ex: 10000" oninput="simularFluxo()">
+            <div>
+                <label>máximo de:</label>
+                <input type="number" id="sim-prazo-finan" value="420" style="width: 60px;" oninput="simularFluxo()"> parcelas
             </div>
-            <div class="speedsim-field">
-                <label>FGTS (R$)</label>
-                <input type="number" id="sim-fgts" value="15000" placeholder="Ex: 15000" oninput="simularFluxo()">
+            <div>
+                <label><input type="checkbox" id="sim-dependente" checked onchange="simularFluxo()"> Mais de um comprador/dependente</label>
             </div>
-            <div class="speedsim-field">
-                <label>Qtd. Parcelas Entrada</label>
-                <input type="number" id="sim-num-parcelas" value="36" placeholder="Ex: 36" oninput="simularFluxo()">
+            <div>
+                <label>Qtd. Parc. entrada:</label>
+                <input type="number" id="sim-num-parcelas" value="36" style="width: 60px;" oninput="simularFluxo()">
             </div>
-        </div>
-
-        <!-- Linha Secundaria -->
-        <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px; margin-bottom: 15px;">
-            <div class="speedsim-field" style="width: 200px;">
-                <label>Subsídio (R$)</label>
-                <input type="number" id="sim-subsidio-input" value="0" placeholder="Ex: 0" oninput="simularFluxo()">
+            <div style="margin-left: auto; background-color: #e8f5e9; padding: 5px 10px; border-radius: 4px; border: 1px solid var(--mrv-verde);">
+                <label style="color: var(--mrv-verde); font-weight: bold;">Subsidio:</label>
+                <input type="text" id="sim-subsidio-val" value="R$ 0,00" readonly style="border: none; background: transparent; font-weight: bold; color: var(--mrv-verde); width: 100px; text-align: right;">
             </div>
         </div>
 
-        <!-- CARDS DETALHADOS SAC vs PRICE (COM BOM PAGADOR, ATO MÍNIMO E SINAL REORDENADOS) -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <!-- CARDS SAC E PRICE EM 2 COLUNAS (LAYOUT CONFORME PRINT 3) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
 
             <!-- CARD SISTEMA SAC -->
-            <div style="background-color: rgba(0, 113, 58, 0.03); border: 1px solid var(--mrv-verde); border-radius: 6px; padding: 12px; position: relative;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(0,113,58,0.2); padding-bottom: 5px;">
-                    <strong style="color: var(--mrv-verde); font-size: 0.85rem;">SISTEMA SAC (PARCELAS DECRESCENTES)</strong>
-                    <button onclick="imprimirResultado('SAC')" style="background: none; border: 1px solid var(--mrv-verde); color: var(--mrv-verde); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;">
+            <div style="border: 1px solid #333; border-radius: 8px; padding: 12px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <strong style="color: var(--mrv-verde); font-size: 1rem;">SISTEMA SAC (PARCELAS DECRESCENTES)</strong>
+                    <button onclick="imprimirResultado('SAC')" style="background: #fff; border: 1px solid var(--mrv-verde); color: var(--mrv-verde); padding: 2px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
                         🖨️ Imprimir SAC
                     </button>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 140px 1fr; row-gap: 4px; font-size: 0.75rem;">
-                    <span>FINANCIAMENTO SAC:</span>
-                    <div><strong id="sac-res-financiamento" style="color: var(--mrv-verde);">R$ 0,00</strong> <small id="sac-res-detalhes" style="font-size: 0.65rem; font-weight: bold; color: #333;">(0.0% DO IMÓVEL • 0,00% A.A.)</small></div>
+                <div style="display: grid; grid-template-columns: 1fr auto 1.3fr; gap: 10px; font-size: 0.8rem; align-items: center;">
+                    
+                    <!-- COLUNA ESQUERDA -->
+                    <div style="display: grid; grid-template-columns: 120px 1fr; row-gap: 8px;">
+                        <span>FINANCIAMENTO:</span>
+                        <strong id="sac-res-financiamento">R$ 0,00</strong>
 
-                    <span>ENTRADA TOTAL:</span>
-                    <div><strong id="sac-res-entrada-total">R$ 0,00</strong></div>
+                        <span>ENTRADA TOTAL:</span>
+                        <strong id="sac-res-entrada-total">R$ 0,00</strong>
 
-                    <span>FGTS:</span>
-                    <div id="sac-res-fgts">R$ 0,00</div>
+                        <span>SUBSÍDIO:</span>
+                        <strong id="sac-res-subsidio">R$ 0,00</strong>
 
-                    <!-- BOM PAGADOR -->
-                    <span>BOM PAGADOR:</span>
-                    <div id="sac-res-bom-pagador" style="color: var(--mrv-verde); font-weight: bold;">R$ 0,00</div>
+                        <span>FGTS:</span>
+                        <strong id="sac-res-fgts">R$ 0,00</strong>
 
-                    <!-- ATO MÍNIMO -->
-                    <span>ATO MÍNIMO:</span>
-                    <div id="sac-res-ato-minimo" style="color: #2e7d32; font-weight: bold;">R$ 0,00</div>
+                        <span>BOM PAGADOR:</span>
+                        <strong id="sac-res-bom-pagador">R$ 0,00</strong>
+                    </div>
 
-                    <!-- SINAL -->
-                    <span>SINAL:</span>
-                    <div id="sac-res-sinal">R$ 0,00</div>
+                    <!-- LINHA DIVISÓRIA -->
+                    <div style="border-left: 1px solid #333; height: 100%;"></div>
 
-                    <span style="color: var(--mrv-laranja); font-weight: bold;">ENTRADA LÍQUIDA SAC:</span>
-                    <div><strong id="sac-res-entrada-liquida" style="color: var(--mrv-laranja); font-size: 0.85rem;">R$ 0,00</strong> <small id="sac-res-parcelamento-texto" style="font-size: 0.65rem; color: #555; margin-left: 5px;">-</small></div>
+                    <!-- COLUNA DIREITA -->
+                    <div style="display: grid; grid-template-columns: 130px 1fr; row-gap: 6px; align-items: center;">
+                        <span>ENTRADA BRUTA:</span>
+                        <strong id="sac-res-entrada-bruta">R$ 0,00</strong>
+
+                        <span>RECURSOS PROPRIO</span>
+                        <strong id="sac-res-recursos">R$ 0,00</strong>
+
+                        <span>ATO:</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <input type="text" id="sac-input-ato" value="0,00" oninput="mascararMoeda(this)" onchange="validarAto('SAC')" style="width: 85px; text-align: right; font-size: 0.8rem;">
+                            <span>=</span>
+                            <input type="text" id="sac-pct-ato" value="0%" readonly style="width: 40px; text-align: center; font-size: 0.8rem; border: 1px solid #333;">
+                            <span style="font-size: 0.65rem; color: #555;">DO TOTAL DO IMÓVEL</span>
+                        </div>
+
+                        <span>SINAL:</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <strong id="sac-res-sinal">R$ 0,00</strong>
+                            <span style="font-size: 0.75rem; margin-left: 5px;">EM</span>
+                            <input type="number" id="sac-parc-sinal" value="5" style="width: 35px; text-align: center; font-size: 0.75rem;">
+                            <span style="font-size: 0.75rem;">PARCELAS DE:</span>
+                            <strong id="sac-val-parc-sinal">R$ 0,00</strong>
+                        </div>
+
+                        <span>SALDO DOS REC. PROPRIOS:</span>
+                        <strong id="sac-res-saldo-rec">R$ 0,00</strong>
+
+                        <span>ENTRADA LIQUIDA:</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <strong id="sac-res-entrada-liquida">R$ 0,00</strong>
+                            <span style="font-size: 0.75rem; margin-left: 5px;">EM</span>
+                            <input type="number" id="sac-parc-liquida" value="30" style="width: 35px; text-align: center; font-size: 0.75rem;">
+                            <span style="font-size: 0.75rem;">PARCELAS DE:</span>
+                            <strong id="sac-val-parc-liquida">R$ 0,00</strong>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
             <!-- CARD SISTEMA PRICE -->
-            <div style="background-color: rgba(0, 0, 0, 0.02); border: 1px solid var(--mrv-verde); border-radius: 6px; padding: 12px; position: relative;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(0,113,58,0.2); padding-bottom: 5px;">
-                    <strong style="color: var(--mrv-verde); font-size: 0.85rem;">SISTEMA PRICE (PARCELAS FIXAS)</strong>
-                    <button onclick="imprimirResultado('PRICE')" style="background: none; border: 1px solid var(--mrv-verde); color: var(--mrv-verde); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; gap: 4px;">
+            <div style="border: 1px solid #333; border-radius: 8px; padding: 12px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <strong style="color: var(--mrv-verde); font-size: 1rem;">SISTEMA PRICE (PARCELAS FIXAS)</strong>
+                    <button onclick="imprimirResultado('PRICE')" style="background: #fff; border: 1px solid var(--mrv-verde); color: var(--mrv-verde); padding: 2px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
                         🖨️ Imprimir PRICE
                     </button>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 140px 1fr; row-gap: 4px; font-size: 0.75rem;">
-                    <span>FINANCIAMENTO PRICE:</span>
-                    <div><strong id="price-res-financiamento" style="color: var(--mrv-verde);">R$ 0,00</strong> <small id="price-res-detalhes" style="font-size: 0.65rem; font-weight: bold; color: #333;">(0.0% DO IMÓVEL • 0,00% A.A.)</small></div>
+                <div style="display: grid; grid-template-columns: 1fr auto 1.3fr; gap: 10px; font-size: 0.8rem; align-items: center;">
+                    
+                    <!-- COLUNA ESQUERDA -->
+                    <div style="display: grid; grid-template-columns: 120px 1fr; row-gap: 8px;">
+                        <span>FINANCIAMENTO:</span>
+                        <strong id="price-res-financiamento">R$ 0,00</strong>
 
-                    <span>ENTRADA TOTAL:</span>
-                    <div><strong id="price-res-entrada-total">R$ 0,00</strong></div>
+                        <span>ENTRADA TOTAL:</span>
+                        <strong id="price-res-entrada-total">R$ 0,00</strong>
 
-                    <span>FGTS:</span>
-                    <div id="price-res-fgts">R$ 0,00</div>
+                        <span>SUBSÍDIO:</span>
+                        <strong id="price-res-subsidio">R$ 0,00</strong>
 
-                    <!-- BOM PAGADOR -->
-                    <span>BOM PAGADOR:</span>
-                    <div id="price-res-bom-pagador" style="color: var(--mrv-verde); font-weight: bold;">R$ 0,00</div>
+                        <span>FGTS:</span>
+                        <strong id="price-res-fgts">R$ 0,00</strong>
 
-                    <!-- ATO MÍNIMO -->
-                    <span>ATO MÍNIMO:</span>
-                    <div id="price-res-ato-minimo" style="color: #2e7d32; font-weight: bold;">R$ 0,00</div>
+                        <span>BOM PAGADOR:</span>
+                        <strong id="price-res-bom-pagador">R$ 0,00</strong>
+                    </div>
 
-                    <!-- SINAL -->
-                    <span>SINAL:</span>
-                    <div id="price-res-sinal">R$ 0,00</div>
+                    <!-- LINHA DIVISÓRIA -->
+                    <div style="border-left: 1px solid #333; height: 100%;"></div>
 
-                    <span style="color: var(--mrv-laranja); font-weight: bold;">ENTRADA LÍQUIDA PRICE:</span>
-                    <div><strong id="price-res-entrada-liquida" style="color: var(--mrv-laranja); font-size: 0.85rem;">R$ 0,00</strong> <small id="price-res-parcelamento-texto" style="font-size: 0.65rem; color: #555; margin-left: 5px;">-</small></div>
+                    <!-- COLUNA DIREITA -->
+                    <div style="display: grid; grid-template-columns: 130px 1fr; row-gap: 6px; align-items: center;">
+                        <span>ENTRADA BRUTA:</span>
+                        <strong id="price-res-entrada-bruta">R$ 0,00</strong>
+
+                        <span>RECURSOS PROPRIO</span>
+                        <strong id="price-res-recursos">R$ 0,00</strong>
+
+                        <span>ATO:</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <input type="text" id="price-input-ato" value="0,00" oninput="mascararMoeda(this)" onchange="validarAto('PRICE')" style="width: 85px; text-align: right; font-size: 0.8rem;">
+                            <span>=</span>
+                            <input type="text" id="price-pct-ato" value="0%" readonly style="width: 40px; text-align: center; font-size: 0.8rem; border: 1px solid #333;">
+                            <span style="font-size: 0.65rem; color: #555;">DO TOTAL DO IMÓVEL</span>
+                        </div>
+
+                        <span>SINAL:</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <strong id="price-res-sinal">R$ 0,00</strong>
+                            <span style="font-size: 0.75rem; margin-left: 5px;">EM</span>
+                            <input type="number" id="price-parc-sinal" value="5" style="width: 35px; text-align: center; font-size: 0.75rem;">
+                            <span style="font-size: 0.75rem;">PARCELAS DE:</span>
+                            <strong id="price-val-parc-sinal">R$ 0,00</strong>
+                        </div>
+
+                        <span>SALDO DOS REC. PROPRIOS:</span>
+                        <strong id="price-res-saldo-rec">R$ 0,00</strong>
+
+                        <span>ENTRADA LIQUIDA:</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <strong id="price-res-entrada-liquida">R$ 0,00</strong>
+                            <span style="font-size: 0.75rem; margin-left: 5px;">EM</span>
+                            <input type="number" id="price-parc-liquida" value="30" style="width: 35px; text-align: center; font-size: 0.75rem;">
+                            <span style="font-size: 0.75rem;">PARCELAS DE:</span>
+                            <strong id="price-val-parc-liquida">R$ 0,00</strong>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
         </div>
 
-        <!-- BANNER DE RESUMO/TOTAL PAGO -->
+        <!-- BANNER E TABELA (MANTIDOS) -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div class="res-box" style="background-color: rgba(0, 113, 58, 0.08); border: 1px solid var(--mrv-verde);">
-                <span style="color: var(--mrv-verde);">TOTAL GERAL PAGO (SISTEMA SAC)</span>
-                <div class="res-val" id="res-total-sac" style="color: var(--mrv-verde); font-size: 1.25rem;">R$ 0,00</div>
+            <div class="res-box" style="background-color: rgba(0, 113, 58, 0.08); border: 1px solid var(--mrv-verde); padding: 10px; border-radius: 6px;">
+                <span style="color: var(--mrv-verde); font-weight: bold; font-size: 0.85rem;">MÉTRICAS TOTAIS SAC</span>
+                <div style="display: flex; justify-content: space-around; margin-top: 5px;">
+                    <div><small>Total Inicial</small><br><strong id="res-sac-inicial">R$ 0,00</strong></div>
+                    <div><small>Total Amortizado</small><br><strong id="res-sac-amortizado" style="color: var(--mrv-verde);">R$ 0,00</strong></div>
+                    <div><small>Economia / Dif.</small><br><strong id="res-sac-diferenca" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
+                </div>
             </div>
-            <div class="res-box" style="background-color: rgba(0, 0, 0, 0.05); border: 1px solid #333;">
-                <span style="color: #333;">TOTAL GERAL PAGO (SISTEMA PRICE)</span>
-                <div class="res-val" id="res-total-price" style="color: #333; font-size: 1.25rem;">R$ 0,00</div>
+            <div class="res-box" style="background-color: rgba(0, 0, 0, 0.05); border: 1px solid #333; padding: 10px; border-radius: 6px;">
+                <span style="color: #333; font-weight: bold; font-size: 0.85rem;">MÉTRICAS TOTAIS PRICE</span>
+                <div style="display: flex; justify-content: space-around; margin-top: 5px;">
+                    <div><small>Total Inicial</small><br><strong id="res-price-inicial">R$ 0,00</strong></div>
+                    <div><small>Total Amortizado</small><br><strong id="res-price-amortizado" style="color: #333;">R$ 0,00</strong></div>
+                    <div><small>Economia / Dif.</small><br><strong id="res-price-diferenca" style="color: var(--mrv-laranja);">R$ 0,00</strong></div>
+                </div>
             </div>
         </div>
 
-        <!-- TABELA UNIFICADA -->
         <div class="speedsim-coluna-tabela">
-            <div class="speedsim-scroll-wrapper" style="max-height: 400px;">
-                <table style="width: 100%; border-collapse: collapse;">
+            <div class="speedsim-scroll-wrapper" style="max-height: 350px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
                     <thead>
                         <tr>
                             <th rowspan="2" style="vertical-align: middle; text-align: center; width: 50px;">Mês</th>
@@ -154,7 +260,7 @@
                         </tr>
                     </thead>
                     <tbody id="tabela-unificada-body">
-                        <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Aguardando simulação...</td></tr>
+                        <tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do Imóvel e a renda para simular...</td></tr>
                     </tbody>
                 </table>
             </div>
