@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Código Unificado e Corrigido (Com Modal, Impressão e Cálculo de Prazo por Idade)
+ * Código Unificado e Corrigido (Ajustes de IDs, Entrada Total e Padrão de 30 Parcelas)
  */
 
 // 1. CARREGAMENTO DO MODAL E IMPRESSÃO
@@ -9,7 +9,6 @@ function abrirSpeedSim() {
     if (modal) {
         modal.style.display = 'flex';
     } else {
-        // Se a estrutura ainda não foi injetada no DOM, carrega do simulador.html
         fetch('simulador.html')
             .then(response => response.text())
             .then(html => {
@@ -177,6 +176,11 @@ function obterValorNumerico(id) {
   return isNaN(num) ? 0 : num;
 }
 
+function atualizarTextoSeExiste(id, valor) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = valor;
+}
+
 // 4. CÁLCULO DE PRAZO MÁXIMO BASEADO NA DATA DE NASCIMENTO
 function calcularPrazoMaximoPorDataNasc() {
   const inputDataNasc = document.getElementById('sim-data-nasc');
@@ -189,13 +193,11 @@ function calcularPrazoMaximoPorDataNasc() {
 
   const hoje = new Date();
 
-  // Diferença em meses entre a data atual e o nascimento
   let mesesIdade = (hoje.getFullYear() - dataNasc.getFullYear()) * 12 + (hoje.getMonth() - dataNasc.getMonth());
   if (hoje.getDate() < dataNasc.getDate()) {
     mesesIdade--;
   }
 
-  // Idade Limite Bancária: 80 anos e 6 meses = 966 meses
   const limiteTotalMeses = 966;
   let prazoMaximoMeses = limiteTotalMeses - mesesIdade;
 
@@ -271,45 +273,61 @@ function simularFluxo() {
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
-  // ENTRADAS
+  // ENTRADA TOTAL = VALOR IMÓVEL - FINANCIAMENTO
   const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade);
   const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade);
 
+  // ENTRADA BRUTA = ENTRADA TOTAL - SUBSÍDIO - FGTS - BOM PAGADOR
   const entradaBrutaSac = Math.max(0, entradaTotalSac - params.subsidio - fgts - bomPagador);
   const entradaBrutaPrice = Math.max(0, entradaTotalPrice - params.subsidio - fgts - bomPagador);
 
-  // CARDS
-  if (document.getElementById('sac-val-financiamento')) document.getElementById('sac-val-financiamento').innerText = formatarMoeda(finanSacCapacidade);
-  if (document.getElementById('price-val-financiamento')) document.getElementById('price-val-financiamento').innerText = formatarMoeda(finanPriceCapacidade);
+  // EXIBIÇÃO NOS CARDS (SOPORTA OS DOIS PADRÕES DE IDS DO HTML)
+  atualizarTextoSeExiste('sac-val-financiamento', formatarMoeda(finanSacCapacidade));
+  atualizarTextoSeExiste('price-val-financiamento', formatarMoeda(finanPriceCapacidade));
 
-  if (document.getElementById('sac-res-entrada-total')) document.getElementById('sac-res-entrada-total').innerText = formatarMoeda(entradaTotalSac);
-  if (document.getElementById('price-res-entrada-total')) document.getElementById('price-res-entrada-total').innerText = formatarMoeda(entradaTotalPrice);
+  atualizarTextoSeExiste('sac-val-entrada-total', formatarMoeda(entradaTotalSac));
+  atualizarTextoSeExiste('sac-res-entrada-total', formatarMoeda(entradaTotalSac));
+  atualizarTextoSeExiste('price-val-entrada-total', formatarMoeda(entradaTotalPrice));
+  atualizarTextoSeExiste('price-res-entrada-total', formatarMoeda(entradaTotalPrice));
 
-  if (document.getElementById('sac-res-entrada-bruta')) document.getElementById('sac-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaSac);
-  if (document.getElementById('price-res-entrada-bruta')) document.getElementById('price-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaPrice);
+  atualizarTextoSeExiste('sac-res-entrada-bruta', formatarMoeda(entradaBrutaSac));
+  atualizarTextoSeExiste('price-res-entrada-bruta', formatarMoeda(entradaBrutaPrice));
 
-  if (document.getElementById('sac-val-fgts')) document.getElementById('sac-val-fgts').innerText = formatarMoeda(fgts);
-  if (document.getElementById('price-val-fgts')) document.getElementById('price-val-fgts').innerText = formatarMoeda(fgts);
+  atualizarTextoSeExiste('sac-val-fgts', formatarMoeda(fgts));
+  atualizarTextoSeExiste('price-val-fgts', formatarMoeda(fgts));
 
-  if (document.getElementById('sac-val-bom-pagador')) document.getElementById('sac-val-bom-pagador').innerText = formatarMoeda(bomPagador);
-  if (document.getElementById('price-val-bom-pagador')) document.getElementById('price-val-bom-pagador').innerText = formatarMoeda(bomPagador);
+  atualizarTextoSeExiste('sac-val-bom-pagador', formatarMoeda(bomPagador));
+  atualizarTextoSeExiste('price-val-bom-pagador', formatarMoeda(bomPagador));
 
-  if (document.getElementById('sac-val-subsidio')) document.getElementById('sac-val-subsidio').innerText = formatarMoeda(params.subsidio);
-  if (document.getElementById('price-val-subsidio')) document.getElementById('price-val-subsidio').innerText = formatarMoeda(params.subsidio);
+  atualizarTextoSeExiste('sac-val-subsidio', formatarMoeda(params.subsidio));
+  atualizarTextoSeExiste('price-val-subsidio', formatarMoeda(params.subsidio));
+
+  // REC. PRÓPRIOS E SALDO RECURSOS
+  atualizarTextoSeExiste('sac-val-rec-proprios', formatarMoeda(recursos));
+  atualizarTextoSeExiste('price-val-rec-proprios', formatarMoeda(recursos));
+
+  const valAtoSac = obterValorNumerico('sac-input-ato');
+  const valAtoPrice = obterValorNumerico('price-input-ato');
+
+  const saldoRecursosSac = Math.max(0, recursos - valAtoSac);
+  const saldoRecursosPrice = Math.max(0, recursos - valAtoPrice);
+
+  atualizarTextoSeExiste('sac-val-saldo-recursos', formatarMoeda(saldoRecursosSac));
+  atualizarTextoSeExiste('price-val-saldo-recursos', formatarMoeda(saldoRecursosPrice));
 
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
   simState.valorFinanciadoSac = finanSacCapacidade;
   simState.taxaJurosAnual = params.taxa;
 
-  atualizarLinhaSinal('sac', valImovel);
-  atualizarLinhaSinal('price', valImovel);
+  atualizarLinhaSinal('sac', valImovel, entradaBrutaSac, recursos);
+  atualizarLinhaSinal('price', valImovel, entradaBrutaPrice, recursos);
 
   gerarTabelaUnificada();
 }
 
-// 6. ATO E SINAL
-function atualizarLinhaSinal(sistema, valImovel) {
+// 6. ATO, SINAL E ENTRADA LÍQUIDA
+function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const prefix = sistema.toLowerCase();
   const valAto = obterValorNumerico(`${prefix}-input-ato`);
   
@@ -333,6 +351,20 @@ function atualizarLinhaSinal(sistema, valImovel) {
   const valParcSinal = numParcSinal > 0 ? valSinal / numParcSinal : 0;
   const valParcSinalEl = document.getElementById(`${prefix}-val-parc-sinal`);
   if (valParcSinalEl) valParcSinalEl.innerText = formatarMoedaNum(valParcSinal);
+
+  // CÁLCULO ENTRADA LÍQUIDA
+  const entradaLiquida = Math.max(0, entradaBruta - recursos);
+  atualizarTextoSeExiste(`${prefix}-val-entrada-liquida`, formatarMoeda(entradaLiquida));
+
+  // PARCELAS DE ENTRADA (PADRÃO 30)
+  const inputQtdGlobal = document.getElementById('sim-qtd-parc-entrada');
+  const qtdGlobal = parseInt(inputQtdGlobal?.value) || 30;
+
+  let parcEntradaEl = document.getElementById(`${prefix}-parc-entrada`);
+  let numParcEntrada = parseInt(parcEntradaEl?.value) || qtdGlobal;
+
+  const valParcEntrada = numParcEntrada > 0 ? entradaLiquida / numParcEntrada : 0;
+  atualizarTextoSeExiste(`${prefix}-val-parc-entrada`, formatarMoedaNum(valParcEntrada));
 }
 
 function validarAto(sistema, apenasAtualizar) {
@@ -361,11 +393,11 @@ function validarAto(sistema, apenasAtualizar) {
 
 function zeraValoresCards() {
   const ids = [
-    'sac-val-financiamento', 'sac-res-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-res-entrada-bruta',
-    'price-val-financiamento', 'price-res-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-res-entrada-bruta'
+    'sac-val-financiamento', 'sac-val-entrada-total', 'sac-res-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-res-entrada-bruta', 'sac-val-rec-proprios', 'sac-val-saldo-recursos', 'sac-val-entrada-liquida',
+    'price-val-financiamento', 'price-val-entrada-total', 'price-res-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-res-entrada-bruta', 'price-val-rec-proprios', 'price-val-saldo-recursos', 'price-val-entrada-liquida'
   ];
   ids.forEach(id => {
-    if (document.getElementById(id)) document.getElementById(id).innerText = "R$ 0,00";
+    atualizarTextoSeExiste(id, "R$ 0,00");
   });
 
   if (document.getElementById('sac-input-ato')) document.getElementById('sac-input-ato').value = "0,00";
@@ -471,13 +503,13 @@ function gerarTabelaUnificada() {
   const difSac = Math.max(0, totalInicialSac - totalPagoSacComAmort);
   const difPrice = Math.max(0, totalInicialPrice - totalPagoPriceComAmort);
 
-  if (document.getElementById('res-sac-inicial')) document.getElementById('res-sac-inicial').innerText = formatarMoeda(totalInicialSac);
-  if (document.getElementById('res-sac-amortizado')) document.getElementById('res-sac-amortizado').innerText = formatarMoeda(totalPagoSacComAmort);
-  if (document.getElementById('res-sac-diferenca')) document.getElementById('res-sac-diferenca').innerText = formatarMoeda(difSac);
+  atualizarTextoSeExiste('res-sac-inicial', formatarMoeda(totalInicialSac));
+  atualizarTextoSeExiste('res-sac-amortizado', formatarMoeda(totalPagoSacComAmort));
+  atualizarTextoSeExiste('res-sac-diferenca', formatarMoeda(difSac));
 
-  if (document.getElementById('res-price-inicial')) document.getElementById('res-price-inicial').innerText = formatarMoeda(totalInicialPrice);
-  if (document.getElementById('res-price-amortizado')) document.getElementById('res-price-amortizado').innerText = formatarMoeda(totalPagoPriceComAmort);
-  if (document.getElementById('res-price-diferenca')) document.getElementById('res-price-diferenca').innerText = formatarMoeda(difPrice);
+  atualizarTextoSeExiste('res-price-inicial', formatarMoeda(totalInicialPrice));
+  atualizarTextoSeExiste('res-price-amortizado', formatarMoeda(totalPagoPriceComAmort));
+  atualizarTextoSeExiste('res-price-diferenca', formatarMoeda(difPrice));
 }
 
 function confirmarAmortizacaoTabela(inputEl) {
@@ -504,5 +536,12 @@ document.addEventListener('DOMContentLoaded', () => {
       calcularPrazoMaximoPorDataNasc();
       simularFluxo();
     });
+  }
+
+  // AJUSTA PADRÃO PARA 30 PARCELAS DE ENTRADA
+  const inputQtdEntrada = document.getElementById('sim-qtd-parc-entrada');
+  if (inputQtdEntrada) {
+    inputQtdEntrada.value = 30;
+    inputQtdEntrada.addEventListener('change', simularFluxo);
   }
 });
