@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Com suporte a Sinal (Ato), Ato Mínimo (0.2%), Bom Pagador, cálculo de capacidade SAC e tabela de amortização.
+ * Atualizado com suporte a Layout de Duas Colunas (SAC/PRICE), Ato Mínimo de 0.2% e Entrada Bruta.
  */
 
 const CREDILAR_MATRIZ = [
@@ -59,6 +59,20 @@ function parseMoedaParaNumero(valor) {
   return parseFloat(limpo) / 100;
 }
 
+function formatarMoeda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function mascararMoeda(inputEl) {
+  let digitos = inputEl.value.replace(/\D/g, '');
+  if (!digitos) {
+    inputEl.value = '0,00';
+    return;
+  }
+  let numFloat = parseFloat(digitos) / 100;
+  inputEl.value = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
   if (renda <= 0) return { taxa: 0, tetoFinanBase: 0, subsidio: 0 };
   let linha = CREDILAR_MATRIZ[0];
@@ -74,78 +88,34 @@ function buscarParametrosCredilar(renda, comRedutor, comDependente) {
 }
 
 function simularFluxo() {
-  const inputValImovel = document.getElementById('sim-val-imovel')?.value;
-  const valImovel = (inputValImovel && inputValImovel.includes(',')) ? parseMoedaParaNumero(inputValImovel) : (parseFloat(inputValImovel) || 0);
-
-  const inputValAval = document.getElementById('sim-val-avaliacao')?.value;
-  const valAvaliacao = inputValAval ? ((inputValAval.includes(',')) ? parseMoedaParaNumero(inputValAval) : parseFloat(inputValAval)) : valImovel;
-
-  const inputRenda = document.getElementById('sim-renda')?.value;
-  const renda = (inputRenda && inputRenda.includes(',')) ? parseMoedaParaNumero(inputRenda) : (parseFloat(inputRenda) || 0);
+  const valImovel = parseMoedaParaNumero(document.getElementById('sim-val-imovel')?.value);
+  const valAvaliacao = parseMoedaParaNumero(document.getElementById('sim-val-avaliacao')?.value) || valImovel;
+  const renda = parseMoedaParaNumero(document.getElementById('sim-renda')?.value);
 
   const comRedutor = document.querySelector('input[name="opt-redutor"]:checked')?.value === 'sim';
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
-  const inputFgts = document.getElementById('sim-fgts')?.value;
-  const fgts = (inputFgts && inputFgts.includes(',')) ? parseMoedaParaNumero(inputFgts) : (parseFloat(inputFgts) || 0);
+  const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
+  const recursos = parseMoedaParaNumero(document.getElementById('sim-sinal')?.value); // Recursos Próprios
+  const bomPagador = parseMoedaParaNumero(document.getElementById('sim-bom-pagador')?.value);
 
-  const inputSinal = document.getElementById('sim-sinal')?.value;
-  const sinal = (inputSinal && inputSinal.includes(',')) ? parseMoedaParaNumero(inputSinal) : (parseFloat(inputSinal) || 0);
-
-  const bomPagadorInput = document.getElementById('sim-bom-pagador') || document.getElementById('sim-bom-pagador-val');
-  const rawBomPagador = bomPagadorInput?.value;
-  const bomPagador = (rawBomPagador && rawBomPagador.includes(',')) ? parseMoedaParaNumero(rawBomPagador) : (parseFloat(rawBomPagador) || 0);
-
-  const numParcelas = parseInt(document.getElementById('sim-num-parcelas')?.value) || 1;
   const inputPrazoEl = document.getElementById('sim-prazo-finan');
   let prazoDesejadoInput = parseInt(inputPrazoEl?.value) || 420;
-
   simState.prazoMeses = prazoDesejadoInput > 0 ? prazoDesejadoInput : 1;
 
   const baseSelecionada = document.querySelector('input[name="base-financiamento"]:checked')?.value || 'imovel';
   const baseCalculo = (baseSelecionada === 'avaliacao') ? valAvaliacao : valImovel;
 
-  // Cálculo do Ato Mínimo (0.2% do Valor do Imóvel)
-  const atoMinimo = valImovel * 0.002;
-
   if (valImovel <= 0 || renda <= 0) {
     if (document.getElementById('sim-subsidio-val')) document.getElementById('sim-subsidio-val').value = "R$ 0,00";
-    if (document.getElementById('sim-subsidio-input')) document.getElementById('sim-subsidio-input').value = "0";
-
-    // Zera elementos do SAC
-    if (document.getElementById('sac-res-financiamento')) document.getElementById('sac-res-financiamento').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-detalhes')) document.getElementById('sac-res-detalhes').innerHTML = "(0.0% DO IMÓVEL &bull; 0,00% A.A.)";
-    if (document.getElementById('sac-res-entrada-total')) document.getElementById('sac-res-entrada-total').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-fgts')) document.getElementById('sac-res-fgts').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-bom-pagador')) document.getElementById('sac-res-bom-pagador').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-ato-minimo')) document.getElementById('sac-res-ato-minimo').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-sinal')) document.getElementById('sac-res-sinal').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-entrada-liquida')) document.getElementById('sac-res-entrada-liquida').innerText = "R$ 0,00";
-    if (document.getElementById('sac-res-parcelamento-texto')) document.getElementById('sac-res-parcelamento-texto').innerText = "-";
-
-    // Zera elementos do PRICE
-    if (document.getElementById('price-res-financiamento')) document.getElementById('price-res-financiamento').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-detalhes')) document.getElementById('price-res-detalhes').innerHTML = "(0.0% DO IMÓVEL &bull; 0,00% A.A.)";
-    if (document.getElementById('price-res-entrada-total')) document.getElementById('price-res-entrada-total').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-fgts')) document.getElementById('price-res-fgts').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-bom-pagador')) document.getElementById('price-res-bom-pagador').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-ato-minimo')) document.getElementById('price-res-ato-minimo').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-sinal')) document.getElementById('price-res-sinal').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-entrada-liquida')) document.getElementById('price-res-entrada-liquida').innerText = "R$ 0,00";
-    if (document.getElementById('price-res-parcelamento-texto')) document.getElementById('price-res-parcelamento-texto').innerText = "-";
-
-    const tbody = document.getElementById('tabela-unificada-body');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
+    zeraValoresCards();
     return;
   }
 
   const params = buscarParametrosCredilar(renda, comRedutor, comDependente);
   
   if (document.getElementById('sim-subsidio-val')) {
-    document.getElementById('sim-subsidio-val').value = `R$ ${params.subsidio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sim-subsidio-input')) {
-    document.getElementById('sim-subsidio-input').value = params.subsidio;
+    document.getElementById('sim-subsidio-val').value = formatarMoeda(params.subsidio);
   }
 
   const limite80Base = baseCalculo * 0.80;
@@ -153,95 +123,102 @@ function simularFluxo() {
   // PRICE: Limitado a 80% ou teto da faixa
   const finanPriceCapacidade = Math.min(limite80Base, params.tetoFinanBase);
 
-  // SAC: Calculado pela Capacidade Financeira Exata da 1ª Parcela (30% da renda)
+  // SAC: Calculado pela 1ª parcela (30% da renda)
   const prestacaoMaximaRenda = renda * 0.30;
   const iMensalMCMV = Math.pow(1 + (params.taxa / 100), 1 / 12) - 1;
   const fatorSacPrimeiraParc = (1 / simState.prazoMeses) + iMensalMCMV;
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
-
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
-  // Percentuais
-  const pctPrice = ((finanPriceCapacidade / valImovel) * 100).toFixed(1);
-  const pctSac = ((finanSacCapacidade / valImovel) * 100).toFixed(1);
+  // CÁLCULOS DE ENTRADA TOTAL (Preço do Imóvel - Financiamento)
+  const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade);
+  const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade);
 
-  // Cálculos de Entrada Total
-  const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade - params.subsidio);
-  const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade - params.subsidio);
+  // ENTRADA BRUTA = ENTRADA TOTAL - SUBSÍDIO - FGTS - BOM PAGADOR
+  const entradaBrutaSac = Math.max(0, entradaTotalSac - params.subsidio - fgts - bomPagador);
+  const entradaBrutaPrice = Math.max(0, entradaTotalPrice - params.subsidio - fgts - bomPagador);
 
-  // Entrada Líquida subtraindo FGTS, Sinal e BOM PAGADOR
-  const entradaLiquidaPrice = Math.max(0, entradaTotalPrice - fgts - sinal - bomPagador);
-  const entradaLiquidaSac = Math.max(0, entradaTotalSac - fgts - sinal - bomPagador);
+  // EXIBIÇÃO NO CARD SAC - COLUNA ESQUERDA
+  if (document.getElementById('sac-res-financiamento')) document.getElementById('sac-res-financiamento').innerText = formatarMoeda(finanSacCapacidade);
+  if (document.getElementById('sac-res-entrada-total')) document.getElementById('sac-res-entrada-total').innerText = formatarMoeda(entradaTotalSac);
+  if (document.getElementById('sac-res-subsidio')) document.getElementById('sac-res-subsidio').innerText = formatarMoeda(params.subsidio);
+  if (document.getElementById('sac-res-fgts')) document.getElementById('sac-res-fgts').innerText = formatarMoeda(fgts);
+  if (document.getElementById('sac-res-bom-pagador')) document.getElementById('sac-res-bom-pagador').innerText = formatarMoeda(bomPagador);
 
-  const parcPriceEntrada = numParcelas > 0 ? (entradaLiquidaPrice / numParcelas) : 0;
-  const parcSacEntrada = numParcelas > 0 ? (entradaLiquidaSac / numParcelas) : 0;
+  // EXIBIÇÃO NO CARD SAC - COLUNA DIREITA
+  if (document.getElementById('sac-res-entrada-bruta')) document.getElementById('sac-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaSac);
+  if (document.getElementById('sac-res-recursos')) document.getElementById('sac-res-recursos').innerText = formatarMoeda(recursos);
 
-  const txFormatada = params.taxa.toFixed(2).replace('.', ',');
+  // EXIBIÇÃO NO CARD PRICE - COLUNA ESQUERDA
+  if (document.getElementById('price-res-financiamento')) document.getElementById('price-res-financiamento').innerText = formatarMoeda(finanPriceCapacidade);
+  if (document.getElementById('price-res-entrada-total')) document.getElementById('price-res-entrada-total').innerText = formatarMoeda(entradaTotalPrice);
+  if (document.getElementById('price-res-subsidio')) document.getElementById('price-res-subsidio').innerText = formatarMoeda(params.subsidio);
+  if (document.getElementById('price-res-fgts')) document.getElementById('price-res-fgts').innerText = formatarMoeda(fgts);
+  if (document.getElementById('price-res-bom-pagador')) document.getElementById('price-res-bom-pagador').innerText = formatarMoeda(bomPagador);
 
-  // EXIBIÇÃO NO CARD SAC
-  if (document.getElementById('sac-res-financiamento')) {
-    document.getElementById('sac-res-financiamento').innerText = `R$ ${finanSacCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-detalhes')) {
-    document.getElementById('sac-res-detalhes').innerHTML = `(${pctSac}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
-  }
-  if (document.getElementById('sac-res-entrada-total')) {
-    document.getElementById('sac-res-entrada-total').innerText = `R$ ${entradaTotalSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-fgts')) {
-    document.getElementById('sac-res-fgts').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-bom-pagador')) {
-    document.getElementById('sac-res-bom-pagador').innerText = `R$ ${bomPagador.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-ato-minimo')) {
-    document.getElementById('sac-res-ato-minimo').innerText = `R$ ${atoMinimo.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-sinal')) {
-    document.getElementById('sac-res-sinal').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-entrada-liquida')) {
-    document.getElementById('sac-res-entrada-liquida').innerText = `R$ ${entradaLiquidaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('sac-res-parcelamento-texto')) {
-    document.getElementById('sac-res-parcelamento-texto').innerText = `EM ${numParcelas}X DE R$ ${parcSacEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  }
+  // EXIBIÇÃO NO CARD PRICE - COLUNA DIREITA
+  if (document.getElementById('price-res-entrada-bruta')) document.getElementById('price-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaPrice);
+  if (document.getElementById('price-res-recursos')) document.getElementById('price-res-recursos').innerText = formatarMoeda(recursos);
 
-  // EXIBIÇÃO NO CARD PRICE
-  if (document.getElementById('price-res-financiamento')) {
-    document.getElementById('price-res-financiamento').innerText = `R$ ${finanPriceCapacidade.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-detalhes')) {
-    document.getElementById('price-res-detalhes').innerHTML = `(${pctPrice}% DO IMÓVEL &bull; ${txFormatada}% A.A.)`;
-  }
-  if (document.getElementById('price-res-entrada-total')) {
-    document.getElementById('price-res-entrada-total').innerText = `R$ ${entradaTotalPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-fgts')) {
-    document.getElementById('price-res-fgts').innerText = `R$ ${fgts.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-bom-pagador')) {
-    document.getElementById('price-res-bom-pagador').innerText = `R$ ${bomPagador.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-ato-minimo')) {
-    document.getElementById('price-res-ato-minimo').innerText = `R$ ${atoMinimo.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-sinal')) {
-    document.getElementById('price-res-sinal').innerText = `R$ ${sinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-entrada-liquida')) {
-    document.getElementById('price-res-entrada-liquida').innerText = `R$ ${entradaLiquidaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('price-res-parcelamento-texto')) {
-    document.getElementById('price-res-parcelamento-texto').innerText = `EM ${numParcelas}X DE R$ ${parcPriceEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  }
-
+  // Atualiza ATO (0.2% Padrão ou o valor atual se válido)
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
   simState.valorFinanciadoSac = finanSacCapacidade;
   simState.taxaJurosAnual = params.taxa;
 
+  validarAto('SAC', true);
+  validarAto('PRICE', true);
+
   gerarTabelaUnificada();
+}
+
+/**
+ * Valida e calcula o ATO (Padrão 0,2% do imóvel)
+ * Se for menor que 0,2%, exibe aviso e restaura o valor mínimo.
+ */
+function validarAto(sistema, apenasAtualizar) {
+  const prefixo = sistema.toLowerCase();
+  const valImovel = simState.valorImovel;
+  if (valImovel <= 0) return;
+
+  const inputAto = document.getElementById(`${prefixo}-input-ato`);
+  const pctAtoEl = document.getElementById(`${prefixo}-pct-ato`);
+  if (!inputAto || !pctAtoEl) return;
+
+  const atoMinimo = valImovel * 0.002; // 0.2% do Valor do Imóvel
+  let valorAtoDigitado = parseMoedaParaNumero(inputAto.value);
+
+  // Se estiver atualizando e o valor estiver zerado ou abaixo do mínimo, aplica o mínimo
+  if (apenasAtualizar && valorAtoDigitado < atoMinimo) {
+    valorAtoDigitado = atoMinimo;
+    inputAto.value = valorAtoDigitado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  } else if (!apenasAtualizar && valorAtoDigitado < atoMinimo) {
+    alert(`O valor mínimo para o ATO é de 0,2% do valor do imóvel (${formatarMoeda(atoMinimo)}).`);
+    valorAtoDigitado = atoMinimo;
+    inputAto.value = valorAtoDigitado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Calcula % em relação ao imóvel
+  const pctCalculado = (valorAtoDigitado / valImovel) * 100;
+  pctAtoEl.value = `${pctCalculado.toFixed(1)}%`;
+}
+
+function zeraValoresCards() {
+  const ids = [
+    'sac-res-financiamento', 'sac-res-entrada-total', 'sac-res-subsidio', 'sac-res-fgts', 'sac-res-bom-pagador', 'sac-res-entrada-bruta', 'sac-res-recursos',
+    'price-res-financiamento', 'price-res-entrada-total', 'price-res-subsidio', 'price-res-fgts', 'price-res-bom-pagador', 'price-res-entrada-bruta', 'price-res-recursos'
+  ];
+  ids.forEach(id => {
+    if (document.getElementById(id)) document.getElementById(id).innerText = "R$ 0,00";
+  });
+
+  if (document.getElementById('sac-input-ato')) document.getElementById('sac-input-ato').value = "0,00";
+  if (document.getElementById('sac-pct-ato')) document.getElementById('sac-pct-ato').value = "0%";
+  if (document.getElementById('price-input-ato')) document.getElementById('price-input-ato').value = "0,00";
+  if (document.getElementById('price-pct-ato')) document.getElementById('price-pct-ato').value = "0%";
+
+  const tbody = document.getElementById('tabela-unificada-body');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
 }
 
 function calcularTotaisIniciaisFixos(PSac, PPrice, n, iMensal) {
@@ -308,7 +285,7 @@ function gerarTabelaUnificada() {
     }
 
     const classeLinha = amortExtra > 0 ? 'class="linha-amortizada"' : '';
-    const valorAmortExibido = amortExtra > 0 ? `R$ ${amortExtra.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : '';
+    const valorAmortExibido = amortExtra > 0 ? formatarMoeda(amortExtra) : '';
 
     htmlTabela += `
       <tr ${classeLinha}>
@@ -317,15 +294,15 @@ function gerarTabelaUnificada() {
           <input type="text" class="input-amort-extra" data-mes="${mes}" 
                  value="${valorAmortExibido}" placeholder="0,00" 
                  style="width: 95px; height: 26px; text-align: right; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px;"
-                 oninput="mascararDigitoTabela(this)"
+                 oninput="mascararMoeda(this)"
                  onchange="confirmarAmortizacaoTabela(this)">
         </td>
-        <td>R$ ${parcelaSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${jurosSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${saldoSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td style="border-left: 2px solid #ddd;">R$ ${parcelaPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${jurosPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td>R$ ${saldoPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td>${formatarMoeda(parcelaSac)}</td>
+        <td>${formatarMoeda(jurosSac)}</td>
+        <td>${formatarMoeda(saldoSac)}</td>
+        <td style="border-left: 2px solid #ddd;">${formatarMoeda(parcelaPrice)}</td>
+        <td>${formatarMoeda(jurosPrice)}</td>
+        <td>${formatarMoeda(saldoPrice)}</td>
       </tr>
     `;
 
@@ -337,33 +314,13 @@ function gerarTabelaUnificada() {
   const difSac = Math.max(0, totalInicialSac - totalPagoSacComAmort);
   const difPrice = Math.max(0, totalInicialPrice - totalPagoPriceComAmort);
 
-  if (document.getElementById('res-total-sac')) {
-    document.getElementById('res-total-sac').innerText = `R$ ${totalPagoSacComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  }
-  if (document.getElementById('res-total-price')) {
-    document.getElementById('res-total-price').innerText = `R$ ${totalPagoPriceComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  }
+  if (document.getElementById('res-sac-inicial')) document.getElementById('res-sac-inicial').innerText = formatarMoeda(totalInicialSac);
+  if (document.getElementById('res-sac-amortizado')) document.getElementById('res-sac-amortizado').innerText = formatarMoeda(totalPagoSacComAmort);
+  if (document.getElementById('res-sac-diferenca')) document.getElementById('res-sac-diferenca').innerText = formatarMoeda(difSac);
 
-  if (document.getElementById('res-sac-inicial')) document.getElementById('res-sac-inicial').innerText = `R$ ${totalInicialSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  if (document.getElementById('res-sac-amortizado')) document.getElementById('res-sac-amortizado').innerText = `R$ ${totalPagoSacComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  if (document.getElementById('res-sac-diferenca')) document.getElementById('res-sac-diferenca').innerText = `R$ ${difSac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-  if (document.getElementById('res-price-inicial')) document.getElementById('res-price-inicial').innerText = `R$ ${totalInicialPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  if (document.getElementById('res-price-amortizado')) document.getElementById('res-price-amortizado').innerText = `R$ ${totalPagoPriceComAmort.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-  if (document.getElementById('res-price-diferenca')) document.getElementById('res-price-diferenca').innerText = `R$ ${difPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-}
-
-function mascararDigitoTabela(inputEl) {
-  let digitos = inputEl.value.replace(/\D/g, '');
-  if (!digitos) {
-    inputEl.value = '';
-    return;
-  }
-  let numFloat = parseFloat(digitos) / 100;
-  let numFormatado = numFloat.toFixed(2);
-  let partes = numFormatado.split('.');
-  partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  inputEl.value = `R$ ${partes.join(',')}`;
+  if (document.getElementById('res-price-inicial')) document.getElementById('res-price-inicial').innerText = formatarMoeda(totalInicialPrice);
+  if (document.getElementById('res-price-amortizado')) document.getElementById('res-price-amortizado').innerText = formatarMoeda(totalPagoPriceComAmort);
+  if (document.getElementById('res-price-diferenca')) document.getElementById('res-price-diferenca').innerText = formatarMoeda(difPrice);
 }
 
 function confirmarAmortizacaoTabela(inputEl) {
