@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Código Unificado e Corrigido (Ajustes de IDs, Entrada Total e Padrão de 30 Parcelas)
+ * Código Unificado (Cálculo de Entrada Bruta, Rec. Próprios e Padrão 30 Parcelas)
  */
 
 // 1. CARREGAMENTO DO MODAL E IMPRESSÃO
@@ -237,7 +237,7 @@ function simularFluxo() {
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
   const fgts = obterValorNumerico('sim-fgts');
-  const recursos = obterValorNumerico('sim-sinal');
+  const recursos = obterValorNumerico('sim-sinal'); // Campo "Recursos:" do formulário
   const bomPagador = obterValorNumerico('sim-bom-pagador');
 
   calcularPrazoMaximoPorDataNasc();
@@ -273,15 +273,15 @@ function simularFluxo() {
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
-  // ENTRADA TOTAL = VALOR IMÓVEL - FINANCIAMENTO
+  // 1. ENTRADA TOTAL = VALOR IMÓVEL - FINANCIAMENTO
   const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade);
   const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade);
 
-  // ENTRADA BRUTA = ENTRADA TOTAL - SUBSÍDIO - FGTS - BOM PAGADOR
+  // 2. ENTRADA BRUTA = ENTRADA TOTAL - SUBSÍDIO - FGTS - BOM PAGADOR
   const entradaBrutaSac = Math.max(0, entradaTotalSac - params.subsidio - fgts - bomPagador);
   const entradaBrutaPrice = Math.max(0, entradaTotalPrice - params.subsidio - fgts - bomPagador);
 
-  // EXIBIÇÃO NOS CARDS (SOPORTA OS DOIS PADRÕES DE IDS DO HTML)
+  // EXIBIÇÃO NOS CARDS DA SAC E PRICE
   atualizarTextoSeExiste('sac-val-financiamento', formatarMoeda(finanSacCapacidade));
   atualizarTextoSeExiste('price-val-financiamento', formatarMoeda(finanPriceCapacidade));
 
@@ -290,7 +290,10 @@ function simularFluxo() {
   atualizarTextoSeExiste('price-val-entrada-total', formatarMoeda(entradaTotalPrice));
   atualizarTextoSeExiste('price-res-entrada-total', formatarMoeda(entradaTotalPrice));
 
+  // EXIBIÇÃO DA ENTRADA BRUTA
+  atualizarTextoSeExiste('sac-val-entrada-bruta', formatarMoeda(entradaBrutaSac));
   atualizarTextoSeExiste('sac-res-entrada-bruta', formatarMoeda(entradaBrutaSac));
+  atualizarTextoSeExiste('price-val-entrada-bruta', formatarMoeda(entradaBrutaPrice));
   atualizarTextoSeExiste('price-res-entrada-bruta', formatarMoeda(entradaBrutaPrice));
 
   atualizarTextoSeExiste('sac-val-fgts', formatarMoeda(fgts));
@@ -302,9 +305,11 @@ function simularFluxo() {
   atualizarTextoSeExiste('sac-val-subsidio', formatarMoeda(params.subsidio));
   atualizarTextoSeExiste('price-val-subsidio', formatarMoeda(params.subsidio));
 
-  // REC. PRÓPRIOS E SALDO RECURSOS
+  // 3. REC. PRÓPRIOS = VALOR DO CAMPO "RECURSOS"
   atualizarTextoSeExiste('sac-val-rec-proprios', formatarMoeda(recursos));
+  atualizarTextoSeExiste('sac-res-rec-proprios', formatarMoeda(recursos));
   atualizarTextoSeExiste('price-val-rec-proprios', formatarMoeda(recursos));
+  atualizarTextoSeExiste('price-res-rec-proprios', formatarMoeda(recursos));
 
   const valAtoSac = obterValorNumerico('sac-input-ato');
   const valAtoPrice = obterValorNumerico('price-input-ato');
@@ -313,7 +318,9 @@ function simularFluxo() {
   const saldoRecursosPrice = Math.max(0, recursos - valAtoPrice);
 
   atualizarTextoSeExiste('sac-val-saldo-recursos', formatarMoeda(saldoRecursosSac));
+  atualizarTextoSeExiste('sac-res-saldo-recursos', formatarMoeda(saldoRecursosSac));
   atualizarTextoSeExiste('price-val-saldo-recursos', formatarMoeda(saldoRecursosPrice));
+  atualizarTextoSeExiste('price-res-saldo-recursos', formatarMoeda(saldoRecursosPrice));
 
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
@@ -352,9 +359,10 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const valParcSinalEl = document.getElementById(`${prefix}-val-parc-sinal`);
   if (valParcSinalEl) valParcSinalEl.innerText = formatarMoedaNum(valParcSinal);
 
-  // CÁLCULO ENTRADA LÍQUIDA
+  // ENTRADA LÍQUIDA = ENTRADA BRUTA - REC. PRÓPRIOS
   const entradaLiquida = Math.max(0, entradaBruta - recursos);
   atualizarTextoSeExiste(`${prefix}-val-entrada-liquida`, formatarMoeda(entradaLiquida));
+  atualizarTextoSeExiste(`${prefix}-res-entrada-liquida`, formatarMoeda(entradaLiquida));
 
   // PARCELAS DE ENTRADA (PADRÃO 30)
   const inputQtdGlobal = document.getElementById('sim-qtd-parc-entrada');
@@ -365,6 +373,7 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
 
   const valParcEntrada = numParcEntrada > 0 ? entradaLiquida / numParcEntrada : 0;
   atualizarTextoSeExiste(`${prefix}-val-parc-entrada`, formatarMoedaNum(valParcEntrada));
+  atualizarTextoSeExiste(`${prefix}-res-parc-entrada`, formatarMoedaNum(valParcEntrada));
 }
 
 function validarAto(sistema, apenasAtualizar) {
@@ -393,8 +402,8 @@ function validarAto(sistema, apenasAtualizar) {
 
 function zeraValoresCards() {
   const ids = [
-    'sac-val-financiamento', 'sac-val-entrada-total', 'sac-res-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-res-entrada-bruta', 'sac-val-rec-proprios', 'sac-val-saldo-recursos', 'sac-val-entrada-liquida',
-    'price-val-financiamento', 'price-val-entrada-total', 'price-res-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-res-entrada-bruta', 'price-val-rec-proprios', 'price-val-saldo-recursos', 'price-val-entrada-liquida'
+    'sac-val-financiamento', 'sac-val-entrada-total', 'sac-res-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-val-entrada-bruta', 'sac-res-entrada-bruta', 'sac-val-rec-proprios', 'sac-res-rec-proprios', 'sac-val-saldo-recursos', 'sac-res-saldo-recursos', 'sac-val-entrada-liquida', 'sac-res-entrada-liquida',
+    'price-val-financiamento', 'price-val-entrada-total', 'price-res-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-val-entrada-bruta', 'price-res-entrada-bruta', 'price-val-rec-proprios', 'price-res-rec-proprios', 'price-val-saldo-recursos', 'price-res-saldo-recursos', 'price-val-entrada-liquida', 'price-res-entrada-liquida'
   ];
   ids.forEach(id => {
     atualizarTextoSeExiste(id, "R$ 0,00");
