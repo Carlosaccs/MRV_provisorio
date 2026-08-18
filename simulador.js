@@ -427,3 +427,99 @@ function confirmarAmortizacaoTabela(inputEl) {
   }
   gerarTabelaUnificada();
 }
+
+
+// 1. MÁSCARA MONETÁRIA
+function mascararMoeda(input) {
+    let value = input.value.replace(/\D/g, "");
+    if (value === "") {
+        input.value = "";
+        return;
+    }
+    value = (parseInt(value, 10) / 100).toFixed(2) + "";
+    value = value.replace(".", ",");
+    value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    input.value = "R$ " + value;
+}
+
+// 2. FUNÇÃO AUXILIAR DE CONVERSÃO DE MOEDA
+function obterValorNumerico(id) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    const val = el.value || el.innerText || "0";
+    const num = parseFloat(val.replace(/[^\d,-]/g, "").replace(",", "."));
+    return isNaN(num) ? 0 : num;
+}
+
+// 3. LOGICA PRINCIPAL DE CÁLCULO E FLUXO
+function simularFluxo() {
+    const valImovel = obterValorNumerico('sim-val-imovel');
+    const valAvaliacao = obterValorNumerico('sim-val-avaliacao');
+    const bomPagador = obterValorNumerico('sim-bom-pagador');
+    const fgts = obterValorNumerico('sim-fgts');
+    const recursos = obterValorNumerico('sim-sinal');
+    const subsidio = obterValorNumerico('sim-subsidio-val');
+    
+    // Define a base utilizada (Imóvel ou Avaliação)
+    const baseRadio = document.querySelector('input[name="base-financiamento"]:checked');
+    const baseValor = (baseRadio && baseRadio.value === 'avaliacao') ? valAvaliacao : valImovel;
+
+    // Regra simplificada de LTV (limite até 80% do valor da base)
+    const maxFinanciamentoPermitido = baseValor * 0.80;
+    
+    // O Financiamento real é a base menos as entradas/recursos e subsídios, travado no máximo do LTV
+    let valFinanciamentoCalculado = Math.max(0, baseValor - (fgts + recursos + bomPagador + subsidio));
+    if (valFinanciamentoCalculado > maxFinanciamentoPermitido) {
+        valFinanciamentoCalculado = maxFinanciamentoPermitido;
+    }
+
+    // CARREGA O FINANCIAMENTO NOS CAMPOS SAC E PRICE
+    const valFinanFormatado = formatarMoedaNum(valFinanciamentoCalculado);
+    document.getElementById('sac-val-financiamento').innerText = valFinanFormatado;
+    document.getElementById('price-val-financiamento').innerText = valFinanFormatado;
+
+    // ATUALIZA VALORES FIXOS/INFORMAÇÕES ADICIONAIS NAS COLUNAS ESQUERDAS
+    document.getElementById('sac-val-fgts').innerText = formatarMoedaNum(fgts);
+    document.getElementById('price-val-fgts').innerText = formatarMoedaNum(fgts);
+
+    document.getElementById('sac-val-bom-pagador').innerText = formatarMoedaNum(bomPagador);
+    document.getElementById('price-val-bom-pagador').innerText = formatarMoedaNum(bomPagador);
+
+    document.getElementById('sac-val-subsidio').innerText = formatarMoedaNum(subsidio);
+    document.getElementById('price-val-subsidio').innerText = formatarMoedaNum(subsidio);
+
+    // ATUALIZA SINAL E ATO PARA SAC E PRICE
+    atualizarLinhaSinal('sac', valImovel);
+    atualizarLinhaSinal('price', valImovel);
+}
+
+// 4. CÁLCULO E ATUALIZAÇÃO DO ATO E SINAL (1,5% DO IMÓVEL - ATO)
+function atualizarLinhaSinal(sistema, valImovel) {
+    const prefix = sistema; // 'sac' ou 'price'
+    const valAto = obterValorNumerico(`${prefix}-input-ato`);
+    
+    // Porcentagem do Ato em relação ao Imóvel
+    const pctAto = valImovel > 0 ? ((valAto / valImovel) * 100).toFixed(1) : "0.0";
+    document.getElementById(`${prefix}-pct-ato`).value = `${pctAto}%`;
+
+    // Sinal = (1.5% do Valor do Imóvel) - Ato
+    const metaSinal = valImovel * 0.015;
+    const valSinal = Math.max(0, metaSinal - valAto);
+    document.getElementById(`${prefix}-val-sinal`).innerText = formatarMoedaNum(valSinal);
+
+    // Qtd parcelas do sinal (Máx 5)
+    let parcSinalEl = document.getElementById(`${prefix}-parc-sinal`);
+    let numParcSinal = parseInt(parcSinalEl.value) || 1;
+    if (numParcSinal > 5) {
+        numParcSinal = 5;
+        parcSinalEl.value = 5;
+    }
+
+    const valParcSinal = numParcSinal > 0 ? valSinal / numParcSinal : 0;
+    document.getElementById(`${prefix}-val-parc-sinal`).innerText = formatarMoedaNum(valParcSinal);
+}
+
+// 5. FORMATADOR DE MOEDA PARA O TEXTO
+function formatarMoedaNum(valor) {
+    return (valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
