@@ -29,8 +29,8 @@
         .modal-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 1200px;
-            max-height: 90vh;
+            max-width: 1100px;
+            max-height: 92vh;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             display: flex;
@@ -39,17 +39,18 @@
         }
 
         .modal-header {
-            background-color: #1e293b;
+            background-color: #065f46;
             color: #ffffff;
-            padding: 16px 24px;
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .modal-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .modal-close-btn {
@@ -62,21 +63,21 @@
         }
 
         .modal-body {
-            padding: 24px;
+            padding: 20px;
             overflow-y: auto;
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 16px;
         }
 
-        /* Seção de Formulário */
+        /* Form Grid */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 16px;
             background-color: #f8fafc;
-            padding: 20px;
+            padding: 16px;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
         }
@@ -84,98 +85,100 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .form-group label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: #475569;
+            color: #334155;
         }
 
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group input[type="date"] {
             width: 100%;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             color: #0f172a;
             outline: none;
-            transition: border-color 0.2s;
         }
 
         .form-group input:focus {
-            border-color: #2563eb;
+            border-color: #059669;
         }
 
         .radio-group, .checkbox-group {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-top: 6px;
+            margin-top: 4px;
+            font-size: 0.85rem;
         }
 
         .radio-group label, .checkbox-group label {
-            font-size: 0.9rem;
-            color: #334155;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 4px;
+            color: #334155;
         }
 
-        /* Cards Comparativos */
+        /* Cards Layout */
         .cards-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
         .card-sistema {
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 20px;
+            padding: 16px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .card-sistema h3 {
-            font-size: 1.1rem;
-            color: #1e293b;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #065f46;
             border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
-            margin-bottom: 16px;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            text-transform: uppercase;
         }
 
         .data-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
-            font-size: 0.9rem;
+            padding: 4px 0;
+            font-size: 0.85rem;
             border-bottom: 1px dashed #f1f5f9;
         }
 
         .data-row span:first-child {
-            color: #64748b;
+            color: #475569;
+            font-weight: 500;
         }
 
         .data-row span:last-child {
-            font-weight: 600;
+            font-weight: 700;
             color: #0f172a;
         }
 
         .data-row.highlight {
             background-color: #f1f5f9;
-            padding: 8px;
+            padding: 6px;
             border-radius: 4px;
             border-bottom: none;
-            margin: 4px 0;
+            margin: 2px 0;
         }
 
         .inline-input-group {
@@ -185,81 +188,67 @@
         }
 
         .inline-input-group input {
-            width: 90px;
-            padding: 4px 6px;
+            padding: 3px 6px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
             text-align: right;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
-        /* Tabela de Amortização */
+        /* Tabela */
         .tabela-container {
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             overflow-x: auto;
+            max-height: 250px;
+            overflow-y: auto;
             background-color: #ffffff;
         }
 
         .tabela-simulacao {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-align: right;
         }
 
         .tabela-simulacao th {
+            position: sticky;
+            top: 0;
             background-color: #f8fafc;
             color: #475569;
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-weight: 600;
             border-bottom: 2px solid #e2e8f0;
             white-space: nowrap;
+            z-index: 10;
         }
 
         .tabela-simulacao td {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid #f1f5f9;
             color: #334155;
             white-space: nowrap;
-        }
-
-        .resumo-amortizacao {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            background-color: #f8fafc;
-            padding: 16px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .resumo-box h4 {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: #64748b;
-            margin-bottom: 4px;
-        }
-
-        .resumo-box p {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #0f172a;
         }
 
         .btn-imprimir {
             background-color: #2563eb;
             color: #ffffff;
             border: none;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         .btn-imprimir:hover {
             background-color: #1d4ed8;
+        }
+
+        @media (max-width: 850px) {
+            .form-grid { grid-template-columns: repeat(2, 1fr); }
+            .cards-container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -270,53 +259,53 @@
             
             <!-- Modal Header -->
             <div class="modal-header">
-                <h2>SpeedSim - Simulador MCMV / SBPE</h2>
+                <h2>SPEEDSIM - SIMULADOR MCMV</h2>
                 <button class="modal-close-btn" onclick="document.getElementById('modal-speedsim').style.display='none'">&times;</button>
             </div>
 
             <!-- Modal Body -->
             <div class="modal-body">
 
-                <!-- Formulário de Entrada de Dados -->
+                <!-- Formulário de Entrada -->
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="sim-val-imovel">Valor do Imóvel (R$)</label>
-                        <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" value="R$ 275.000,00" oninput="mascararMoeda(this); simularFluxo();">
+                        <input type="text" id="sim-val-imovel" value="R$ 275.000,00" oninput="mascararMoeda(this); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-val-avaliacao">Valor de Avaliação (R$)</label>
-                        <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo();">
+                        <input type="text" id="sim-val-avaliacao" value="R$ 0,00" oninput="mascararMoeda(this); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-renda">Renda Bruta (R$)</label>
-                        <input type="text" id="sim-renda" placeholder="R$ 0,00" value="R$ 4.000,00" oninput="mascararMoeda(this); simularFluxo();">
+                        <input type="text" id="sim-renda" value="R$ 4.000,00" oninput="mascararMoeda(this); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-data-nasc">Data de Nascimento</label>
-                        <input type="date" id="sim-data-nasc" value="2000-05-13" onchange="simularFluxo();">
+                        <input type="date" id="sim-data-nasc" value="2000-05-13" onchange="recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-prazo-finan">Prazo (Meses)</label>
-                        <input type="number" id="sim-prazo-finan" value="420" min="1" max="420" onchange="simularFluxo();">
+                        <input type="number" id="sim-prazo-finan" value="420" min="1" max="420" onchange="recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-recursos">Recursos Próprios / Sinal (R$)</label>
-                        <input type="text" id="sim-recursos" placeholder="R$ 0,00" value="R$ 10.000,00" oninput="mascararMoeda(this); simularFluxo();">
+                        <input type="text" id="sim-recursos" value="R$ 10.000,00" oninput="mascararMoeda(this); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-fgts">FGTS (R$)</label>
-                        <input type="text" id="sim-fgts" placeholder="R$ 0,00" value="R$ 10.000,00" oninput="mascararMoeda(this); simularFluxo();">
+                        <input type="text" id="sim-fgts" value="R$ 10.000,00" oninput="mascararMoeda(this); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-bom-pagador">Desconto Bom Pagador (R$)</label>
-                        <input type="text" id="sim-bom-pagador" placeholder="R$ 0,00" value="R$ 8.000,00" oninput="mascararMoeda(this); simularFluxo();">
+                        <input type="text" id="sim-bom-pagador" value="R$ 8.000,00" oninput="mascararMoeda(this); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
@@ -326,150 +315,136 @@
 
                     <div class="form-group">
                         <label for="sim-qtd-parc-entrada">Nº Parc. Entrada</label>
-                        <input type="number" id="sim-qtd-parc-entrada" value="30" min="1" max="120" onchange="sincronizarParcelasEntrada(this.value); simularFluxo();">
+                        <input type="number" id="sim-qtd-parc-entrada" value="30" min="1" max="120" onchange="sincronizarParcelas(this.value); recalcularSimulacao();">
                     </div>
 
                     <div class="form-group">
                         <label>Base de Cálculo</label>
                         <div class="radio-group">
-                            <label><input type="radio" name="base-financiamento" value="imovel" checked onchange="simularFluxo();"> Vl. Imóvel</label>
-                            <label><input type="radio" name="base-financiamento" value="avaliacao" onchange="simularFluxo();"> Avaliação</label>
+                            <label><input type="radio" name="base-financiamento" value="imovel" checked onchange="recalcularSimulacao();"> Vl. Imóvel</label>
+                            <label><input type="radio" name="base-financiamento" value="avaliacao" onchange="recalcularSimulacao();"> Avaliação</label>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Desconto Redutor?</label>
                         <div class="radio-group">
-                            <label><input type="radio" name="opt-redutor" value="sim" checked onchange="simularFluxo();"> Sim</label>
-                            <label><input type="radio" name="opt-redutor" value="nao" onchange="simularFluxo();"> Não</label>
+                            <label><input type="radio" name="opt-redutor" value="sim" checked onchange="recalcularSimulacao();"> Sim</label>
+                            <label><input type="radio" name="opt-redutor" value="nao" onchange="recalcularSimulacao();"> Não</label>
                         </div>
                     </div>
 
-                    <div class="form-group" style="justify-content: flex-end;">
+                    <div class="form-group" style="grid-column: span 2;">
                         <div class="checkbox-group">
-                            <label><input type="checkbox" id="sim-dependente" checked onchange="simularFluxo();"> Possui Dependente ou +1 Comprador</label>
+                            <label><input type="checkbox" id="sim-dependente" checked onchange="recalcularSimulacao();"> Possui Dependente ou +1 Comprador</label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Cards Comparativos: SAC vs PRICE -->
+                <!-- Cards SAC e PRICE -->
                 <div class="cards-container">
                     
-                    <!-- Card SAC -->
+                    <!-- SAC -->
                     <div class="card-sistema">
                         <h3>
-                            SISTEMA SAC
-                            <button class="btn-imprimir">Imprimir</button>
+                            SISTEMA SAC (PARCELAS DECRESCENTES)
+                            <button class="btn-imprimir">Imprimir SAC</button>
                         </h3>
-                        <div class="data-row"><span>Financiamento:</span><span id="sac-val-financiamento">R$ 175.114,70</span></div>
-                        <div class="data-row"><span>Entrada Total:</span><span id="sac-val-entrada-total">R$ 99.885,30</span></div>
-                        <div class="data-row"><span>Subsídio:</span><span id="sac-val-subsidio">R$ 2.099,00</span></div>
+                        <div class="data-row"><span>FINANCIAMENTO:</span><span id="sac-val-financiamento">R$ 175.114,70</span></div>
+                        <div class="data-row"><span>ENTRADA TOTAL:</span><span id="sac-val-entrada-total">R$ 99.885,30</span></div>
+                        <div class="data-row"><span>SUBSÍDIO:</span><span id="sac-val-subsidio">R$ 2.099,00</span></div>
                         <div class="data-row"><span>FGTS:</span><span id="sac-val-fgts">R$ 10.000,00</span></div>
-                        <div class="data-row"><span>Bom Pagador:</span><span id="sac-val-bom-pagador">R$ 8.000,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Bruta:</span><span id="sac-val-entrada-bruta">R$ 79.786,30</span></div>
-                        <div class="data-row"><span>Recursos Próprios:</span><span id="sac-val-rec-proprios">R$ 10.000,00</span></div>
+                        <div class="data-row"><span>BOM PAGADOR:</span><span id="sac-val-bom-pagador">R$ 8.000,00</span></div>
+                        <div class="data-row highlight"><span>ENTRADA BRUTA:</span><span id="sac-val-entrada-bruta">R$ 79.786,30</span></div>
+                        <div class="data-row"><span>REC. PRÓPRIOS:</span><span id="sac-val-rec-proprios">R$ 10.000,00</span></div>
                         
                         <div class="data-row">
-                            <span>Ato Digitado / %:</span>
+                            <span>ATO:</span>
                             <div class="inline-input-group">
-                                <input type="text" id="sac-input-ato" class="sac-ato" value="R$ 550,00" oninput="mascararMoeda(this); simularFluxo();">
-                                <input type="text" id="sac-pct-ato" disabled value="0.2%" style="width: 50px; text-align: center;">
+                                <input type="text" id="sac-input-ato" value="R$ 550,00" style="width: 80px;" oninput="mascararMoeda(this); recalcularSimulacao();">
+                                <span style="font-size:0.75rem;">=</span>
+                                <input type="text" id="sac-pct-ato" disabled value="0,2%" style="width: 45px; text-align: center; background:#f1f5f9;">
                             </div>
                         </div>
 
-                        <div class="data-row"><span>Valor do Sinal:</span><span id="sac-val-sinal">R$ 9.450,00</span></div>
                         <div class="data-row">
-                            <span>Parc. Sinal (máx 5):</span>
+                            <span>SINAL:</span>
                             <div class="inline-input-group">
-                                <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" style="width: 50px;" onchange="simularFluxo();">
-                                <span id="sac-val-parc-sinal" style="font-size: 0.85rem;">R$ 1.890,00</span>
+                                <span id="sac-val-sinal">R$ 3.575,00</span>
+                                <span style="font-size:0.75rem;">EM</span>
+                                <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" style="width: 40px;" onchange="recalcularSimulacao();">
                             </div>
                         </div>
+                        <div class="data-row" style="padding-left: 10px; font-size:0.8rem; color:#64748b;">
+                            <span>PARCELAS SINAL:</span><span id="sac-val-parc-sinal">R$ 715,00</span>
+                        </div>
 
-                        <div class="data-row"><span>Saldo Recursos:</span><span id="sac-val-saldo-recursos">R$ 0,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Líquida:</span><span id="sac-val-entrada-liquida">R$ 69.786,30</span></div>
-                        <div class="data-row">
-                            <span>Parc. Entrada:</span>
+                        <div class="data-row"><span>SALDO RECURSOS:</span><span id="sac-val-saldo-recursos">R$ 0,00</span></div>
+                        <div class="data-row highlight">
+                            <span>ENTRADA LÍQUIDA:</span>
                             <div class="inline-input-group">
-                                <input type="number" id="sac-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo();">
-                                <span id="sac-val-parc-entrada">R$ 2.326,21</span>
+                                <span id="sac-val-entrada-liquida">R$ 69.786,30</span>
+                                <span style="font-size:0.75rem;">EM</span>
+                                <input type="number" id="sac-parc-entrada" value="30" min="1" max="120" style="width: 40px;" onchange="recalcularSimulacao();">
                             </div>
+                        </div>
+                        <div class="data-row" style="padding-left: 10px; font-size:0.8rem; color:#64748b;">
+                            <span>PARCELAS ENTRADA:</span><span id="sac-val-parc-entrada">R$ 2.326,21</span>
                         </div>
                     </div>
 
-                    <!-- Card PRICE -->
+                    <!-- PRICE -->
                     <div class="card-sistema">
                         <h3>
-                            SISTEMA PRICE
-                            <button class="btn-imprimir">Imprimir</button>
+                            SISTEMA PRICE (PARCELAS FIXAS)
+                            <button class="btn-imprimir">Imprimir PRICE</button>
                         </h3>
-                        <div class="data-row"><span>Financiamento:</span><span id="price-val-financiamento">R$ 210.923,01</span></div>
-                        <div class="data-row"><span>Entrada Total:</span><span id="price-val-entrada-total">R$ 64.076,99</span></div>
-                        <div class="data-row"><span>Subsídio:</span><span id="price-val-subsidio">R$ 2.099,00</span></div>
+                        <div class="data-row"><span>FINANCIAMENTO:</span><span id="price-val-financiamento">R$ 210.923,01</span></div>
+                        <div class="data-row"><span>ENTRADA TOTAL:</span><span id="price-val-entrada-total">R$ 64.076,99</span></div>
+                        <div class="data-row"><span>SUBSÍDIO:</span><span id="price-val-subsidio">R$ 2.099,00</span></div>
                         <div class="data-row"><span>FGTS:</span><span id="price-val-fgts">R$ 10.000,00</span></div>
-                        <div class="data-row"><span>Bom Pagador:</span><span id="price-val-bom-pagador">R$ 8.000,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Bruta:</span><span id="price-val-entrada-bruta">R$ 43.977,99</span></div>
-                        <div class="data-row"><span>Recursos Próprios:</span><span id="price-val-rec-proprios">R$ 10.000,00</span></div>
+                        <div class="data-row"><span>BOM PAGADOR:</span><span id="price-val-bom-pagador">R$ 8.000,00</span></div>
+                        <div class="data-row highlight"><span>ENTRADA BRUTA:</span><span id="price-val-entrada-bruta">R$ 43.977,99</span></div>
+                        <div class="data-row"><span>REC. PRÓPRIOS:</span><span id="price-val-rec-proprios">R$ 10.000,00</span></div>
                         
                         <div class="data-row">
-                            <span>Ato Digitado / %:</span>
+                            <span>ATO:</span>
                             <div class="inline-input-group">
-                                <input type="text" id="price-input-ato" class="price-ato" value="R$ 550,00" oninput="mascararMoeda(this); simularFluxo();">
-                                <input type="text" id="price-pct-ato" disabled value="0.2%" style="width: 50px; text-align: center;">
+                                <input type="text" id="price-input-ato" value="R$ 550,00" style="width: 80px;" oninput="mascararMoeda(this); recalcularSimulacao();">
+                                <span style="font-size:0.75rem;">=</span>
+                                <input type="text" id="price-pct-ato" disabled value="0,2%" style="width: 45px; text-align: center; background:#f1f5f9;">
                             </div>
                         </div>
 
-                        <div class="data-row"><span>Valor do Sinal:</span><span id="price-val-sinal">R$ 9.450,00</span></div>
                         <div class="data-row">
-                            <span>Parc. Sinal (máx 5):</span>
+                            <span>SINAL:</span>
                             <div class="inline-input-group">
-                                <input type="number" id="price-parc-sinal" value="5" min="1" max="5" style="width: 50px;" onchange="simularFluxo();">
-                                <span id="price-val-parc-sinal" style="font-size: 0.85rem;">R$ 1.890,00</span>
+                                <span id="price-val-sinal">R$ 3.575,00</span>
+                                <span style="font-size:0.75rem;">EM</span>
+                                <input type="number" id="price-parc-sinal" value="5" min="1" max="5" style="width: 40px;" onchange="recalcularSimulacao();">
                             </div>
                         </div>
+                        <div class="data-row" style="padding-left: 10px; font-size:0.8rem; color:#64748b;">
+                            <span>PARCELAS SINAL:</span><span id="price-val-parc-sinal">R$ 715,00</span>
+                        </div>
 
-                        <div class="data-row"><span>Saldo Recursos:</span><span id="price-val-saldo-recursos">R$ 0,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Líquida:</span><span id="price-val-entrada-liquida">R$ 33.977,99</span></div>
-                        <div class="data-row">
-                            <span>Parc. Entrada:</span>
+                        <div class="data-row"><span>SALDO RECURSOS:</span><span id="price-val-saldo-recursos">R$ 0,00</span></div>
+                        <div class="data-row highlight">
+                            <span>ENTRADA LÍQUIDA:</span>
                             <div class="inline-input-group">
-                                <input type="number" id="price-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo();">
-                                <span id="price-val-parc-entrada">R$ 1.132,60</span>
+                                <span id="price-val-entrada-liquida">R$ 33.977,99</span>
+                                <span style="font-size:0.75rem;">EM</span>
+                                <input type="number" id="price-parc-entrada" value="30" min="1" max="120" style="width: 40px;" onchange="recalcularSimulacao();">
                             </div>
+                        </div>
+                        <div class="data-row" style="padding-left: 10px; font-size:0.8rem; color:#64748b;">
+                            <span>PARCELAS ENTRADA:</span><span id="price-val-parc-entrada">R$ 1.132,60</span>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Resumo Geral das Amortizações -->
-                <div class="resumo-amortizacao">
-                    <div class="resumo-box">
-                        <h4>SAC Total Inicial</h4>
-                        <p id="res-sac-inicial">R$ 0,00</p>
-                    </div>
-                    <div class="resumo-box">
-                        <h4>SAC Amortizado</h4>
-                        <p id="res-sac-amortizado">R$ 0,00</p>
-                    </div>
-                    <div class="resumo-box">
-                        <h4>SAC Economia</h4>
-                        <p id="res-sac-diferenca">R$ 0,00</p>
-                    </div>
-                    <div class="resumo-box" style="border-left: 2px solid #cbd5e1; padding-left: 12px;">
-                        <h4>PRICE Total Inicial</h4>
-                        <p id="res-price-inicial">R$ 0,00</p>
-                    </div>
-                    <div class="resumo-box">
-                        <h4>PRICE Amortizado</h4>
-                        <p id="res-price-amortizado">R$ 0,00</p>
-                    </div>
-                    <div class="resumo-box">
-                        <h4>PRICE Economia</h4>
-                        <p id="res-price-diferenca">R$ 0,00</p>
-                    </div>
-                </div>
-
-                <!-- Tabela Unificada de Amortização -->
+                <!-- Tabela de Amortização -->
                 <div class="tabela-container">
                     <table class="tabela-simulacao">
                         <thead>
@@ -492,8 +467,8 @@
                         </thead>
                         <tbody id="tabela-unificada-body">
                             <tr>
-                                <td colspan="8" style="text-align:center; padding:20px; color:#999;">
-                                    Aguardando cálculo...
+                                <td colspan="8" style="text-align:center; padding:15px; color:#64748b;">
+                                    Tabela de Amortização Unificada
                                 </td>
                             </tr>
                         </tbody>
@@ -524,86 +499,98 @@
             input.value = "R$ " + valor;
         }
 
-        function sincronizarParcelasEntrada(qtd) {
-            document.getElementById('sac-parc-entrada').value = qtd;
-            document.getElementById('price-parc-entrada').value = qtd;
+        function sincronizarParcelas(qtd) {
+            var sacEl = document.getElementById('sac-parc-entrada');
+            var priceEl = document.getElementById('price-parc-entrada');
+            if (sacEl) sacEl.value = qtd;
+            if (priceEl) priceEl.value = qtd;
         }
 
-        function simularFluxo() {
-            var valImovel = converterParaNumero(document.getElementById('sim-val-imovel').value);
-            var recursos = converterParaNumero(document.getElementById('sim-recursos').value);
-            var fgts = converterParaNumero(document.getElementById('sim-fgts').value);
-            var bomPagador = converterParaNumero(document.getElementById('sim-bom-pagador').value);
-            var subsidio = converterParaNumero(document.getElementById('sim-subsidio-val').value);
+        function recalcularSimulacao() {
+            var valImovel = converterParaNumero(document.getElementById('sim-val-imovel')?.value);
+            var recursos = converterParaNumero(document.getElementById('sim-recursos')?.value);
+            var fgts = converterParaNumero(document.getElementById('sim-fgts')?.value);
+            var bomPagador = converterParaNumero(document.getElementById('sim-bom-pagador')?.value);
+            var subsidio = converterParaNumero(document.getElementById('sim-subsidio-val')?.value);
 
-            // 1. Atualizar Spans de Recursos Próprios nos dois cards
-            document.getElementById('sac-val-rec-proprios').innerText = formatarMoeda(recursos);
-            document.getElementById('price-val-rec-proprios').innerText = formatarMoeda(recursos);
+            // Atualização do campo REC. PRÓPRIOS em ambos os cards
+            if (document.getElementById('sac-val-rec-proprios')) {
+                document.getElementById('sac-val-rec-proprios').innerText = formatarMoeda(recursos);
+            }
+            if (document.getElementById('price-val-rec-proprios')) {
+                document.getElementById('price-val-rec-proprios').innerText = formatarMoeda(recursos);
+            }
 
-            // 2. Atualizar FGTS e Bom Pagador nos cards
-            document.getElementById('sac-val-fgts').innerText = formatarMoeda(fgts);
-            document.getElementById('price-val-fgts').innerText = formatarMoeda(fgts);
-            document.getElementById('sac-val-bom-pagador').innerText = formatarMoeda(bomPagador);
-            document.getElementById('price-val-bom-pagador').innerText = formatarMoeda(bomPagador);
-            document.getElementById('sac-val-subsidio').innerText = formatarMoeda(subsidio);
-            document.getElementById('price-val-subsidio').innerText = formatarMoeda(subsidio);
+            // Atualização de FGTS e Bom Pagador nos cards
+            if (document.getElementById('sac-val-fgts')) document.getElementById('sac-val-fgts').innerText = formatarMoeda(fgts);
+            if (document.getElementById('price-val-fgts')) document.getElementById('price-val-fgts').innerText = formatarMoeda(fgts);
+            if (document.getElementById('sac-val-bom-pagador')) document.getElementById('sac-val-bom-pagador').innerText = formatarMoeda(bomPagador);
+            if (document.getElementById('price-val-bom-pagador')) document.getElementById('price-val-bom-pagador').innerText = formatarMoeda(bomPagador);
 
-            // 3. Processar cálculos para SAC
-            calcularSistema('sac', valImovel, recursos, subsidio, fgts, bomPagador);
-
-            // 4. Processar cálculos para PRICE
-            calcularSistema('price', valImovel, recursos, subsidio, fgts, bomPagador);
+            // Processa SAC e PRICE
+            processarCardSistema('sac', valImovel, recursos, subsidio, fgts, bomPagador);
+            processarCardSistema('price', valImovel, recursos, subsidio, fgts, bomPagador);
         }
 
-        function calcularSistema(prefixo, valImovel, recursos, subsidio, fgts, bomPagador) {
-            var valFinanciamento = converterParaNumero(document.getElementById(prefixo + '-val-financiamento').innerText);
+        function processarCardSistema(prefixo, valImovel, recursos, subsidio, fgts, bomPagador) {
+            var elFinan = document.getElementById(prefixo + '-val-financiamento');
+            if (!elFinan) return;
+
+            var valFinanciamento = converterParaNumero(elFinan.innerText);
             var entradaTotal = valImovel - valFinanciamento;
             if (entradaTotal < 0) entradaTotal = 0;
 
-            document.getElementById(prefixo + '-val-entrada-total').innerText = formatarMoeda(entradaTotal);
+            var elEntradaTotal = document.getElementById(prefixo + '-val-entrada-total');
+            if (elEntradaTotal) elEntradaTotal.innerText = formatarMoeda(entradaTotal);
 
             // Entrada Bruta = Entrada Total - Subsidio - FGTS - Bom Pagador
             var entradaBruta = entradaTotal - subsidio - fgts - bomPagador;
             if (entradaBruta < 0) entradaBruta = 0;
-            document.getElementById(prefixo + '-val-entrada-bruta').innerText = formatarMoeda(entradaBruta);
+            var elEntradaBruta = document.getElementById(prefixo + '-val-entrada-bruta');
+            if (elEntradaBruta) elEntradaBruta.innerText = formatarMoeda(entradaBruta);
 
-            // Ato digitado
+            // Ato
             var atoInput = document.getElementById(prefixo + '-input-ato');
-            var atoValor = converterParaNumero(atoInput.value);
+            var atoValor = atoInput ? converterParaNumero(atoInput.value) : 0;
 
-            // % Ato em relação ao Imóvel
-            var pctAto = valImovel > 0 ? ((atoValor / valImovel) * 100).toFixed(1) + '%' : '0.0%';
-            document.getElementById(prefixo + '-pct-ato').value = pctAto;
+            var pctAto = valImovel > 0 ? ((atoValor / valImovel) * 100).toFixed(1).replace('.', ',') + '%' : '0,0%';
+            var elPctAto = document.getElementById(prefixo + '-pct-ato');
+            if (elPctAto) elPctAto.value = pctAto;
 
-            // Valor do Sinal e Parcelas
+            // Sinal
             var sinalValor = recursos - atoValor;
             if (sinalValor < 0) sinalValor = 0;
-            document.getElementById(prefixo + '-val-sinal').innerText = formatarMoeda(sinalValor);
+            var elSinal = document.getElementById(prefixo + '-val-sinal');
+            if (elSinal) elSinal.innerText = formatarMoeda(sinalValor);
 
-            var parcSinalQtd = parseInt(document.getElementById(prefixo + '-parc-sinal').value) || 1;
+            var parcSinalQtd = parseInt(document.getElementById(prefixo + '-parc-sinal')?.value) || 1;
             var valParcSinal = sinalValor / parcSinalQtd;
-            document.getElementById(prefixo + '-val-parc-sinal').innerText = formatarMoeda(valParcSinal);
+            var elValParcSinal = document.getElementById(prefixo + '-val-parc-sinal');
+            if (elValParcSinal) elValParcSinal.innerText = formatarMoeda(valParcSinal);
 
-            // Saldo de Recursos
+            // Saldo Recursos
             var saldoRecursos = recursos - (atoValor + sinalValor);
             if (saldoRecursos < 0) saldoRecursos = 0;
-            document.getElementById(prefixo + '-val-saldo-recursos').innerText = formatarMoeda(saldoRecursos);
+            var elSaldoRec = document.getElementById(prefixo + '-val-saldo-recursos');
+            if (elSaldoRec) elSaldoRec.innerText = formatarMoeda(saldoRecursos);
 
-            // Entrada Líquida = Entrada Bruta - Recursos Próprios
+            // Entrada Líquida
             var entradaLiquida = entradaBruta - recursos;
             if (entradaLiquida < 0) entradaLiquida = 0;
-            document.getElementById(prefixo + '-val-entrada-liquida').innerText = formatarMoeda(entradaLiquida);
+            var elEntradaLiq = document.getElementById(prefixo + '-val-entrada-liquida');
+            if (elEntradaLiq) elEntradaLiq.innerText = formatarMoeda(entradaLiquida);
 
-            // Parcelamento da Entrada
-            var parcEntradaQtd = parseInt(document.getElementById(prefixo + '-parc-entrada').value) || 1;
+            // Parc. Entrada
+            var parcEntradaQtd = parseInt(document.getElementById(prefixo + '-parc-entrada')?.value) || 1;
             var valParcEntrada = entradaLiquida / parcEntradaQtd;
-            document.getElementById(prefixo + '-val-parc-entrada').innerText = formatarMoeda(valParcEntrada);
+            var elValParcEntrada = document.getElementById(prefixo + '-val-parc-entrada');
+            if (elValParcEntrada) elValParcEntrada.innerText = formatarMoeda(valParcEntrada);
         }
 
-        // Executa a simulação inicial
-        window.onload = function() {
-            simularFluxo();
-        };
+        // Garante execução segura sem quebrar o carregamento global
+        document.addEventListener('DOMContentLoaded', function() {
+            recalcularSimulacao();
+        });
     </script>
 </body>
 </html>
