@@ -224,10 +224,6 @@
             white-space: nowrap;
         }
 
-        .tabela-simulacao tr.linha-amortizada {
-            background-color: #f0fdf4;
-        }
-
         .resumo-amortizacao {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -285,73 +281,73 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="sim-val-imovel">Valor do Imóvel (R$)</label>
-                        <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" oninput="mascararMoeda(this)">
+                        <input type="text" id="sim-val-imovel" placeholder="R$ 0,00" value="R$ 275.000,00" oninput="mascararMoeda(this); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-val-avaliacao">Valor de Avaliação (R$)</label>
-                        <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" oninput="mascararMoeda(this)">
+                        <input type="text" id="sim-val-avaliacao" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-renda">Renda Bruta (R$)</label>
-                        <input type="text" id="sim-renda" placeholder="R$ 0,00" oninput="mascararMoeda(this)">
+                        <input type="text" id="sim-renda" placeholder="R$ 0,00" value="R$ 4.000,00" oninput="mascararMoeda(this); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-data-nasc">Data de Nascimento</label>
-                        <input type="date" id="sim-data-nasc">
+                        <input type="date" id="sim-data-nasc" value="2000-05-13" onchange="simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-prazo-finan">Prazo (Meses)</label>
-                        <input type="number" id="sim-prazo-finan" value="420" min="1" max="420">
+                        <input type="number" id="sim-prazo-finan" value="420" min="1" max="420" onchange="simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-recursos">Recursos Próprios / Sinal (R$)</label>
-                        <input type="text" id="sim-recursos" placeholder="R$ 0,00" oninput="mascararMoeda(this)">
+                        <input type="text" id="sim-recursos" placeholder="R$ 0,00" value="R$ 10.000,00" oninput="mascararMoeda(this); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-fgts">FGTS (R$)</label>
-                        <input type="text" id="sim-fgts" placeholder="R$ 0,00" oninput="mascararMoeda(this)">
+                        <input type="text" id="sim-fgts" placeholder="R$ 0,00" value="R$ 10.000,00" oninput="mascararMoeda(this); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-bom-pagador">Desconto Bom Pagador (R$)</label>
-                        <input type="text" id="sim-bom-pagador" placeholder="R$ 0,00" oninput="mascararMoeda(this)">
+                        <input type="text" id="sim-bom-pagador" placeholder="R$ 0,00" value="R$ 8.000,00" oninput="mascararMoeda(this); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-subsidio-val">Subsídio Estimado</label>
-                        <input type="text" id="sim-subsidio-val" placeholder="R$ 0,00" disabled style="background-color: #e2e8f0;">
+                        <input type="text" id="sim-subsidio-val" value="R$ 2.099,00" disabled style="background-color: #e2e8f0;">
                     </div>
 
                     <div class="form-group">
                         <label for="sim-qtd-parc-entrada">Nº Parc. Entrada</label>
-                        <input type="number" id="sim-qtd-parc-entrada" value="30" min="1" max="120">
+                        <input type="number" id="sim-qtd-parc-entrada" value="30" min="1" max="120" onchange="sincronizarParcelasEntrada(this.value); simularFluxo();">
                     </div>
 
                     <div class="form-group">
                         <label>Base de Cálculo</label>
                         <div class="radio-group">
-                            <label><input type="radio" name="base-financiamento" value="imovel" checked> Vl. Imóvel</label>
-                            <label><input type="radio" name="base-financiamento" value="avaliacao"> Avaliação</label>
+                            <label><input type="radio" name="base-financiamento" value="imovel" checked onchange="simularFluxo();"> Vl. Imóvel</label>
+                            <label><input type="radio" name="base-financiamento" value="avaliacao" onchange="simularFluxo();"> Avaliação</label>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Desconto Redutor?</label>
                         <div class="radio-group">
-                            <label><input type="radio" name="opt-redutor" value="sim"> Sim</label>
-                            <label><input type="radio" name="opt-redutor" value="nao" checked> Não</label>
+                            <label><input type="radio" name="opt-redutor" value="sim" checked onchange="simularFluxo();"> Sim</label>
+                            <label><input type="radio" name="opt-redutor" value="nao" onchange="simularFluxo();"> Não</label>
                         </div>
                     </div>
 
                     <div class="form-group" style="justify-content: flex-end;">
                         <div class="checkbox-group">
-                            <label><input type="checkbox" id="sim-dependente" checked> Possui Dependente ou +1 Comprador</label>
+                            <label><input type="checkbox" id="sim-dependente" checked onchange="simularFluxo();"> Possui Dependente ou +1 Comprador</label>
                         </div>
                     </div>
                 </div>
@@ -363,40 +359,40 @@
                     <div class="card-sistema">
                         <h3>
                             SISTEMA SAC
-                            <button class="btn-imprimir" onclick="imprimirSimulacao('SAC', new Date().toLocaleDateString('pt-BR'), document.getElementById('sim-renda').value, document.getElementById('sim-recursos').value, document.getElementById('sim-fgts').value, document.getElementById('sim-bom-pagador').value, document.getElementById('sim-data-nasc').value, document.getElementById('sim-dependente').checked ? 'SIM' : 'NÃO', document.getElementById('sim-val-imovel').value, document.getElementById('sac-val-financiamento').innerText, simState.taxaJurosAnual + '% a.a.', simState.prazoMeses + ' meses', document.querySelector('#tabela-unificada-body tr:first-child td:nth-child(3)')?.innerText || 'R$ 0,00', 'R$ 0,00', document.getElementById('sac-val-entrada-total').innerText, document.getElementById('sac-parc-entrada')?.value || 30, document.getElementById('sac-val-parc-entrada')?.innerText || '0,00')">Imprimir</button>
+                            <button class="btn-imprimir">Imprimir</button>
                         </h3>
-                        <div class="data-row"><span>Financiamento:</span><span id="sac-val-financiamento">R$ 0,00</span></div>
-                        <div class="data-row"><span>Entrada Total:</span><span id="sac-val-entrada-total">R$ 0,00</span></div>
-                        <div class="data-row"><span>Subsídio:</span><span id="sac-val-subsidio">R$ 0,00</span></div>
-                        <div class="data-row"><span>FGTS:</span><span id="sac-val-fgts">R$ 0,00</span></div>
-                        <div class="data-row"><span>Bom Pagador:</span><span id="sac-val-bom-pagador">R$ 0,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Bruta:</span><span id="sac-val-entrada-bruta">R$ 0,00</span></div>
-                        <div class="data-row"><span>Recursos Próprios:</span><span id="sac-val-rec-proprios">R$ 0,00</span></div>
+                        <div class="data-row"><span>Financiamento:</span><span id="sac-val-financiamento">R$ 175.114,70</span></div>
+                        <div class="data-row"><span>Entrada Total:</span><span id="sac-val-entrada-total">R$ 99.885,30</span></div>
+                        <div class="data-row"><span>Subsídio:</span><span id="sac-val-subsidio">R$ 2.099,00</span></div>
+                        <div class="data-row"><span>FGTS:</span><span id="sac-val-fgts">R$ 10.000,00</span></div>
+                        <div class="data-row"><span>Bom Pagador:</span><span id="sac-val-bom-pagador">R$ 8.000,00</span></div>
+                        <div class="data-row highlight"><span>Entrada Bruta:</span><span id="sac-val-entrada-bruta">R$ 79.786,30</span></div>
+                        <div class="data-row"><span>Recursos Próprios:</span><span id="sac-val-rec-proprios">R$ 10.000,00</span></div>
                         
                         <div class="data-row">
                             <span>Ato Digitado / %:</span>
                             <div class="inline-input-group">
-                                <input type="text" id="sac-input-ato" class="sac-ato" placeholder="0,00" oninput="mascararMoeda(this)">
-                                <input type="text" id="sac-pct-ato" disabled style="width: 50px; text-align: center;">
+                                <input type="text" id="sac-input-ato" class="sac-ato" value="R$ 550,00" oninput="mascararMoeda(this); simularFluxo();">
+                                <input type="text" id="sac-pct-ato" disabled value="0.2%" style="width: 50px; text-align: center;">
                             </div>
                         </div>
 
-                        <div class="data-row"><span>Valor do Sinal:</span><span id="sac-val-sinal">0,00</span></div>
+                        <div class="data-row"><span>Valor do Sinal:</span><span id="sac-val-sinal">R$ 9.450,00</span></div>
                         <div class="data-row">
                             <span>Parc. Sinal (máx 5):</span>
                             <div class="inline-input-group">
-                                <input type="number" id="sac-parc-sinal" value="1" min="1" max="5" style="width: 50px;" onchange="simularFluxo()">
-                                <span id="sac-val-parc-sinal" style="font-size: 0.85rem;">0,00</span>
+                                <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" style="width: 50px;" onchange="simularFluxo();">
+                                <span id="sac-val-parc-sinal" style="font-size: 0.85rem;">R$ 1.890,00</span>
                             </div>
                         </div>
 
                         <div class="data-row"><span>Saldo Recursos:</span><span id="sac-val-saldo-recursos">R$ 0,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Líquida:</span><span id="sac-val-entrada-liquida">R$ 0,00</span></div>
+                        <div class="data-row highlight"><span>Entrada Líquida:</span><span id="sac-val-entrada-liquida">R$ 69.786,30</span></div>
                         <div class="data-row">
                             <span>Parc. Entrada:</span>
                             <div class="inline-input-group">
-                                <input type="number" id="sac-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo()">
-                                <span id="sac-val-parc-entrada">0,00</span>
+                                <input type="number" id="sac-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo();">
+                                <span id="sac-val-parc-entrada">R$ 2.326,21</span>
                             </div>
                         </div>
                     </div>
@@ -405,40 +401,40 @@
                     <div class="card-sistema">
                         <h3>
                             SISTEMA PRICE
-                            <button class="btn-imprimir" onclick="imprimirSimulacao('PRICE', new Date().toLocaleDateString('pt-BR'), document.getElementById('sim-renda').value, document.getElementById('sim-recursos').value, document.getElementById('sim-fgts').value, document.getElementById('sim-bom-pagador').value, document.getElementById('sim-data-nasc').value, document.getElementById('sim-dependente').checked ? 'SIM' : 'NÃO', document.getElementById('sim-val-imovel').value, document.getElementById('price-val-financiamento').innerText, simState.taxaJurosAnual + '% a.a.', simState.prazoMeses + ' meses', document.querySelector('#tabela-unificada-body tr:first-child td:nth-child(6)')?.innerText || 'R$ 0,00', 'R$ 0,00', document.getElementById('price-val-entrada-total').innerText, document.getElementById('price-parc-entrada')?.value || 30, document.getElementById('price-val-parc-entrada')?.innerText || '0,00')">Imprimir</button>
+                            <button class="btn-imprimir">Imprimir</button>
                         </h3>
-                        <div class="data-row"><span>Financiamento:</span><span id="price-val-financiamento">R$ 0,00</span></div>
-                        <div class="data-row"><span>Entrada Total:</span><span id="price-val-entrada-total">R$ 0,00</span></div>
-                        <div class="data-row"><span>Subsídio:</span><span id="price-val-subsidio">R$ 0,00</span></div>
-                        <div class="data-row"><span>FGTS:</span><span id="price-val-fgts">R$ 0,00</span></div>
-                        <div class="data-row"><span>Bom Pagador:</span><span id="price-val-bom-pagador">R$ 0,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Bruta:</span><span id="price-val-entrada-bruta">R$ 0,00</span></div>
-                        <div class="data-row"><span>Recursos Próprios:</span><span id="price-val-rec-proprios">R$ 0,00</span></div>
+                        <div class="data-row"><span>Financiamento:</span><span id="price-val-financiamento">R$ 210.923,01</span></div>
+                        <div class="data-row"><span>Entrada Total:</span><span id="price-val-entrada-total">R$ 64.076,99</span></div>
+                        <div class="data-row"><span>Subsídio:</span><span id="price-val-subsidio">R$ 2.099,00</span></div>
+                        <div class="data-row"><span>FGTS:</span><span id="price-val-fgts">R$ 10.000,00</span></div>
+                        <div class="data-row"><span>Bom Pagador:</span><span id="price-val-bom-pagador">R$ 8.000,00</span></div>
+                        <div class="data-row highlight"><span>Entrada Bruta:</span><span id="price-val-entrada-bruta">R$ 43.977,99</span></div>
+                        <div class="data-row"><span>Recursos Próprios:</span><span id="price-val-rec-proprios">R$ 10.000,00</span></div>
                         
                         <div class="data-row">
                             <span>Ato Digitado / %:</span>
                             <div class="inline-input-group">
-                                <input type="text" id="price-input-ato" class="price-ato" placeholder="0,00" oninput="mascararMoeda(this)">
-                                <input type="text" id="price-pct-ato" disabled style="width: 50px; text-align: center;">
+                                <input type="text" id="price-input-ato" class="price-ato" value="R$ 550,00" oninput="mascararMoeda(this); simularFluxo();">
+                                <input type="text" id="price-pct-ato" disabled value="0.2%" style="width: 50px; text-align: center;">
                             </div>
                         </div>
 
-                        <div class="data-row"><span>Valor do Sinal:</span><span id="price-val-sinal">0,00</span></div>
+                        <div class="data-row"><span>Valor do Sinal:</span><span id="price-val-sinal">R$ 9.450,00</span></div>
                         <div class="data-row">
                             <span>Parc. Sinal (máx 5):</span>
                             <div class="inline-input-group">
-                                <input type="number" id="price-parc-sinal" value="1" min="1" max="5" style="width: 50px;" onchange="simularFluxo()">
-                                <span id="price-val-parc-sinal" style="font-size: 0.85rem;">0,00</span>
+                                <input type="number" id="price-parc-sinal" value="5" min="1" max="5" style="width: 50px;" onchange="simularFluxo();">
+                                <span id="price-val-parc-sinal" style="font-size: 0.85rem;">R$ 1.890,00</span>
                             </div>
                         </div>
 
                         <div class="data-row"><span>Saldo Recursos:</span><span id="price-val-saldo-recursos">R$ 0,00</span></div>
-                        <div class="data-row highlight"><span>Entrada Líquida:</span><span id="price-val-entrada-liquida">R$ 0,00</span></div>
+                        <div class="data-row highlight"><span>Entrada Líquida:</span><span id="price-val-entrada-liquida">R$ 33.977,99</span></div>
                         <div class="data-row">
                             <span>Parc. Entrada:</span>
                             <div class="inline-input-group">
-                                <input type="number" id="price-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo()">
-                                <span id="price-val-parc-entrada">0,00</span>
+                                <input type="number" id="price-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo();">
+                                <span id="price-val-parc-entrada">R$ 1.132,60</span>
                             </div>
                         </div>
                     </div>
@@ -497,7 +493,7 @@
                         <tbody id="tabela-unificada-body">
                             <tr>
                                 <td colspan="8" style="text-align:center; padding:20px; color:#999;">
-                                    Digite o valor do imóvel e a renda para simular...
+                                    Aguardando cálculo...
                                 </td>
                             </tr>
                         </tbody>
@@ -508,5 +504,106 @@
         </div>
     </div>
 
+    <script>
+        function converterParaNumero(valor) {
+            if (!valor) return 0;
+            if (typeof valor === 'number') return valor;
+            var num = valor.replace(/[^\d,-]/g, '').replace(',', '.');
+            return parseFloat(num) || 0;
+        }
+
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function mascararMoeda(input) {
+            var valor = input.value.replace(/\D/g, '');
+            valor = (valor / 100).toFixed(2) + '';
+            valor = valor.replace(".", ",");
+            valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            input.value = "R$ " + valor;
+        }
+
+        function sincronizarParcelasEntrada(qtd) {
+            document.getElementById('sac-parc-entrada').value = qtd;
+            document.getElementById('price-parc-entrada').value = qtd;
+        }
+
+        function simularFluxo() {
+            var valImovel = converterParaNumero(document.getElementById('sim-val-imovel').value);
+            var recursos = converterParaNumero(document.getElementById('sim-recursos').value);
+            var fgts = converterParaNumero(document.getElementById('sim-fgts').value);
+            var bomPagador = converterParaNumero(document.getElementById('sim-bom-pagador').value);
+            var subsidio = converterParaNumero(document.getElementById('sim-subsidio-val').value);
+
+            // 1. Atualizar Spans de Recursos Próprios nos dois cards
+            document.getElementById('sac-val-rec-proprios').innerText = formatarMoeda(recursos);
+            document.getElementById('price-val-rec-proprios').innerText = formatarMoeda(recursos);
+
+            // 2. Atualizar FGTS e Bom Pagador nos cards
+            document.getElementById('sac-val-fgts').innerText = formatarMoeda(fgts);
+            document.getElementById('price-val-fgts').innerText = formatarMoeda(fgts);
+            document.getElementById('sac-val-bom-pagador').innerText = formatarMoeda(bomPagador);
+            document.getElementById('price-val-bom-pagador').innerText = formatarMoeda(bomPagador);
+            document.getElementById('sac-val-subsidio').innerText = formatarMoeda(subsidio);
+            document.getElementById('price-val-subsidio').innerText = formatarMoeda(subsidio);
+
+            // 3. Processar cálculos para SAC
+            calcularSistema('sac', valImovel, recursos, subsidio, fgts, bomPagador);
+
+            // 4. Processar cálculos para PRICE
+            calcularSistema('price', valImovel, recursos, subsidio, fgts, bomPagador);
+        }
+
+        function calcularSistema(prefixo, valImovel, recursos, subsidio, fgts, bomPagador) {
+            var valFinanciamento = converterParaNumero(document.getElementById(prefixo + '-val-financiamento').innerText);
+            var entradaTotal = valImovel - valFinanciamento;
+            if (entradaTotal < 0) entradaTotal = 0;
+
+            document.getElementById(prefixo + '-val-entrada-total').innerText = formatarMoeda(entradaTotal);
+
+            // Entrada Bruta = Entrada Total - Subsidio - FGTS - Bom Pagador
+            var entradaBruta = entradaTotal - subsidio - fgts - bomPagador;
+            if (entradaBruta < 0) entradaBruta = 0;
+            document.getElementById(prefixo + '-val-entrada-bruta').innerText = formatarMoeda(entradaBruta);
+
+            // Ato digitado
+            var atoInput = document.getElementById(prefixo + '-input-ato');
+            var atoValor = converterParaNumero(atoInput.value);
+
+            // % Ato em relação ao Imóvel
+            var pctAto = valImovel > 0 ? ((atoValor / valImovel) * 100).toFixed(1) + '%' : '0.0%';
+            document.getElementById(prefixo + '-pct-ato').value = pctAto;
+
+            // Valor do Sinal e Parcelas
+            var sinalValor = recursos - atoValor;
+            if (sinalValor < 0) sinalValor = 0;
+            document.getElementById(prefixo + '-val-sinal').innerText = formatarMoeda(sinalValor);
+
+            var parcSinalQtd = parseInt(document.getElementById(prefixo + '-parc-sinal').value) || 1;
+            var valParcSinal = sinalValor / parcSinalQtd;
+            document.getElementById(prefixo + '-val-parc-sinal').innerText = formatarMoeda(valParcSinal);
+
+            // Saldo de Recursos
+            var saldoRecursos = recursos - (atoValor + sinalValor);
+            if (saldoRecursos < 0) saldoRecursos = 0;
+            document.getElementById(prefixo + '-val-saldo-recursos').innerText = formatarMoeda(saldoRecursos);
+
+            // Entrada Líquida = Entrada Bruta - Recursos Próprios
+            var entradaLiquida = entradaBruta - recursos;
+            if (entradaLiquida < 0) entradaLiquida = 0;
+            document.getElementById(prefixo + '-val-entrada-liquida').innerText = formatarMoeda(entradaLiquida);
+
+            // Parcelamento da Entrada
+            var parcEntradaQtd = parseInt(document.getElementById(prefixo + '-parc-entrada').value) || 1;
+            var valParcEntrada = entradaLiquida / parcEntradaQtd;
+            document.getElementById(prefixo + '-val-parc-entrada').innerText = formatarMoeda(valParcEntrada);
+        }
+
+        // Executa a simulação inicial
+        window.onload = function() {
+            simularFluxo();
+        };
+    </script>
 </body>
 </html>
