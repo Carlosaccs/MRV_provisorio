@@ -14,36 +14,36 @@
             <!-- CAIXA UNIFICADA DE INPUTS SUPERIORES -->
             <div style="background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
                 
-                <!-- PRIMEIRA LINHA -->
+                <!-- PRIMEIRA LINHA (INPUTS ZERADOS E COM MÁSCARA CORRETA) -->
                 <div style="display: flex; flex-wrap: nowrap; gap: 10px; align-items: center; margin-bottom: 12px; font-size: 0.8rem; background: transparent; border: none; padding: 0;">
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label style="white-space: nowrap;"><input type="radio" name="base-financiamento" value="imovel" checked onchange="simularFluxo()"> Valor imóvel:</label>
-                        <input type="text" id="sim-val-imovel" value="R$ 250.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 115px; text-align: right; font-size: 0.8rem;">
+                        <input type="text" id="sim-val-imovel" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 115px; text-align: right; font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label style="white-space: nowrap;"><input type="radio" name="base-financiamento" value="avaliacao" onchange="simularFluxo()"> Avaliação:</label>
-                        <input type="text" id="sim-val-avaliacao" value="R$ 250.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 115px; text-align: right; font-size: 0.8rem;">
+                        <input type="text" id="sim-val-avaliacao" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 115px; text-align: right; font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label style="color: var(--mrv-verde); font-weight: bold; white-space: nowrap;">Bom Pagador:</label>
-                        <input type="text" id="sim-bom-pagador" value="R$ 0,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 90px; text-align: right; font-size: 0.8rem;">
+                        <input type="text" id="sim-bom-pagador" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 90px; text-align: right; font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label style="white-space: nowrap;">Renda:</label>
-                        <input type="text" id="sim-renda" value="R$ 4.500,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 95px; text-align: right; font-size: 0.8rem;">
+                        <input type="text" id="sim-renda" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 95px; text-align: right; font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label style="white-space: nowrap;">FGTS:</label>
-                        <input type="text" id="sim-fgts" value="R$ 15.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 95px; text-align: right; font-size: 0.8rem;">
+                        <input type="text" id="sim-fgts" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 95px; text-align: right; font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label style="white-space: nowrap;">Recursos:</label>
-                        <input type="text" id="sim-sinal" value="R$ 10.000,00" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 95px; text-align: right; font-size: 0.8rem;">
+                        <input type="text" id="sim-sinal" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 95px; text-align: right; font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
@@ -56,7 +56,7 @@
                 <div style="display: flex; flex-wrap: nowrap; gap: 15px; align-items: center; font-size: 0.8rem; border-top: 1px dashed #ddd; padding-top: 10px;">
                     <div style="display: flex; align-items: center; gap: 5px;">
                         <label style="white-space: nowrap;">Data nasc:</label>
-                        <input type="date" id="sim-data-nasc" value="1995-05-15" onchange="simularFluxo()" style="font-size: 0.8rem;">
+                        <input type="date" id="sim-data-nasc" value="" onchange="simularFluxo()" style="font-size: 0.8rem;">
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 5px;">
@@ -95,7 +95,7 @@
 
                     <div style="display: grid; grid-template-columns: 1.1fr auto 1.5fr; gap: 12px; font-size: 0.8rem; align-items: center;">
                         
-                        <!-- COLUNA ESQUERDA (LARGURA AUMENTADA EM ~20%) -->
+                        <!-- COLUNA ESQUERDA -->
                         <div style="display: grid; grid-template-columns: 115px 1fr; row-gap: 8px; align-items: center;">
                             <span>FINANCIAMENTO:</span>
                             <strong style="display: flex; justify-content: space-between; text-align: right;"><span>R$</span><span id="sac-val-financiamento">0,00</span></strong>
@@ -121,7 +121,6 @@
                             <span>ENTRADA BRUTA:</span>
                             <strong style="display: flex; justify-content: space-between; text-align: right;"><span>R$</span><span id="sac-val-entrada-bruta">0,00</span></strong>
 
-                            <!-- LINHA COM REC. PROPRIOS E SALDO RECURSOS LADO A LADO -->
                             <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 5px; flex: 1;">
                                     <span style="white-space: nowrap;">REC. PROPRIOS:</span>
@@ -135,9 +134,9 @@
 
                             <span>ATO:</span>
                             <div style="display: flex; align-items: center; gap: 4px;">
-                                <input type="text" id="sac-input-ato" value="R$ 500,00" oninput="mascararMoeda(this)" onchange="calcularSinalESequencia('SAC'); simularFluxo()" style="width: 105px; text-align: right; font-size: 0.8rem;">
+                                <input type="text" id="sac-input-ato" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 105px; text-align: right; font-size: 0.8rem;">
                                 <span>=</span>
-                                <input type="text" id="sac-pct-ato" value="0.2%" readonly style="width: 45px; text-align: center; font-size: 0.8rem; border: 1px solid #333;">
+                                <input type="text" id="sac-pct-ato" value="0.0%" readonly style="width: 45px; text-align: center; font-size: 0.8rem; border: 1px solid #333;">
                                 <span style="font-size: 0.65rem; color: #555; white-space: nowrap;">DO TOTAL DO IMÓVEL</span>
                             </div>
 
@@ -145,7 +144,7 @@
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 <strong style="display: flex; justify-content: space-between; width: 90px;"><span>R$</span><span id="sac-val-sinal">0,00</span></strong>
                                 <span style="font-size: 0.75rem; margin-left: 2px;">EM</span>
-                                <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" oninput="if(parseInt(this.value)>5)this.value=5; calcularSinalESequencia('SAC')" style="width: 35px; text-align: center; font-size: 0.75rem;">
+                                <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" oninput="if(parseInt(this.value)>5)this.value=5; simularFluxo()" style="width: 35px; text-align: center; font-size: 0.75rem;">
                                 <span style="font-size: 0.7rem; white-space: nowrap;">PARCELAS DE:</span>
                                 <strong style="display: flex; justify-content: space-between; flex: 1;"><span>R$</span><span id="sac-val-parc-sinal">0,00</span></strong>
                             </div>
@@ -174,7 +173,7 @@
 
                     <div style="display: grid; grid-template-columns: 1.1fr auto 1.5fr; gap: 12px; font-size: 0.8rem; align-items: center;">
                         
-                        <!-- COLUNA ESQUERDA (LARGURA AUMENTADA EM ~20%) -->
+                        <!-- COLUNA ESQUERDA -->
                         <div style="display: grid; grid-template-columns: 115px 1fr; row-gap: 8px; align-items: center;">
                             <span>FINANCIAMENTO:</span>
                             <strong style="display: flex; justify-content: space-between; text-align: right;"><span>R$</span><span id="price-val-financiamento">0,00</span></strong>
@@ -200,7 +199,6 @@
                             <span>ENTRADA BRUTA:</span>
                             <strong style="display: flex; justify-content: space-between; text-align: right;"><span>R$</span><span id="price-val-entrada-bruta">0,00</span></strong>
 
-                            <!-- LINHA COM REC. PROPRIOS E SALDO RECURSOS LADO A LADO -->
                             <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                                 <div style="display: flex; align-items: center; gap: 5px; flex: 1;">
                                     <span style="white-space: nowrap;">REC. PROPRIOS:</span>
@@ -214,9 +212,9 @@
 
                             <span>ATO:</span>
                             <div style="display: flex; align-items: center; gap: 4px;">
-                                <input type="text" id="price-input-ato" value="R$ 500,00" oninput="mascararMoeda(this)" onchange="calcularSinalESequencia('PRICE'); simularFluxo()" style="width: 105px; text-align: right; font-size: 0.8rem;">
+                                <input type="text" id="price-input-ato" value="" placeholder="R$ 0,00" oninput="mascararMoeda(this); simularFluxo()" style="width: 105px; text-align: right; font-size: 0.8rem;">
                                 <span>=</span>
-                                <input type="text" id="price-pct-ato" value="0.2%" readonly style="width: 45px; text-align: center; font-size: 0.8rem; border: 1px solid #333;">
+                                <input type="text" id="price-pct-ato" value="0.0%" readonly style="width: 45px; text-align: center; font-size: 0.8rem; border: 1px solid #333;">
                                 <span style="font-size: 0.65rem; color: #555; white-space: nowrap;">DO TOTAL DO IMÓVEL</span>
                             </div>
 
@@ -224,7 +222,7 @@
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 <strong style="display: flex; justify-content: space-between; width: 90px;"><span>R$</span><span id="price-val-sinal">0,00</span></strong>
                                 <span style="font-size: 0.75rem; margin-left: 2px;">EM</span>
-                                <input type="number" id="price-parc-sinal" value="5" min="1" max="5" oninput="if(parseInt(this.value)>5)this.value=5; calcularSinalESequencia('PRICE')" style="width: 35px; text-align: center; font-size: 0.75rem;">
+                                <input type="number" id="price-parc-sinal" value="5" min="1" max="5" oninput="if(parseInt(this.value)>5)this.value=5; simularFluxo()" style="width: 35px; text-align: center; font-size: 0.75rem;">
                                 <span style="font-size: 0.7rem; white-space: nowrap;">PARCELAS DE:</span>
                                 <strong style="display: flex; justify-content: space-between; flex: 1;"><span>R$</span><span id="price-val-parc-sinal">0,00</span></strong>
                             </div>
@@ -244,7 +242,7 @@
 
             </div>
 
-            <!-- BANNER E TABELA -->
+            <!-- BANNER E TABELA (MANTIDOS) -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div class="res-box" style="background-color: rgba(0, 113, 58, 0.08); border: 1px solid var(--mrv-verde); padding: 10px; border-radius: 6px;">
                     <span style="color: var(--mrv-verde); font-weight: bold; font-size: 0.85rem;">MÉTRICAS TOTAIS SAC</span>
