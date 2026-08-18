@@ -1,9 +1,97 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Código Unificado e Corrigido
+ * Código Unificado e Corrigido (Com Modal, Impressão e Cálculo de Prazo por Idade)
  */
 
-// 1. ESTRUTURA E REGRAS BANCÁRIAS (MATRIZ CREDILAR)
+// 1. CARREGAMENTO DO MODAL E IMPRESSÃO
+function abrirSpeedSim() {
+    const modal = document.getElementById('modal-speedsim');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        // Se a estrutura ainda não foi injetada no DOM, carrega do simulador.html
+        fetch('simulador.html')
+            .then(response => response.text())
+            .then(html => {
+                const container = document.getElementById('container-modal-simulador');
+                if (container) {
+                    container.innerHTML = html;
+                } else {
+                    document.body.insertAdjacentHTML('beforeend', html);
+                }
+                const modalInjetado = document.getElementById('modal-speedsim');
+                if (modalInjetado) modalInjetado.style.display = 'flex';
+            })
+            .catch(err => console.error('Erro ao carregar simulador.html:', err));
+    }
+}
+
+function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, dataNasc, dependente, valImovel, finanVal, taxaAA, prazo, primeiraParc, ultimaParc, entradaTotal, numParcEntrada, parcEntradaValor) {
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <title>Simulação MCMV - ${tipoSistema}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+                th { background-color: #f4f4f4; text-transform: uppercase; }
+                .secao-header { background-color: #e9e9e9; }
+            </style>
+        </head>
+        <body>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">SIMULAÇÃO DE VALORES MCMV – SISTEMA DE AMORTIZAÇÃO ${tipoSistema}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="width: 50%;">Data:</td><td><strong>${hoje}</strong></td></tr>
+                    <tr><td>Renda:</td><td><strong>${renda}</strong></td></tr>
+                    <tr><td>Recursos para o Sinal:</td><td><strong>${sinal}</strong></td></tr>
+                    <tr><td>FGTS:</td><td><strong>${fgts}</strong></td></tr>
+                    <tr><td>Desconto Bom Pagador:</td><td><strong>${bomPagador}</strong></td></tr>
+                    <tr><td>Data nascimento:</td><td><strong>${dataNasc}</strong></td></tr>
+                    <tr><td>Mais de 1 comprador ou dependente:</td><td><strong>${dependente}</strong></td></tr>
+                    <tr><td>Valor do imóvel:</td><td><strong>${valImovel}</strong></td></tr>
+                    
+                    <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
+
+                    <tr><td>FINANCIAMENTO:</td><td><strong>${finanVal} ${taxaAA}</strong></td></tr>
+                    <tr><td>Prazo:</td><td><strong>${prazo}</strong></td></tr>
+                    <tr><td>1ª prestação:</td><td><strong>${primeiraParc}</strong></td></tr>
+                    <tr><td>Última prestação:</td><td><strong>${ultimaParc}</strong></td></tr>
+                    
+                    <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
+
+                    <tr><td>ENTRADA TOTAL:</td><td><strong>${entradaTotal}</strong></td></tr>
+                    <tr>
+                        <td style="vertical-align: top;">Forma de pagamento da Entrada:</td>
+                        <td>
+                            ${sinal !== 'R$ 0,00' ? `<strong>${sinal}</strong> de sinal<br>` : ''}
+                            ${fgts !== 'R$ 0,00' ? `<strong>${fgts}</strong> de FGTS<br>` : ''}
+                            ${bomPagador !== 'R$ 0,00' ? `<strong>${bomPagador}</strong> de desconto Bom Pagador<br>` : ''}
+                            mais <strong>${numParcEntrada} parcelas</strong> no valor de <strong>${parcEntradaValor}</strong> cada corrigidas pelo INCC
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+// 2. ESTRUTURA E REGRAS BANCÁRIAS (MATRIZ CREDILAR)
 const CREDILAR_MATRIZ = [
   { renda: 1000, finNormal: 56132.57, finRedutor: 59840.81, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
   { renda: 1200, finNormal: 68140.82, finRedutor: 72642.35, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
@@ -52,7 +140,7 @@ let simState = {
   amortizacoesExtras: {}
 };
 
-// 2. FUNÇÕES FORMATADORAS E DE PARSE
+// 3. FUNÇÕES FORMATADORAS E DE PARSE
 function parseMoedaParaNumero(valor) {
   if (typeof valor === 'number') return valor;
   if (!valor) return 0;
@@ -89,7 +177,7 @@ function obterValorNumerico(id) {
   return isNaN(num) ? 0 : num;
 }
 
-// 3. CÁLCULO DE PRAZO MÁXIMO BASEADO NA DATA DE NASCIMENTO
+// 4. CÁLCULO DE PRAZO MÁXIMO BASEADO NA DATA DE NASCIMENTO
 function calcularPrazoMaximoPorDataNasc() {
   const inputDataNasc = document.getElementById('sim-data-nasc');
   const inputPrazo = document.getElementById('sim-prazo-finan');
@@ -101,7 +189,7 @@ function calcularPrazoMaximoPorDataNasc() {
 
   const hoje = new Date();
 
-  // Diferença exata em meses entre a data atual e o nascimento
+  // Diferença em meses entre a data atual e o nascimento
   let mesesIdade = (hoje.getFullYear() - dataNasc.getFullYear()) * 12 + (hoje.getMonth() - dataNasc.getMonth());
   if (hoje.getDate() < dataNasc.getDate()) {
     mesesIdade--;
@@ -111,12 +199,10 @@ function calcularPrazoMaximoPorDataNasc() {
   const limiteTotalMeses = 966;
   let prazoMaximoMeses = limiteTotalMeses - mesesIdade;
 
-  // Trava no teto máximo padrão de 420 parcelas (35 anos)
   if (prazoMaximoMeses > 420) {
     prazoMaximoMeses = 420;
   }
 
-  // Se a idade ultrapassar o limite aceito
   if (prazoMaximoMeses < 0) {
     prazoMaximoMeses = 0;
   }
@@ -125,7 +211,7 @@ function calcularPrazoMaximoPorDataNasc() {
   simState.prazoMeses = prazoMaximoMeses;
 }
 
-// 4. LÓGICA PRINCIPAL DE SIMULAÇÃO
+// 5. LÓGICA PRINCIPAL DE SIMULAÇÃO
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
   if (renda <= 0) return { taxa: 0, tetoFinanBase: 0, subsidio: 0 };
   let linha = CREDILAR_MATRIZ[0];
@@ -152,7 +238,6 @@ function simularFluxo() {
   const recursos = obterValorNumerico('sim-sinal');
   const bomPagador = obterValorNumerico('sim-bom-pagador');
 
-  // Recalcula o prazo antes do fluxo de financiamento
   calcularPrazoMaximoPorDataNasc();
 
   const inputPrazoEl = document.getElementById('sim-prazo-finan');
@@ -176,25 +261,24 @@ function simularFluxo() {
 
   const limite80Base = baseCalculo * 0.80;
 
-  // PRICE: Limitado a 80% ou teto da faixa
+  // PRICE
   const finanPriceCapacidade = Math.min(limite80Base, params.tetoFinanBase);
 
-  // SAC: Calculado pela 1ª parcela (30% da renda)
+  // SAC
   const prestacaoMaximaRenda = renda * 0.30;
   const iMensalMCMV = Math.pow(1 + (params.taxa / 100), 1 / 12) - 1;
   const fatorSacPrimeiraParc = (1 / simState.prazoMeses) + iMensalMCMV;
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
-  // CÁLCULOS DE ENTRADA TOTAL
+  // ENTRADAS
   const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade);
   const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade);
 
-  // ENTRADA BRUTA
   const entradaBrutaSac = Math.max(0, entradaTotalSac - params.subsidio - fgts - bomPagador);
   const entradaBrutaPrice = Math.max(0, entradaTotalPrice - params.subsidio - fgts - bomPagador);
 
-  // EXIBIÇÃO NOS CARDS (SAC e PRICE)
+  // CARDS
   if (document.getElementById('sac-val-financiamento')) document.getElementById('sac-val-financiamento').innerText = formatarMoeda(finanSacCapacidade);
   if (document.getElementById('price-val-financiamento')) document.getElementById('price-val-financiamento').innerText = formatarMoeda(finanPriceCapacidade);
 
@@ -224,7 +308,7 @@ function simularFluxo() {
   gerarTabelaUnificada();
 }
 
-// 5. CÁLCULO E ATUALIZAÇÃO DO ATO E SINAL (1,5% DO IMÓVEL - ATO)
+// 6. ATO E SINAL
 function atualizarLinhaSinal(sistema, valImovel) {
   const prefix = sistema.toLowerCase();
   const valAto = obterValorNumerico(`${prefix}-input-ato`);
@@ -251,7 +335,6 @@ function atualizarLinhaSinal(sistema, valImovel) {
   if (valParcSinalEl) valParcSinalEl.innerText = formatarMoedaNum(valParcSinal);
 }
 
-// 6. VALIDAÇÃO ADICIONAL DE ATO MÍNIMO (0.2%)
 function validarAto(sistema, apenasAtualizar) {
   const prefixo = sistema.toLowerCase();
   const valImovel = simState.valorImovel;
