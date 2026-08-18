@@ -32,8 +32,8 @@
 
         .modal-container {
             background-color: #ffffff;
-            width: 100%;
-            max-width: 1280px;
+            width: 96vw; /* Aumentado para ocupar quase toda a largura da tela */
+            max-width: 1400px; /* Limite aumentado para telas widescreen */
             max-height: 96vh;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -46,7 +46,7 @@
         .modal-header {
             background-color: #ffffff;
             color: #065f46;
-            padding: 12px 20px;
+            padding: 10px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -81,24 +81,24 @@
         }
 
         .modal-body {
-            padding: 16px;
+            padding: 12px 16px;
             overflow-y: auto;
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             background-color: #fafafa;
         }
 
-        /* Top Filter Section (Barra compacta estilo imagem) */
+        /* Top Filter Section (Barra compacta estendida) */
         .filter-panel {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             font-size: 0.82rem;
             font-weight: 600;
             color: #334155;
@@ -106,15 +106,17 @@
 
         .filter-row {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* Força os elementos a permanecerem na mesma linha no desktop */
             align-items: center;
-            gap: 12px 16px;
+            gap: 10px 14px;
+            width: 100%;
         }
 
         .filter-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            white-space: nowrap;
         }
 
         .filter-item label {
@@ -125,7 +127,7 @@
         .filter-item input[type="text"],
         .filter-item input[type="number"],
         .filter-item input[type="date"] {
-            padding: 3px 6px;
+            padding: 3px 5px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
             font-size: 0.82rem;
@@ -141,12 +143,13 @@
             background-color: #e6f4ea;
             border: 1px solid #a7f3d0;
             color: #047857;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 4px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         /* Cards Comparativos */
@@ -160,13 +163,16 @@
             .cards-container {
                 grid-template-columns: 1fr;
             }
+            .filter-row {
+                flex-wrap: wrap;
+            }
         }
 
         .card-sistema {
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 12px 14px;
+            padding: 10px 12px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
@@ -178,40 +184,41 @@
             align-items: center;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 6px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .card-header h3 {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 800;
             color: #065f46;
         }
 
-        /* Formato de 2 colunas internas por Card */
+        /* Formato de 2 colunas internas por Card com proporção ajustada */
         .card-grid-2col {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 0.85fr 1.15fr; /* Mais espaço para a coluna da direita */
+            gap: 10px;
         }
 
         .card-col-left {
             border-right: 1px solid #e2e8f0;
-            padding-right: 12px;
+            padding-right: 10px;
         }
 
         .data-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 3px 0;
-            font-size: 0.8rem;
+            padding: 2px 0;
+            font-size: 0.78rem;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .data-row .lbl {
             color: #334155;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.73rem;
         }
 
         .data-row .val {
@@ -222,7 +229,8 @@
         .inline-input-group {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
+            white-space: nowrap;
         }
 
         .inline-input-group input {
@@ -237,10 +245,10 @@
             background-color: #ffffff;
             color: #047857;
             border: 1px solid #047857;
-            padding: 3px 10px;
+            padding: 2px 8px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -256,23 +264,23 @@
         /* Resumo e Tabelas */
         .resumo-amortizacao {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 8px;
             background-color: #f8fafc;
-            padding: 10px;
+            padding: 8px;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
         }
 
         .resumo-box h4 {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             color: #64748b;
             margin-bottom: 2px;
         }
 
         .resumo-box p {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: #0f172a;
         }
@@ -282,7 +290,7 @@
             border-radius: 6px;
             overflow-x: auto;
             background-color: #ffffff;
-            max-height: 250px;
+            max-height: 230px;
         }
 
         .tabela-simulacao {
@@ -295,7 +303,7 @@
         .tabela-simulacao th {
             background-color: #f8fafc;
             color: #475569;
-            padding: 6px 8px;
+            padding: 5px 8px;
             font-weight: 600;
             border-bottom: 2px solid #e2e8f0;
             white-space: nowrap;
@@ -304,7 +312,7 @@
         }
 
         .tabela-simulacao td {
-            padding: 5px 8px;
+            padding: 4px 8px;
             border-bottom: 1px solid #f1f5f9;
             color: #334155;
             white-space: nowrap;
@@ -334,38 +342,38 @@
                         <div class="filter-item">
                             <input type="radio" id="base-imovel" name="base-financiamento" value="imovel" checked onchange="simularFluxo()">
                             <label for="base-imovel">Valor imóvel:</label>
-                            <input type="text" id="sim-val-imovel" value="R$ 275.000,00" style="width: 110px;" oninput="mascararMoeda(this); simularFluxo();">
+                            <input type="text" id="sim-val-imovel" value="R$ 275.000,00" style="width: 105px;" oninput="mascararMoeda(this); simularFluxo();">
                         </div>
 
                         <div class="filter-item">
                             <input type="radio" id="base-avaliacao" name="base-financiamento" value="avaliacao" onchange="simularFluxo()">
                             <label for="base-avaliacao">Avaliação:</label>
-                            <input type="text" id="sim-val-avaliacao" value="R$ 0,00" style="width: 110px;" oninput="mascararMoeda(this); simularFluxo();">
+                            <input type="text" id="sim-val-avaliacao" value="R$ 0,00" style="width: 90px;" oninput="mascararMoeda(this); simularFluxo();">
                         </div>
 
                         <div class="filter-item">
                             <label style="color:#047857;">Bom Pagador:</label>
-                            <input type="text" id="sim-bom-pagador" value="R$ 18.000,00" style="width: 100px;" oninput="mascararMoeda(this); simularFluxo();">
+                            <input type="text" id="sim-bom-pagador" value="R$ 18.000,00" style="width: 95px;" oninput="mascararMoeda(this); simularFluxo();">
                         </div>
 
                         <div class="filter-item">
                             <label>Renda:</label>
-                            <input type="text" id="sim-renda" value="R$ 4.000,00" style="width: 100px;" oninput="mascararMoeda(this); simularFluxo();">
+                            <input type="text" id="sim-renda" value="R$ 4.000,00" style="width: 90px;" oninput="mascararMoeda(this); simularFluxo();">
                         </div>
 
                         <div class="filter-item">
                             <label>FGTS:</label>
-                            <input type="text" id="sim-fgts" value="R$ 8.000,00" style="width: 90px;" oninput="mascararMoeda(this); simularFluxo();">
+                            <input type="text" id="sim-fgts" value="R$ 8.000,00" style="width: 85px;" oninput="mascararMoeda(this); simularFluxo();">
                         </div>
 
                         <div class="filter-item">
                             <label>Recursos:</label>
-                            <input type="text" id="sim-recursos" value="R$ 10.000,00" style="width: 100px;" oninput="mascararMoeda(this); simularFluxo();">
+                            <input type="text" id="sim-recursos" value="R$ 10.000,00" style="width: 95px;" oninput="mascararMoeda(this); simularFluxo();">
                         </div>
 
                         <div class="filter-item" style="margin-left: auto;">
                             <label><input type="radio" name="opt-redutor" value="sim" checked onchange="simularFluxo()"> Com redutor</label>
-                            <label><input type="radio" name="opt-redutor" value="nao" onchange="simularFluxo()"> Sem redutor</label>
+                            <label style="margin-left: 6px;"><input type="radio" name="opt-redutor" value="nao" onchange="simularFluxo()"> Sem redutor</label>
                         </div>
                     </div>
 
@@ -377,7 +385,7 @@
 
                         <div class="filter-item">
                             <label>máximo de:</label>
-                            <input type="number" id="sim-prazo-finan" value="420" min="1" max="420" style="width: 55px;" onchange="simularFluxo()">
+                            <input type="number" id="sim-prazo-finan" value="420" min="1" max="420" style="width: 50px;" onchange="simularFluxo()">
                             <label>parcelas</label>
                         </div>
 
@@ -387,7 +395,7 @@
 
                         <div class="filter-item">
                             <label>Qtd. Parc. entrada:</label>
-                            <input type="number" id="sim-qtd-parc-entrada" value="30" min="1" max="120" style="width: 50px;" onchange="simularFluxo()">
+                            <input type="number" id="sim-qtd-parc-entrada" value="30" min="1" max="120" style="width: 45px;" onchange="simularFluxo()">
                         </div>
 
                         <div class="subsidio-box">
@@ -427,29 +435,29 @@
                                 <div class="data-row">
                                     <span class="lbl">Ato:</span>
                                     <div class="inline-input-group">
-                                        <input type="text" id="sac-input-ato" value="550,00" style="width: 70px;" oninput="mascararMoeda(this); simularFluxo();">
+                                        <input type="text" id="sac-input-ato" value="550,00" style="width: 65px;" oninput="mascararMoeda(this); simularFluxo();">
                                         <span>=</span>
-                                        <input type="text" id="sac-pct-ato" value="0.2%" disabled style="width: 45px; text-align: center; background:#f1f5f9;">
-                                        <span style="font-size:0.7rem; color:#64748b;">DO TOTAL</span>
+                                        <input type="text" id="sac-pct-ato" value="0.2%" disabled style="width: 42px; text-align: center; background:#f1f5f9;">
+                                        <span style="font-size:0.68rem; color:#64748b;">DO TOTAL</span>
                                     </div>
                                 </div>
                                 <div class="data-row">
                                     <span class="lbl">Sinal:</span>
                                     <div class="inline-input-group">
-                                        <span class="val" id="sac-val-sinal" style="margin-right: 4px;">R$ 3.575,00</span>
-                                        <span style="font-size:0.75rem;">EM</span>
-                                        <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" style="width: 38px;" onchange="simularFluxo()">
-                                        <span style="font-size:0.72rem;">PARCELAS DE:</span>
+                                        <span class="val" id="sac-val-sinal" style="margin-right: 2px;">R$ 3.575,00</span>
+                                        <span style="font-size:0.72rem;">EM</span>
+                                        <input type="number" id="sac-parc-sinal" value="5" min="1" max="5" style="width: 35px;" onchange="simularFluxo()">
+                                        <span style="font-size:0.7rem;">PARCELAS DE:</span>
                                         <span class="val" id="sac-val-parc-sinal">R$ 715,00</span>
                                     </div>
                                 </div>
-                                <div class="data-row" style="margin-top: 4px;">
+                                <div class="data-row" style="margin-top: 2px;">
                                     <span class="lbl">Entrada Líquida:</span>
                                     <div class="inline-input-group">
-                                        <span class="val" id="sac-val-entrada-liquida" style="margin-right: 4px;">R$ 61.786,30</span>
-                                        <span style="font-size:0.75rem;">EM</span>
-                                        <input type="number" id="sac-parc-entrada" value="30" min="1" max="120" style="width: 42px;" onchange="simularFluxo()">
-                                        <span style="font-size:0.72rem;">PARCELAS DE:</span>
+                                        <span class="val" id="sac-val-entrada-liquida" style="margin-right: 2px;">R$ 61.786,30</span>
+                                        <span style="font-size:0.72rem;">EM</span>
+                                        <input type="number" id="sac-parc-entrada" value="30" min="1" max="120" style="width: 38px;" onchange="simularFluxo()">
+                                        <span style="font-size:0.7rem;">PARCELAS DE:</span>
                                         <span class="val" id="sac-val-parc-entrada">R$ 2.059,54</span>
                                     </div>
                                 </div>
@@ -484,29 +492,29 @@
                                 <div class="data-row">
                                     <span class="lbl">Ato:</span>
                                     <div class="inline-input-group">
-                                        <input type="text" id="price-input-ato" value="550,00" style="width: 70px;" oninput="mascararMoeda(this); simularFluxo();">
+                                        <input type="text" id="price-input-ato" value="550,00" style="width: 65px;" oninput="mascararMoeda(this); simularFluxo();">
                                         <span>=</span>
-                                        <input type="text" id="price-pct-ato" value="0.2%" disabled style="width: 45px; text-align: center; background:#f1f5f9;">
-                                        <span style="font-size:0.7rem; color:#64748b;">DO TOTAL</span>
+                                        <input type="text" id="price-pct-ato" value="0.2%" disabled style="width: 42px; text-align: center; background:#f1f5f9;">
+                                        <span style="font-size:0.68rem; color:#64748b;">DO TOTAL</span>
                                     </div>
                                 </div>
                                 <div class="data-row">
                                     <span class="lbl">Sinal:</span>
                                     <div class="inline-input-group">
-                                        <span class="val" id="price-val-sinal" style="margin-right: 4px;">R$ 3.575,00</span>
-                                        <span style="font-size:0.75rem;">EM</span>
-                                        <input type="number" id="price-parc-sinal" value="5" min="1" max="5" style="width: 38px;" onchange="simularFluxo()">
-                                        <span style="font-size:0.72rem;">PARCELAS DE:</span>
+                                        <span class="val" id="price-val-sinal" style="margin-right: 2px;">R$ 3.575,00</span>
+                                        <span style="font-size:0.72rem;">EM</span>
+                                        <input type="number" id="price-parc-sinal" value="5" min="1" max="5" style="width: 35px;" onchange="simularFluxo()">
+                                        <span style="font-size:0.7rem;">PARCELAS DE:</span>
                                         <span class="val" id="price-val-parc-sinal">R$ 715,00</span>
                                     </div>
                                 </div>
-                                <div class="data-row" style="margin-top: 4px;">
+                                <div class="data-row" style="margin-top: 2px;">
                                     <span class="lbl">Entrada Líquida:</span>
                                     <div class="inline-input-group">
-                                        <span class="val" id="price-val-entrada-liquida" style="margin-right: 4px;">R$ 25.977,99</span>
-                                        <span style="font-size:0.75rem;">EM</span>
-                                        <input type="number" id="price-parc-entrada" value="30" min="1" max="120" style="width: 42px;" onchange="simularFluxo()">
-                                        <span style="font-size:0.72rem;">PARCELAS DE:</span>
+                                        <span class="val" id="price-val-entrada-liquida" style="margin-right: 2px;">R$ 25.977,99</span>
+                                        <span style="font-size:0.72rem;">EM</span>
+                                        <input type="number" id="price-parc-entrada" value="30" min="1" max="120" style="width: 38px;" onchange="simularFluxo()">
+                                        <span style="font-size:0.7rem;">PARCELAS DE:</span>
                                         <span class="val" id="price-val-parc-entrada">R$ 865,93</span>
                                     </div>
                                 </div>
@@ -599,7 +607,6 @@
         }
 
         function simularFluxo() {
-            // Lógica para sincronização dos Recursos Próprios e cálculos do Modal
             const recPropriosVal = parseMoeda(document.getElementById('sim-recursos').value);
             const valImovel = parseMoeda(document.getElementById('sim-val-imovel').value);
             const qtdParcEntrada = parseInt(document.getElementById('sim-qtd-parc-entrada').value) || 30;
@@ -638,7 +645,7 @@
                 document.getElementById('price-val-parc-entrada').innerText = fmtMoeda(priceEntradaLiquida / qtdParcEntrada);
             }
 
-            // 4. Calcular % do Ato em relação ao total do imóvel
+            // 4. Calcular % do Ato
             const sacAto = parseMoeda(document.getElementById('sac-input-ato').value);
             const priceAto = parseMoeda(document.getElementById('price-input-ato').value);
 
@@ -648,7 +655,6 @@
             }
         }
 
-        // Executar simulação inicial ao carregar a página
         window.onload = function() {
             simularFluxo();
         };
