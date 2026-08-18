@@ -1,4 +1,38 @@
-// Função auxiliar para converter string de moeda ("R$ 8.000,00") para número (8000)
+// ==========================================
+// FUNÇÕES DE CONTROLE DO MODAL (ABRIR / FECHAR)
+// ==========================================
+
+function abrirSpeedSim() {
+    var modal = document.getElementById('modal-speedsim');
+    if (modal) {
+        modal.style.display = 'block';
+        // Executa a simulação inicial ao abrir para atualizar valores padrão
+        simularFluxo();
+    } else {
+        console.error("Erro: Elemento '#modal-speedsim' não foi encontrado no HTML.");
+    }
+}
+
+function fecharSpeedSim() {
+    var modal = document.getElementById('modal-speedsim');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Fechar ao clicar fora da caixa do modal
+window.addEventListener('click', function(event) {
+    var modal = document.getElementById('modal-speedsim');
+    if (event.target === modal) {
+        fecharSpeedSim();
+    }
+});
+
+
+// ==========================================
+// FUNÇÕES AUXILIARES DE FORMATAÇÃO E MOEDA
+// ==========================================
+
 function converterMoedaParaNumero(valor) {
     if (!valor) return 0;
     if (typeof valor === 'number') return valor;
@@ -6,12 +40,25 @@ function converterMoedaParaNumero(valor) {
     return parseFloat(limpo) || 0;
 }
 
-// Função auxiliar para formatar número para padrão moeda ("8.000,00")
 function formatarMoeda(valor) {
     return valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Função principal de cálculo e atualização da interface
+function mascararMoeda(i) {
+    if (!i) return;
+    var v = i.value.replace(/\D/g, '');
+    v = (v / 100).toFixed(2) + '';
+    v = v.replace(".", ",");
+    v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+    v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+    i.value = "R$ " + v;
+}
+
+
+// ==========================================
+// FUNÇÃO PRINCIPAL DE SIMULAÇÃO (FLUXO)
+// ==========================================
+
 function simularFluxo() {
     // 1. LEITURA DOS INPUTS SUPERIORES
     var valImovelInput = document.getElementById('sim-val-imovel') ? document.getElementById('sim-val-imovel').value : '';
@@ -29,7 +76,7 @@ function simularFluxo() {
     var fgtsInput = document.getElementById('sim-fgts') ? document.getElementById('sim-fgts').value : '';
     var fgts = converterMoedaParaNumero(fgtsInput);
 
-    // LEITURA ATUALIZADA DO CAMPO RECURSOS
+    // LEITURA DO NOVO CAMPO RECURSOS (antigo sim-sinal)
     var recursosInput = document.getElementById('sim-recursos') ? document.getElementById('sim-recursos').value : '';
     var recursos = converterMoedaParaNumero(recursosInput);
 
@@ -78,7 +125,6 @@ function simularFluxo() {
     var sacEntradaBruta = valImovel - (sacFinanciamento + sacSubsidio + fgts + bomPagador);
     var sacSaldoRecursos = recursos - sacEntradaBruta;
     
-    // Se o saldo de recursos for negativo, o sinal/saldo a parcelar passa a ser a diferença
     var sacSinal = sacEntradaBruta; 
     var sacParcSinalVal = sacSinal / sacParcSinal;
 
@@ -116,14 +162,4 @@ function simularFluxo() {
     if (document.getElementById('price-val-parc-sinal')) document.getElementById('price-val-parc-sinal').textContent = formatarMoeda(priceParcSinalVal);
     if (document.getElementById('price-val-entrada-liquida')) document.getElementById('price-val-entrada-liquida').textContent = formatarMoeda(priceEntradaLiquida);
     if (document.getElementById('price-val-parc-liquida')) document.getElementById('price-val-parc-liquida').textContent = formatarMoeda(priceParcLiquidaVal);
-}
-
-// Função de máscara de moeda para inputs
-function mascararMoeda(i) {
-    var v = i.value.replace(/\D/g, '');
-    v = (v / 100).toFixed(2) + '';
-    v = v.replace(".", ",");
-    v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
-    v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
-    i.value = "R$ " + v;
 }
