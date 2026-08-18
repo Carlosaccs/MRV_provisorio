@@ -1,6 +1,6 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Código Unificado e Corrigido (Recursos/Sinal, Ato, Padrão 30 Meses)
+ * Código Unificado e Corrigido
  */
 
 // 1. CARREGAMENTO DO MODAL E IMPRESSÃO
@@ -8,6 +8,7 @@ function abrirSpeedSim() {
     const modal = document.getElementById('modal-speedsim');
     if (modal) {
         modal.style.display = 'flex';
+        simularFluxo();
     } else {
         fetch('simulador.html')
             .then(response => response.text())
@@ -21,20 +22,11 @@ function abrirSpeedSim() {
                 const modalInjetado = document.getElementById('modal-speedsim');
                 if (modalInjetado) modalInjetado.style.display = 'flex';
                 
-                // Força valor 30 na inicialização após injetar HTML
-                forcarQtdParcelas30();
+                vincularEventosMúltiplos();
+                simularFluxo();
             })
             .catch(err => console.error('Erro ao carregar simulador.html:', err));
     }
-}
-
-function forcarQtdParcelas30() {
-    // Procura por todos os possíveis IDs do campo de quantidade de parcelas de entrada
-    const ids = ['sim-qtd-parc-entrada', 'qtd-parc-entrada', 'sim-qtd-entrada'];
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = 30;
-    });
 }
 
 function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, dataNasc, dependente, valImovel, finanVal, taxaAA, prazo, primeiraParc, ultimaParc, entradaTotal, numParcEntrada, parcEntradaValor) {
@@ -102,7 +94,7 @@ function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, da
     win.document.close();
 }
 
-// 2. ESTRUTURA E REGRAS BANCÁRIAS (MATRIZ CREDILAR)
+// 2. MATRIZ CREDILAR
 const CREDILAR_MATRIZ = [
   { renda: 1000, finNormal: 56132.57, finRedutor: 59840.81, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
   { renda: 1200, finNormal: 68140.82, finRedutor: 72642.35, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
@@ -151,7 +143,7 @@ let simState = {
   amortizacoesExtras: {}
 };
 
-// 3. FUNÇÕES FORMATADORAS E DE PARSE
+// 3. FUNÇÕES FORMATADORAS E HELPER DE BUSCA
 function parseMoedaParaNumero(valor) {
   if (typeof valor === 'number') return valor;
   if (!valor) return 0;
@@ -180,12 +172,19 @@ function mascararMoeda(input) {
   input.value = "R$ " + value;
 }
 
-function obterValorNumerico(id) {
-  const el = document.getElementById(id);
-  if (!el) return 0;
-  const val = el.value || el.innerText || "0";
-  const num = parseFloat(val.replace(/[^\d,-]/g, "").replace(",", "."));
-  return isNaN(num) ? 0 : num;
+/**
+ * Busca flexível de valor numérico testando múltiplos IDs para compatibilidade com alteração de nomes
+ */
+function obterValorFlexivel(listaIds) {
+  for (let id of listaIds) {
+    const el = document.getElementById(id);
+    if (el) {
+      const val = el.value || el.innerText || "0";
+      const num = parseFloat(val.replace(/[^\d,-]/g, "").replace(",", "."));
+      if (!isNaN(num)) return num;
+    }
+  }
+  return 0;
 }
 
 function atualizarTextoSeExiste(id, valor) {
@@ -193,7 +192,7 @@ function atualizarTextoSeExiste(id, valor) {
   if (el) el.innerText = valor;
 }
 
-// 4. CÁLCULO DE PRAZO MÁXIMO BASEADO NA DATA DE NASCIMENTO
+// 4. CÁLCULO DE PRAZO MÁXIMO
 function calcularPrazoMaximoPorDataNasc() {
   const inputDataNasc = document.getElementById('sim-data-nasc');
   const inputPrazo = document.getElementById('sim-prazo-finan');
@@ -204,22 +203,14 @@ function calcularPrazoMaximoPorDataNasc() {
   if (isNaN(dataNasc.getTime())) return;
 
   const hoje = new Date();
-
   let mesesIdade = (hoje.getFullYear() - dataNasc.getFullYear()) * 12 + (hoje.getMonth() - dataNasc.getMonth());
-  if (hoje.getDate() < dataNasc.getDate()) {
-    mesesIdade--;
-  }
+  if (hoje.getDate() < dataNasc.getDate()) mesesIdade--;
 
   const limiteTotalMeses = 966;
   let prazoMaximoMeses = limiteTotalMeses - mesesIdade;
 
-  if (prazoMaximoMeses > 420) {
-    prazoMaximoMeses = 420;
-  }
-
-  if (prazoMaximoMeses < 0) {
-    prazoMaximoMeses = 0;
-  }
+  if (prazoMaximoMeses > 420) prazoMaximoMeses = 420;
+  if (prazoMaximoMeses < 0) prazoMaximoMeses = 0;
 
   inputPrazo.value = prazoMaximoMeses;
   simState.prazoMeses = prazoMaximoMeses;
@@ -241,18 +232,18 @@ function buscarParametrosCredilar(renda, comRedutor, comDependente) {
 }
 
 function simularFluxo() {
-  const valImovel = obterValorNumerico('sim-val-imovel');
-  const valAvaliacao = obterValorNumerico('sim-val-avaliacao') || valImovel;
-  const renda = obterValorNumerico('sim-renda');
+  const valImovel = obterValorFlexivel(['sim-val-imovel', 'val-imovel']);
+  const valAvaliacao = obterValorFlexivel(['sim-val-avaliacao', 'val-avaliacao']) || valImovel;
+  const renda = obterValorFlexivel(['sim-renda', 'renda']);
 
   const comRedutor = document.querySelector('input[name="opt-redutor"]:checked')?.value === 'sim';
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
-  const fgts = obterValorNumerico('sim-fgts');
+  const fgts = obterValorFlexivel(['sim-fgts', 'fgts']);
   
-  // Tenta capturar o campo Recursos pelo ID atual ou pelo legado "sim-sinal"
-  const recursos = obterValorNumerico('sim-recursos') || obterValorNumerico('sim-sinal');
-  const bomPagador = obterValorNumerico('sim-bom-pagador');
+  // Tenta capturar o campo Recursos/Sinal buscando pelos IDs mais prováveis
+  const recursos = obterValorFlexivel(['sim-recursos', 'sim-sinal', 'recursos', 'sinal']);
+  const bomPagador = obterValorFlexivel(['sim-bom-pagador', 'bom-pagador']);
 
   calcularPrazoMaximoPorDataNasc();
 
@@ -314,7 +305,7 @@ function simularFluxo() {
   atualizarTextoSeExiste('sac-val-subsidio', formatarMoeda(params.subsidio));
   atualizarTextoSeExiste('price-val-subsidio', formatarMoeda(params.subsidio));
 
-  // REC. PRÓPRIOS ASSUMEM O VALOR DE RECURSOS/SINAL
+  // COPIA O VALOR DO CAMPO RECURSOS PARA REC. PRÓPRIOS
   atualizarTextoSeExiste('sac-val-rec-proprios', formatarMoeda(recursos));
   atualizarTextoSeExiste('price-val-rec-proprios', formatarMoeda(recursos));
 
@@ -323,7 +314,6 @@ function simularFluxo() {
   simState.valorFinanciadoSac = finanSacCapacidade;
   simState.taxaJurosAnual = params.taxa;
 
-  // AUTO-PREENCHE ATO SE TIVER ZERADO
   validarAto('sac', true);
   validarAto('price', true);
 
@@ -337,7 +327,6 @@ function simularFluxo() {
 function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const prefix = sistema.toLowerCase();
   
-  // Tenta encontrar o input pelo padrão ou com seletores dinâmicos
   let inputAto = document.getElementById(`${prefix}-input-ato`) || document.querySelector(`.${prefix}-ato`);
   let valAto = 0;
 
@@ -345,7 +334,6 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
     valAto = parseMoedaParaNumero(inputAto.value);
   }
 
-  // Porcentagem do ATO em relação ao valor do imóvel
   const pctAto = valImovel > 0 ? ((valAto / valImovel) * 100).toFixed(1) : "0.0";
   const pctEl = document.getElementById(`${prefix}-pct-ato`);
   if (pctEl) {
@@ -369,7 +357,6 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const valParcSinalEl = document.getElementById(`${prefix}-val-parc-sinal`);
   if (valParcSinalEl) valParcSinalEl.innerText = formatarMoedaNum(valParcSinal);
 
-  // SALDO RECURSOS = RECURSOS - ATO
   const saldoRecursos = Math.max(0, recursos - valAto);
   atualizarTextoSeExiste(`${prefix}-val-saldo-recursos`, formatarMoeda(saldoRecursos));
 
@@ -377,9 +364,8 @@ function atualizarLinhaSinal(sistema, valImovel, entradaBruta, recursos) {
   const entradaLiquida = Math.max(0, entradaBruta - recursos);
   atualizarTextoSeExiste(`${prefix}-val-entrada-liquida`, formatarMoeda(entradaLiquida));
 
-  // PARCELAS DE ENTRADA (PADRÃO 30)
-  const inputQtdGlobal = document.getElementById('sim-qtd-parc-entrada') || document.getElementById('qtd-parc-entrada');
-  const qtdGlobal = parseInt(inputQtdGlobal?.value) || 30;
+  // BUSCA QTD DE PARCELAS DA ENTRADA (LÊ O VALOR DO HTML DE FORMA FLEXÍVEL)
+  const qtdGlobal = obterValorFlexivel(['sim-qtd-parc-entrada', 'qtd-parc-entrada', 'sim-qtd-entrada']) || 30;
 
   let parcEntradaEl = document.getElementById(`${prefix}-parc-entrada`);
   let numParcEntrada = parseInt(parcEntradaEl?.value) || qtdGlobal;
@@ -397,10 +383,9 @@ function validarAto(sistema, apenasAtualizar) {
   const pctAtoEl = document.getElementById(`${prefixo}-pct-ato`);
   if (!inputAto) return;
 
-  const atoMinimo = valImovel * 0.002; // 0,2% do valor do imóvel
+  const atoMinimo = valImovel * 0.002;
   let valorAtoDigitado = parseMoedaParaNumero(inputAto.value);
 
-  // Mínimo de 0,2% do imóvel
   if (valorAtoDigitado < atoMinimo) {
     if (!apenasAtualizar && valorAtoDigitado > 0) {
       alert(`O valor mínimo para o ATO é de 0,2% do valor do imóvel (${formatarMoeda(atoMinimo)}).`);
@@ -551,9 +536,45 @@ function confirmarAmortizacaoTabela(inputEl) {
   gerarTabelaUnificada();
 }
 
-// 8. EVENT LISTENERS
+// 8. EVENT LISTENERS ABRANGENTES
+function vincularEventosMúltiplos() {
+  const idsInputs = [
+    'sim-val-imovel', 'val-imovel',
+    'sim-val-avaliacao', 'val-avaliacao',
+    'sim-renda', 'renda',
+    'sim-recursos', 'sim-sinal', 'recursos', 'sinal',
+    'sim-fgts', 'fgts',
+    'sim-bom-pagador', 'bom-pagador',
+    'sim-prazo-finan',
+    'sim-qtd-parc-entrada', 'qtd-parc-entrada', 'sim-qtd-entrada',
+    'sac-parc-entrada', 'price-parc-entrada'
+  ];
+
+  idsInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      ['input', 'change', 'keyup'].forEach(evento => {
+        el.addEventListener(evento, simularFluxo);
+      });
+    }
+  });
+
+  const radios = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+  radios.forEach(radio => {
+    radio.addEventListener('change', simularFluxo);
+  });
+
+  ['sac', 'price'].forEach(prefix => {
+    const inputAto = document.getElementById(`${prefix}-input-ato`);
+    if (inputAto) {
+      inputAto.addEventListener('change', () => validarAto(prefix, false));
+      inputAto.addEventListener('input', () => simularFluxo());
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  forcarQtdParcelas30();
+  vincularEventosMúltiplos();
 
   const btnSobre = document.getElementById('btn-sobre');
   if (btnSobre) {
@@ -568,20 +589,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ATRIBUIÇÃO DOS EVENTOS AOS CAMPOS DE RECURSOS / SINAL
-  ['sim-recursos', 'sim-sinal'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', simularFluxo);
-      el.addEventListener('change', simularFluxo);
-    }
-  });
-
-  // ATRIBUIÇÃO DOS EVENTOS DO ATO
-  ['sac', 'price'].forEach(prefix => {
-    const inputAto = document.getElementById(`${prefix}-input-ato`);
-    if (inputAto) {
-      inputAto.addEventListener('change', () => validarAto(prefix, false));
-    }
-  });
+  simularFluxo();
 });
