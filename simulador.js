@@ -3,6 +3,100 @@
  * Atualizado com suporte a Layout de Duas Colunas (SAC/PRICE), Ato Mínimo de 0.2% e Entrada Bruta.
  */
 
+// Função para carregar o modal de simulador dinamicamente se necessário
+function abrirSpeedSim() {
+    const modal = document.getElementById('modal-speedsim');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        // Se a estrutura ainda não foi injetada no DOM, carrega do simulador.html
+        fetch('simulador.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('container-modal-simulador').innerHTML = html;
+                const modalInjetado = document.getElementById('modal-speedsim');
+                if (modalInjetado) modalInjetado.style.display = 'flex';
+            })
+            .catch(err => console.error('Erro ao carregar simulador.html:', err));
+    }
+}
+
+// Função de Impressão do Recibo / Resumo da Simulação
+function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, dataNasc, dependente, valImovel, finanVal, taxaAA, prazo, primeiraParc, ultimaParc, entradaTotal, numParcEntrada, parcEntradaValor) {
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+            <meta charset="UTF-8">
+            <title>Simulação MCMV - ${tipoSistema}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+                th { background-color: #f4f4f4; text-transform: uppercase; }
+                .secao-header { background-color: #e9e9e9; }
+            </style>
+        </head>
+        <body>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">SIMULAÇÃO DE VALORES MCMV – SISTEMA DE AMORTIZAÇÃO ${tipoSistema}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="width: 50%;">Data:</td><td><strong>${hoje}</strong></td></tr>
+                    <tr><td>Renda:</td><td><strong>${renda}</strong></td></tr>
+                    <tr><td>Recursos para o Sinal:</td><td><strong>${sinal}</strong></td></tr>
+                    <tr><td>FGTS:</td><td><strong>${fgts}</strong></td></tr>
+                    <tr><td>Desconto Bom Pagador:</td><td><strong>${bomPagador}</strong></td></tr>
+                    <tr><td>Data nascimento:</td><td><strong>${dataNasc}</strong></td></tr>
+                    <tr><td>Mais de 1 comprador ou dependente:</td><td><strong>${dependente}</strong></td></tr>
+                    <tr><td>Valor do imóvel:</td><td><strong>${valImovel}</strong></td></tr>
+                    
+                    <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
+
+                    <tr><td>FINANCIAMENTO:</td><td><strong>${finanVal} ${taxaAA}</strong></td></tr>
+                    <tr><td>Prazo:</td><td><strong>${prazo}</strong></td></tr>
+                    <tr><td>1ª prestação:</td><td><strong>${primeiraParc}</strong></td></tr>
+                    <tr><td>Última prestação:</td><td><strong>${ultimaParc}</strong></td></tr>
+                    
+                    <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
+
+                    <tr><td>ENTRADA TOTAL:</td><td><strong>${entradaTotal}</strong></td></tr>
+                    <tr>
+                        <td style="vertical-align: top;">Forma de pagamento da Entrada:</td>
+                        <td>
+                            ${sinal !== 'R$ 0,00' ? `<strong>${sinal}</strong> de sinal<br>` : ''}
+                            ${fgts !== 'R$ 0,00' ? `<strong>${fgts}</strong> de FGTS<br>` : ''}
+                            ${bomPagador !== 'R$ 0,00' ? `<strong>${bomPagador}</strong> de desconto Bom Pagador<br>` : ''}
+                            mais <strong>${numParcEntrada} parcelas</strong> no valor de <strong>${parcEntradaValor}</strong> cada corrigidas pelo INCC
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+// Configuração dos Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSobre = document.getElementById('btn-sobre');
+    if (btnSobre) {
+        btnSobre.addEventListener('click', abrirSpeedSim);
+    }
+});
+
+
+
 const CREDILAR_MATRIZ = [
   { renda: 1000, finNormal: 56132.57, finRedutor: 59840.81, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
   { renda: 1200, finNormal: 68140.82, finRedutor: 72642.35, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
