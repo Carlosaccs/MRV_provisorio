@@ -1,102 +1,9 @@
 /**
  * SpeedSim - Simulador MCMV / SBPE para SpeedBroker
- * Atualizado com suporte a Layout de Duas Colunas (SAC/PRICE), Ato Mínimo de 0.2% e Entrada Bruta.
+ * Código Unificado e Corrigido
  */
 
-// Função para carregar o modal de simulador dinamicamente se necessário
-function abrirSpeedSim() {
-    const modal = document.getElementById('modal-speedsim');
-    if (modal) {
-        modal.style.display = 'flex';
-    } else {
-        // Se a estrutura ainda não foi injetada no DOM, carrega do simulador.html
-        fetch('simulador.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('container-modal-simulador').innerHTML = html;
-                const modalInjetado = document.getElementById('modal-speedsim');
-                if (modalInjetado) modalInjetado.style.display = 'flex';
-            })
-            .catch(err => console.error('Erro ao carregar simulador.html:', err));
-    }
-}
-
-// Função de Impressão do Recibo / Resumo da Simulação
-function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, dataNasc, dependente, valImovel, finanVal, taxaAA, prazo, primeiraParc, ultimaParc, entradaTotal, numParcEntrada, parcEntradaValor) {
-    const win = window.open('', '_blank');
-    win.document.write(`
-        <!DOCTYPE html>
-        <html lang="pt-br">
-        <head>
-            <meta charset="UTF-8">
-            <title>Simulação MCMV - ${tipoSistema}</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
-                th { background-color: #f4f4f4; text-transform: uppercase; }
-                .secao-header { background-color: #e9e9e9; }
-            </style>
-        </head>
-        <body>
-            <table>
-                <thead>
-                    <tr>
-                        <th colspan="2">SIMULAÇÃO DE VALORES MCMV – SISTEMA DE AMORTIZAÇÃO ${tipoSistema}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td style="width: 50%;">Data:</td><td><strong>${hoje}</strong></td></tr>
-                    <tr><td>Renda:</td><td><strong>${renda}</strong></td></tr>
-                    <tr><td>Recursos para o Sinal:</td><td><strong>${sinal}</strong></td></tr>
-                    <tr><td>FGTS:</td><td><strong>${fgts}</strong></td></tr>
-                    <tr><td>Desconto Bom Pagador:</td><td><strong>${bomPagador}</strong></td></tr>
-                    <tr><td>Data nascimento:</td><td><strong>${dataNasc}</strong></td></tr>
-                    <tr><td>Mais de 1 comprador ou dependente:</td><td><strong>${dependente}</strong></td></tr>
-                    <tr><td>Valor do imóvel:</td><td><strong>${valImovel}</strong></td></tr>
-                    
-                    <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
-
-                    <tr><td>FINANCIAMENTO:</td><td><strong>${finanVal} ${taxaAA}</strong></td></tr>
-                    <tr><td>Prazo:</td><td><strong>${prazo}</strong></td></tr>
-                    <tr><td>1ª prestação:</td><td><strong>${primeiraParc}</strong></td></tr>
-                    <tr><td>Última prestação:</td><td><strong>${ultimaParc}</strong></td></tr>
-                    
-                    <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
-
-                    <tr><td>ENTRADA TOTAL:</td><td><strong>${entradaTotal}</strong></td></tr>
-                    <tr>
-                        <td style="vertical-align: top;">Forma de pagamento da Entrada:</td>
-                        <td>
-                            ${sinal !== 'R$ 0,00' ? `<strong>${sinal}</strong> de sinal<br>` : ''}
-                            ${fgts !== 'R$ 0,00' ? `<strong>${fgts}</strong> de FGTS<br>` : ''}
-                            ${bomPagador !== 'R$ 0,00' ? `<strong>${bomPagador}</strong> de desconto Bom Pagador<br>` : ''}
-                            mais <strong>${numParcEntrada} parcelas</strong> no valor de <strong>${parcEntradaValor}</strong> cada corrigidas pelo INCC
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <script>
-                window.onload = function() {
-                    window.print();
-                };
-            <\/script>
-        </body>
-        </html>
-    `);
-    win.document.close();
-}
-
-// Configuração dos Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    const btnSobre = document.getElementById('btn-sobre');
-    if (btnSobre) {
-        btnSobre.addEventListener('click', abrirSpeedSim);
-    }
-});
-
-
-
+// 1. ESTRUTURA E REGRAS BANCÁRIAS (MATRIZ CREDILAR)
 const CREDILAR_MATRIZ = [
   { renda: 1000, finNormal: 56132.57, finRedutor: 59840.81, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
   { renda: 1200, finNormal: 68140.82, finRedutor: 72642.35, txNormal: 4.75, txRedutor: 4.25, subSozinho: 16500, subDep: 55000 },
@@ -145,6 +52,7 @@ let simState = {
   amortizacoesExtras: {}
 };
 
+// 2. FUNÇÕES FORMATADORAS E DE PARSE
 function parseMoedaParaNumero(valor) {
   if (typeof valor === 'number') return valor;
   if (!valor) return 0;
@@ -154,19 +62,70 @@ function parseMoedaParaNumero(valor) {
 }
 
 function formatarMoeda(valor) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function mascararMoeda(inputEl) {
-  let digitos = inputEl.value.replace(/\D/g, '');
-  if (!digitos) {
-    inputEl.value = '0,00';
+function formatarMoedaNum(valor) {
+  return (valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function mascararMoeda(input) {
+  let value = input.value.replace(/\D/g, "");
+  if (value === "") {
+    input.value = "";
     return;
   }
-  let numFloat = parseFloat(digitos) / 100;
-  inputEl.value = numFloat.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  value = (parseInt(value, 10) / 100).toFixed(2) + "";
+  value = value.replace(".", ",");
+  value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+  input.value = "R$ " + value;
 }
 
+function obterValorNumerico(id) {
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  const val = el.value || el.innerText || "0";
+  const num = parseFloat(val.replace(/[^\d,-]/g, "").replace(",", "."));
+  return isNaN(num) ? 0 : num;
+}
+
+// 3. CÁLCULO DE PRAZO MÁXIMO BASEADO NA DATA DE NASCIMENTO
+function calcularPrazoMaximoPorDataNasc() {
+  const inputDataNasc = document.getElementById('sim-data-nasc');
+  const inputPrazo = document.getElementById('sim-prazo-finan');
+  
+  if (!inputDataNasc || !inputPrazo || !inputDataNasc.value) return;
+
+  const dataNasc = new Date(inputDataNasc.value);
+  if (isNaN(dataNasc.getTime())) return;
+
+  const hoje = new Date();
+
+  // Diferença exata em meses entre a data atual e o nascimento
+  let mesesIdade = (hoje.getFullYear() - dataNasc.getFullYear()) * 12 + (hoje.getMonth() - dataNasc.getMonth());
+  if (hoje.getDate() < dataNasc.getDate()) {
+    mesesIdade--;
+  }
+
+  // Idade Limite Bancária: 80 anos e 6 meses = 966 meses
+  const limiteTotalMeses = 966;
+  let prazoMaximoMeses = limiteTotalMeses - mesesIdade;
+
+  // Trava no teto máximo padrão de 420 parcelas (35 anos)
+  if (prazoMaximoMeses > 420) {
+    prazoMaximoMeses = 420;
+  }
+
+  // Se a idade ultrapassar o limite aceito
+  if (prazoMaximoMeses < 0) {
+    prazoMaximoMeses = 0;
+  }
+
+  inputPrazo.value = prazoMaximoMeses;
+  simState.prazoMeses = prazoMaximoMeses;
+}
+
+// 4. LÓGICA PRINCIPAL DE SIMULAÇÃO
 function buscarParametrosCredilar(renda, comRedutor, comDependente) {
   if (renda <= 0) return { taxa: 0, tetoFinanBase: 0, subsidio: 0 };
   let linha = CREDILAR_MATRIZ[0];
@@ -182,23 +141,26 @@ function buscarParametrosCredilar(renda, comRedutor, comDependente) {
 }
 
 function simularFluxo() {
-  const valImovel = parseMoedaParaNumero(document.getElementById('sim-val-imovel')?.value);
-  const valAvaliacao = parseMoedaParaNumero(document.getElementById('sim-val-avaliacao')?.value) || valImovel;
-  const renda = parseMoedaParaNumero(document.getElementById('sim-renda')?.value);
+  const valImovel = obterValorNumerico('sim-val-imovel');
+  const valAvaliacao = obterValorNumerico('sim-val-avaliacao') || valImovel;
+  const renda = obterValorNumerico('sim-renda');
 
   const comRedutor = document.querySelector('input[name="opt-redutor"]:checked')?.value === 'sim';
   const comDependente = document.getElementById('sim-dependente')?.checked ?? true;
 
-  const fgts = parseMoedaParaNumero(document.getElementById('sim-fgts')?.value);
-  const recursos = parseMoedaParaNumero(document.getElementById('sim-sinal')?.value); // Recursos Próprios
-  const bomPagador = parseMoedaParaNumero(document.getElementById('sim-bom-pagador')?.value);
+  const fgts = obterValorNumerico('sim-fgts');
+  const recursos = obterValorNumerico('sim-sinal');
+  const bomPagador = obterValorNumerico('sim-bom-pagador');
+
+  // Recalcula o prazo antes do fluxo de financiamento
+  calcularPrazoMaximoPorDataNasc();
 
   const inputPrazoEl = document.getElementById('sim-prazo-finan');
   let prazoDesejadoInput = parseInt(inputPrazoEl?.value) || 420;
   simState.prazoMeses = prazoDesejadoInput > 0 ? prazoDesejadoInput : 1;
 
-  const baseSelecionada = document.querySelector('input[name="base-financiamento"]:checked')?.value || 'imovel';
-  const baseCalculo = (baseSelecionada === 'avaliacao') ? valAvaliacao : valImovel;
+  const baseRadio = document.querySelector('input[name="base-financiamento"]:checked');
+  const baseCalculo = (baseRadio && baseRadio.value === 'avaliacao') ? valAvaliacao : valImovel;
 
   if (valImovel <= 0 || renda <= 0) {
     if (document.getElementById('sim-subsidio-val')) document.getElementById('sim-subsidio-val').value = "R$ 0,00";
@@ -224,52 +186,72 @@ function simularFluxo() {
   const finanSacPorRenda = prestacaoMaximaRenda / fatorSacPrimeiraParc;
   const finanSacCapacidade = Math.min(limite80Base, params.tetoFinanBase, finanSacPorRenda);
 
-  // CÁLCULOS DE ENTRADA TOTAL (Preço do Imóvel - Financiamento)
+  // CÁLCULOS DE ENTRADA TOTAL
   const entradaTotalSac = Math.max(0, valImovel - finanSacCapacidade);
   const entradaTotalPrice = Math.max(0, valImovel - finanPriceCapacidade);
 
-  // ENTRADA BRUTA = ENTRADA TOTAL - SUBSÍDIO - FGTS - BOM PAGADOR
+  // ENTRADA BRUTA
   const entradaBrutaSac = Math.max(0, entradaTotalSac - params.subsidio - fgts - bomPagador);
   const entradaBrutaPrice = Math.max(0, entradaTotalPrice - params.subsidio - fgts - bomPagador);
 
-  // EXIBIÇÃO NO CARD SAC - COLUNA ESQUERDA
-  if (document.getElementById('sac-res-financiamento')) document.getElementById('sac-res-financiamento').innerText = formatarMoeda(finanSacCapacidade);
+  // EXIBIÇÃO NOS CARDS (SAC e PRICE)
+  if (document.getElementById('sac-val-financiamento')) document.getElementById('sac-val-financiamento').innerText = formatarMoeda(finanSacCapacidade);
+  if (document.getElementById('price-val-financiamento')) document.getElementById('price-val-financiamento').innerText = formatarMoeda(finanPriceCapacidade);
+
   if (document.getElementById('sac-res-entrada-total')) document.getElementById('sac-res-entrada-total').innerText = formatarMoeda(entradaTotalSac);
-  if (document.getElementById('sac-res-subsidio')) document.getElementById('sac-res-subsidio').innerText = formatarMoeda(params.subsidio);
-  if (document.getElementById('sac-res-fgts')) document.getElementById('sac-res-fgts').innerText = formatarMoeda(fgts);
-  if (document.getElementById('sac-res-bom-pagador')) document.getElementById('sac-res-bom-pagador').innerText = formatarMoeda(bomPagador);
-
-  // EXIBIÇÃO NO CARD SAC - COLUNA DIREITA
-  if (document.getElementById('sac-res-entrada-bruta')) document.getElementById('sac-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaSac);
-  if (document.getElementById('sac-res-recursos')) document.getElementById('sac-res-recursos').innerText = formatarMoeda(recursos);
-
-  // EXIBIÇÃO NO CARD PRICE - COLUNA ESQUERDA
-  if (document.getElementById('price-res-financiamento')) document.getElementById('price-res-financiamento').innerText = formatarMoeda(finanPriceCapacidade);
   if (document.getElementById('price-res-entrada-total')) document.getElementById('price-res-entrada-total').innerText = formatarMoeda(entradaTotalPrice);
-  if (document.getElementById('price-res-subsidio')) document.getElementById('price-res-subsidio').innerText = formatarMoeda(params.subsidio);
-  if (document.getElementById('price-res-fgts')) document.getElementById('price-res-fgts').innerText = formatarMoeda(fgts);
-  if (document.getElementById('price-res-bom-pagador')) document.getElementById('price-res-bom-pagador').innerText = formatarMoeda(bomPagador);
 
-  // EXIBIÇÃO NO CARD PRICE - COLUNA DIREITA
+  if (document.getElementById('sac-res-entrada-bruta')) document.getElementById('sac-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaSac);
   if (document.getElementById('price-res-entrada-bruta')) document.getElementById('price-res-entrada-bruta').innerText = formatarMoeda(entradaBrutaPrice);
-  if (document.getElementById('price-res-recursos')) document.getElementById('price-res-recursos').innerText = formatarMoeda(recursos);
 
-  // Atualiza ATO (0.2% Padrão ou o valor atual se válido)
+  if (document.getElementById('sac-val-fgts')) document.getElementById('sac-val-fgts').innerText = formatarMoeda(fgts);
+  if (document.getElementById('price-val-fgts')) document.getElementById('price-val-fgts').innerText = formatarMoeda(fgts);
+
+  if (document.getElementById('sac-val-bom-pagador')) document.getElementById('sac-val-bom-pagador').innerText = formatarMoeda(bomPagador);
+  if (document.getElementById('price-val-bom-pagador')) document.getElementById('price-val-bom-pagador').innerText = formatarMoeda(bomPagador);
+
+  if (document.getElementById('sac-val-subsidio')) document.getElementById('sac-val-subsidio').innerText = formatarMoeda(params.subsidio);
+  if (document.getElementById('price-val-subsidio')) document.getElementById('price-val-subsidio').innerText = formatarMoeda(params.subsidio);
+
   simState.valorImovel = valImovel;
   simState.valorFinanciadoPrice = finanPriceCapacidade;
   simState.valorFinanciadoSac = finanSacCapacidade;
   simState.taxaJurosAnual = params.taxa;
 
-  validarAto('SAC', true);
-  validarAto('PRICE', true);
+  atualizarLinhaSinal('sac', valImovel);
+  atualizarLinhaSinal('price', valImovel);
 
   gerarTabelaUnificada();
 }
 
-/**
- * Valida e calcula o ATO (Padrão 0,2% do imóvel)
- * Se for menor que 0,2%, exibe aviso e restaura o valor mínimo.
- */
+// 5. CÁLCULO E ATUALIZAÇÃO DO ATO E SINAL (1,5% DO IMÓVEL - ATO)
+function atualizarLinhaSinal(sistema, valImovel) {
+  const prefix = sistema.toLowerCase();
+  const valAto = obterValorNumerico(`${prefix}-input-ato`);
+  
+  const pctAto = valImovel > 0 ? ((valAto / valImovel) * 100).toFixed(1) : "0.0";
+  const pctEl = document.getElementById(`${prefix}-pct-ato`);
+  if (pctEl) pctEl.value = `${pctAto}%`;
+
+  const metaSinal = valImovel * 0.015;
+  const valSinal = Math.max(0, metaSinal - valAto);
+  
+  const valSinalEl = document.getElementById(`${prefix}-val-sinal`);
+  if (valSinalEl) valSinalEl.innerText = formatarMoedaNum(valSinal);
+
+  let parcSinalEl = document.getElementById(`${prefix}-parc-sinal`);
+  let numParcSinal = parseInt(parcSinalEl?.value) || 1;
+  if (numParcSinal > 5) {
+    numParcSinal = 5;
+    if (parcSinalEl) parcSinalEl.value = 5;
+  }
+
+  const valParcSinal = numParcSinal > 0 ? valSinal / numParcSinal : 0;
+  const valParcSinalEl = document.getElementById(`${prefix}-val-parc-sinal`);
+  if (valParcSinalEl) valParcSinalEl.innerText = formatarMoedaNum(valParcSinal);
+}
+
+// 6. VALIDAÇÃO ADICIONAL DE ATO MÍNIMO (0.2%)
 function validarAto(sistema, apenasAtualizar) {
   const prefixo = sistema.toLowerCase();
   const valImovel = simState.valorImovel;
@@ -279,28 +261,25 @@ function validarAto(sistema, apenasAtualizar) {
   const pctAtoEl = document.getElementById(`${prefixo}-pct-ato`);
   if (!inputAto || !pctAtoEl) return;
 
-  const atoMinimo = valImovel * 0.002; // 0.2% do Valor do Imóvel
-  let valorAtoDigitado = parseMoedaParaNumero(inputAto.value);
+  const atoMinimo = valImovel * 0.002;
+  let valorAtoDigitado = obterValorNumerico(`${prefixo}-input-ato`);
 
-  // Se estiver atualizando e o valor estiver zerado ou abaixo do mínimo, aplica o mínimo
-  if (apenasAtualizar && valorAtoDigitado < atoMinimo) {
+  if (valorAtoDigitado < atoMinimo) {
+    if (!apenasAtualizar) {
+      alert(`O valor mínimo para o ATO é de 0,2% do valor do imóvel (${formatarMoeda(atoMinimo)}).`);
+    }
     valorAtoDigitado = atoMinimo;
-    inputAto.value = valorAtoDigitado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  } else if (!apenasAtualizar && valorAtoDigitado < atoMinimo) {
-    alert(`O valor mínimo para o ATO é de 0,2% do valor do imóvel (${formatarMoeda(atoMinimo)}).`);
-    valorAtoDigitado = atoMinimo;
-    inputAto.value = valorAtoDigitado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    inputAto.value = formatarMoedaNum(valorAtoDigitado);
   }
 
-  // Calcula % em relação ao imóvel
   const pctCalculado = (valorAtoDigitado / valImovel) * 100;
   pctAtoEl.value = `${pctCalculado.toFixed(1)}%`;
 }
 
 function zeraValoresCards() {
   const ids = [
-    'sac-res-financiamento', 'sac-res-entrada-total', 'sac-res-subsidio', 'sac-res-fgts', 'sac-res-bom-pagador', 'sac-res-entrada-bruta', 'sac-res-recursos',
-    'price-res-financiamento', 'price-res-entrada-total', 'price-res-subsidio', 'price-res-fgts', 'price-res-bom-pagador', 'price-res-entrada-bruta', 'price-res-recursos'
+    'sac-val-financiamento', 'sac-res-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-res-entrada-bruta',
+    'price-val-financiamento', 'price-res-entrada-total', 'price-val-subsidio', 'price-val-fgts', 'price-val-bom-pagador', 'price-res-entrada-bruta'
   ];
   ids.forEach(id => {
     if (document.getElementById(id)) document.getElementById(id).innerText = "R$ 0,00";
@@ -315,6 +294,7 @@ function zeraValoresCards() {
   if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
 }
 
+// 7. TABELA UNIFICADA E AMORTIZAÇÕES
 function calcularTotaisIniciaisFixos(PSac, PPrice, n, iMensal) {
   if (n <= 0) return { totalInicialSac: 0, totalInicialPrice: 0 };
   const parcelaPriceConstante = PPrice * ( (iMensal * Math.pow(1 + iMensal, n)) / (Math.pow(1 + iMensal, n) - 1) );
@@ -428,98 +408,18 @@ function confirmarAmortizacaoTabela(inputEl) {
   gerarTabelaUnificada();
 }
 
+// 8. EVENT LISTENERS
+document.addEventListener('DOMContentLoaded', () => {
+  const btnSobre = document.getElementById('btn-sobre');
+  if (btnSobre) {
+    btnSobre.addEventListener('click', abrirSpeedSim);
+  }
 
-// 1. MÁSCARA MONETÁRIA
-function mascararMoeda(input) {
-    let value = input.value.replace(/\D/g, "");
-    if (value === "") {
-        input.value = "";
-        return;
-    }
-    value = (parseInt(value, 10) / 100).toFixed(2) + "";
-    value = value.replace(".", ",");
-    value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-    input.value = "R$ " + value;
-}
-
-// 2. FUNÇÃO AUXILIAR DE CONVERSÃO DE MOEDA
-function obterValorNumerico(id) {
-    const el = document.getElementById(id);
-    if (!el) return 0;
-    const val = el.value || el.innerText || "0";
-    const num = parseFloat(val.replace(/[^\d,-]/g, "").replace(",", "."));
-    return isNaN(num) ? 0 : num;
-}
-
-// 3. LOGICA PRINCIPAL DE CÁLCULO E FLUXO
-function simularFluxo() {
-    const valImovel = obterValorNumerico('sim-val-imovel');
-    const valAvaliacao = obterValorNumerico('sim-val-avaliacao');
-    const bomPagador = obterValorNumerico('sim-bom-pagador');
-    const fgts = obterValorNumerico('sim-fgts');
-    const recursos = obterValorNumerico('sim-sinal');
-    const subsidio = obterValorNumerico('sim-subsidio-val');
-    
-    // Define a base utilizada (Imóvel ou Avaliação)
-    const baseRadio = document.querySelector('input[name="base-financiamento"]:checked');
-    const baseValor = (baseRadio && baseRadio.value === 'avaliacao') ? valAvaliacao : valImovel;
-
-    // Regra simplificada de LTV (limite até 80% do valor da base)
-    const maxFinanciamentoPermitido = baseValor * 0.80;
-    
-    // O Financiamento real é a base menos as entradas/recursos e subsídios, travado no máximo do LTV
-    let valFinanciamentoCalculado = Math.max(0, baseValor - (fgts + recursos + bomPagador + subsidio));
-    if (valFinanciamentoCalculado > maxFinanciamentoPermitido) {
-        valFinanciamentoCalculado = maxFinanciamentoPermitido;
-    }
-
-    // CARREGA O FINANCIAMENTO NOS CAMPOS SAC E PRICE
-    const valFinanFormatado = formatarMoedaNum(valFinanciamentoCalculado);
-    document.getElementById('sac-val-financiamento').innerText = valFinanFormatado;
-    document.getElementById('price-val-financiamento').innerText = valFinanFormatado;
-
-    // ATUALIZA VALORES FIXOS/INFORMAÇÕES ADICIONAIS NAS COLUNAS ESQUERDAS
-    document.getElementById('sac-val-fgts').innerText = formatarMoedaNum(fgts);
-    document.getElementById('price-val-fgts').innerText = formatarMoedaNum(fgts);
-
-    document.getElementById('sac-val-bom-pagador').innerText = formatarMoedaNum(bomPagador);
-    document.getElementById('price-val-bom-pagador').innerText = formatarMoedaNum(bomPagador);
-
-    document.getElementById('sac-val-subsidio').innerText = formatarMoedaNum(subsidio);
-    document.getElementById('price-val-subsidio').innerText = formatarMoedaNum(subsidio);
-
-    // ATUALIZA SINAL E ATO PARA SAC E PRICE
-    atualizarLinhaSinal('sac', valImovel);
-    atualizarLinhaSinal('price', valImovel);
-}
-
-// 4. CÁLCULO E ATUALIZAÇÃO DO ATO E SINAL (1,5% DO IMÓVEL - ATO)
-function atualizarLinhaSinal(sistema, valImovel) {
-    const prefix = sistema; // 'sac' ou 'price'
-    const valAto = obterValorNumerico(`${prefix}-input-ato`);
-    
-    // Porcentagem do Ato em relação ao Imóvel
-    const pctAto = valImovel > 0 ? ((valAto / valImovel) * 100).toFixed(1) : "0.0";
-    document.getElementById(`${prefix}-pct-ato`).value = `${pctAto}%`;
-
-    // Sinal = (1.5% do Valor do Imóvel) - Ato
-    const metaSinal = valImovel * 0.015;
-    const valSinal = Math.max(0, metaSinal - valAto);
-    document.getElementById(`${prefix}-val-sinal`).innerText = formatarMoedaNum(valSinal);
-
-    // Qtd parcelas do sinal (Máx 5)
-    let parcSinalEl = document.getElementById(`${prefix}-parc-sinal`);
-    let numParcSinal = parseInt(parcSinalEl.value) || 1;
-    if (numParcSinal > 5) {
-        numParcSinal = 5;
-        parcSinalEl.value = 5;
-    }
-
-    const valParcSinal = numParcSinal > 0 ? valSinal / numParcSinal : 0;
-    document.getElementById(`${prefix}-val-parc-sinal`).innerText = formatarMoedaNum(valParcSinal);
-}
-
-// 5. FORMATADOR DE MOEDA PARA O TEXTO
-function formatarMoedaNum(valor) {
-    return (valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+  const inputDataNasc = document.getElementById('sim-data-nasc');
+  if (inputDataNasc) {
+    inputDataNasc.addEventListener('change', () => {
+      calcularPrazoMaximoPorDataNasc();
+      simularFluxo();
+    });
+  }
+});
