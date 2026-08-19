@@ -90,12 +90,25 @@
             return idMaquina;
         }
 
-        const ref = obterParametroUrl('ref');
-        const painel = document.getElementById('painel-status');
+const ref = obterParametroUrl('ref') || 'carlos8beta'; // Simula o ref se não vier nada
+    const painel = document.getElementById('painel-status');
 
-        if (!ref) {
-            exibirAcessoRecusado("Acesso Recusado", "Você tentou acessar a URL direta sem o código do seu gerente regional. Solicite o link oficial.");
-        } else {
+    // MODO LOCAL / DEV: Descomente a linha abaixo se quiser pular a checagem da API do Google no Live Server
+    const MODO_LOCAL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+
+    if (!ref && !MODO_LOCAL) {
+        exibirAcessoRecusado("Acesso Recusado", "Você tentou acessar a URL direta sem o código do seu gerente regional. Solicite o link oficial.");
+    } else if (MODO_LOCAL) {
+        // Pula a API do Google no ambiente local e vai direto pro desktop
+        painel.innerHTML = `
+            <div class="spinner" style="border-top-color: var(--mrv-laranja);"></div>
+            <h2 style="color: var(--mrv-verde);">Ambiente Local (Dev)</h2>
+            <p>Entrando direto no painel...</p>
+        `;
+        setTimeout(() => {
+            window.location.href = `desktop.html?ref=carlos8beta&userID=dev_local`;
+        }, 800);
+    } else {
             const userID = obterOuCriarIdentificadorMaquina();
 
             painel.innerHTML = `
