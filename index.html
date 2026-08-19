@@ -71,89 +71,9 @@
         <p>Conectando à portaria de segurança SpeedBroker MRV.</p>
     </div>
 
-    <script>
-        // COMPLETO: Insira aqui a URL do seu Web App atualizado do Google Apps Script
-        const URL_API_GOOGLE = "COLE_AQUI_A_SUA_URL_DO_WEB_APP";
-
-        function obterParametroUrl(nome) {
-            var regex = new RegExp('[\\?&]' + nome + '=([^&#]*)');
-            var resultados = regex.exec(location.search);
-            return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
-        }
-
-        function obterOuCriarIdentificadorMaquina() {
-            let idMaquina = localStorage.getItem('mrv_dispositivo_id');
-            if (!idMaquina) {
-                idMaquina = 'usr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('mrv_dispositivo_id', idMaquina);
-            }
-            return idMaquina;
-        }
-
-const ref = obterParametroUrl('ref') || 'carlos8beta'; // Simula o ref se não vier nada
-    const painel = document.getElementById('painel-status');
-
-    // MODO LOCAL / DEV: Descomente a linha abaixo se quiser pular a checagem da API do Google no Live Server
-    const MODO_LOCAL = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
-
-    if (!ref && !MODO_LOCAL) {
-        exibirAcessoRecusado("Acesso Recusado", "Você tentou acessar a URL direta sem o código do seu gerente regional. Solicite o link oficial.");
-    } else if (MODO_LOCAL) {
-        // Pula a API do Google no ambiente local e vai direto pro desktop
-        painel.innerHTML = `
-            <div class="spinner" style="border-top-color: var(--mrv-laranja);"></div>
-            <h2 style="color: var(--mrv-verde);">Ambiente Local (Dev)</h2>
-            <p>Entrando direto no painel...</p>
-        `;
-        setTimeout(() => {
-            window.location.href = `desktop.html?ref=carlos8beta&userID=dev_local`;
-        }, 800);
-    } else {
-            const userID = obterOuCriarIdentificadorMaquina();
-
-            painel.innerHTML = `
-                <div class="spinner"></div>
-                <h2 style="color: var(--mrv-verde);">Validando Acesso...</h2>
-                <p>Verificando integridade das cotas digitais do dispositivo.</p>
-            `;
-
-            // Faz a requisição enviando obrigatoriamente o ref E o userID
-            fetch(`${URL_API_GOOGLE}?ref=${ref}&userID=${userID}`)
-                .then(response => response.json())
-                .then(dados => {
-                    if (dados.status === "autorizado") {
-                        painel.innerHTML = `
-                            <div class="spinner" style="border-top-color: var(--mrv-laranja);"></div>
-                            <h2 style="color: var(--mrv-verde);">Acesso Autorizado!</h2>
-                            <p>Carregando o painel de residenciais...</p>
-                        `;
-                        setTimeout(() => {
-                            // Encaminha para o desktop passando os dois parâmetros na URL para manter sincronia
-                            window.location.href = `desktop.html?ref=${ref}&userID=${userID}`;
-                        }, 1200);
-                    } else {
-                        exibirAcessoRecusado("Acesso Recusado", dados.reason || "Cota esgotada ou link inválido.");
-                    }
-                })
-                .catch(erro => {
-                    console.error("Erro de rede:", erro);
-                    window.location.href = `desktop.html?ref=${ref}&userID=${userID}`;
-                });
-        }
-
-        function exibirAcessoRecusado(titulo, message) {
-            painel.innerHTML = `
-                <div id="icone-erro" style="margin-bottom: 20px;">
-                    <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" fill="#ff4d4d"/>
-                        <path d="M8 12H16" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <h2 style="color: #d93025;">${titulo}</h2>
-                <p>${message}</p>
-                <p style="color: #a0a0a0; font-size: 11px; margin-top: 25px;">Portaria SpeedBroker • MRV SP</p>
-            `;
-        }
+<script>
+        // MODO DESENVOLVIMENTO LOCAL: Redireciona direto para o desktop sem travas
+        window.location.href = "desktop.html?ref=carlos8beta&userID=dev_local";
     </script>
 </body>
 </html>
