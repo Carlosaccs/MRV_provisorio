@@ -1,175 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt-br" class="notranslate">
-<head>
-    <meta charset="UTF-8">
-    <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard MRV SP - VERSÃO BETA</title>
-    <link rel="stylesheet" href="desktop.css">
-    <style>
-        /* ==========================================================================
-            CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES
-            ========================================================================== */
-        
-        div.header {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding: 0 20px !important;
-            box-sizing: border-box !important;
-            gap: 20px !important;
+function configurarBotaoPopupSimulador() {
+    const btnSpeedsim = document.getElementById('btn-abrir-speedsim');
+
+    if (btnSpeedsim) {
+        // Removemos qualquer conflito e garantimos o clique
+        btnSpeedsim.onclick = function(e) {
+            e.preventDefault();
+            abrirPopupSimulador();
+        };
+    } else {
+        console.warn("Botão #btn-abrir-speedsim não encontrado no DOM.");
+    }
+
+    // Fecha ao clicar fora do conteúdo do modal (se clicar no fundo escuro)
+    window.addEventListener('click', (event) => {
+        const modalSimulador = document.getElementById("modal-popup-simulador");
+        if (modalSimulador && event.target === modalSimulador) {
+            modalSimulador.style.display = 'none';
         }
-
-        .titulo-mrv-centro {
-            margin: 0 !important;
-            padding: 0 !important;
-            font-weight: bold !important;
-            text-transform: uppercase !important;
-            text-align: left !important;
-            font-size: 1.1rem !important;
-            color: #ffffff !important;
-            z-index: 1 !important;
-            flex: 1 !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-        }
-
-        .container-botoes-mrv {
-            display: flex !important;
-            gap: 12px !important;
-            margin-left: auto !important;
-            align-items: center !important;
-            height: 100% !important;
-            z-index: 10 !important;
-            flex-shrink: 0 !important;
-        }
-
-        button#btn-documentos {
-            all: unset !important;
-            box-sizing: border-box !important;
-            background-color: #febd11 !important;
-            color: #004d24 !important;
-            border-radius: 4px !important;
-            height: 34px !important;
-            padding: 0 16px !important;
-            font-weight: bold !important;
-            font-size: 0.8rem !important;
-            text-transform: uppercase !important;
-            cursor: pointer !important;
-            text-align: center !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-            transition: background-color 0.2s ease, transform 0.1s ease !important;
-            white-space: nowrap !important;
-        }
-
-        button#btn-documentos:hover {
-            background-color: #e0a60f !important;
-        }
-
-        /* BOTÃO SPEEDSIM DESTACADO EM AZUL MÉDIO VIBRANTE */
-        button#btn-abrir-speedsim {
-            all: unset !important;
-            box-sizing: border-box !important;
-            background-color: #0066cc !important;
-            color: #ffffff !important;
-            border: 1px solid #004488 !important;
-            border-radius: 4px !important;
-            height: 34px !important;
-            padding: 0 18px !important;
-            font-weight: bold !important;
-            font-size: 0.82rem !important;
-            text-transform: uppercase !important;
-            cursor: pointer !important;
-            text-align: center !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 6px !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
-            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease !important;
-            white-space: nowrap !important;
-        }
-
-        button#btn-abrir-speedsim:hover {
-            background-color: #004e9a !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.35) !important;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- BLOQUEIO DE SEGURANÇA E VALIDAÇÃO DE LICENÇA -->
-    <div id="bloqueio-seguranca" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f4f9; color: #333; z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: Arial, sans-serif;">
-        <div style="max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eef0f2; text-align: center;">
-            <div id="icone-status" style="margin-bottom: 20px;">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#e0e0e0"/>
-                    <path d="M12 8V12M12 16H12.01" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-            <div id="resultado-validacao">
-                <h2 style="margin-top: 0; color: #444;">Processando...</h2>
-                <p>Conectando ao servidor de licenças do Speed Broker.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- CABEÇALHO DA APLICAÇÃO -->
-    <div class="header">
-        <h1 class="titulo-mrv-centro">
-            SPEED BROKER &nbsp;&bull;&nbsp; RESIDENCIAIS MRV EM SÃO PAULO &nbsp;&bull;&nbsp; AGO/26 (VERSÃO BETA)
-        </h1>
-        
-        <div class="container-botoes-mrv">
-            <button id="btn-documentos">Documentos</button>
-            <button id="btn-abrir-speedsim">📊 SPEEDSIM SIMULADOR DE MCMV</button>
-        </div>
-    </div>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <div class="wrapper">
-        <aside class="sidebar-esq" id="lista-imoveis">
-            <div style="padding:20px; color:#666; font-size: 0.8rem;">Carregando residenciais...</div>
-        </aside>
-        
-        <main class="conteudo-centro">
-            <div id="cidade-titulo">Selecione uma região no mapa</div> 
-            <div id="caixa-a"></div> 
-            <div id="caixa-b"></div> 
-        </main>
-
-        <aside class="sidebar-dir" id="ficha-tecnica">
-            <div style="text-align:center; color:#ccc; margin-top:100px;">
-                <p style="font-size: 30px;">📍</p>
-                <p>Clique em algum Residencial ou em alguma região verde do mapa</p>
-            </div>
-        </aside>
-    </div>
-    
-    <!-- CONTAINER ONDE O MODAL/POPUP DO NOVO SIMULADOR SERÁ INJETADO -->
-    <div id="container-modal-simulador"></div>
-
-    <!-- CARREGAMENTO DOS SCRIPTS DA APLICAÇÃO -->
-    <script src="mapa-SP.js"></script>
-    <script src="anuncios.js"></script>
-    <script src="desktop.js"></script>
-    <script src="simulador.js"></script>
-
-    <script>
-        // Inicialização global da aplicação
-        window.addEventListener('load', () => {
-            if (typeof iniciarApp === 'function') {
-                iniciarApp();
-            } else {
-                setTimeout(() => {
-                    if (typeof iniciarApp === 'function') iniciarApp();
-                }, 500);
-            }
-        });
-    </script>
-</body>
-</html>
+    });
+}
