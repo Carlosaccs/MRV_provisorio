@@ -50,6 +50,30 @@ function atualizarTextoSeExiste(id, texto) {
 }
 
 // ===========================================
+// CONTROLE DE ABERTURA E FECHAMENTO DO SPEEDSIM
+// ===========================================
+function configurarControleModal() {
+  // Ajuste os IDs conforme o seu HTML principal (ex: id do botão de abrir, do container do modal e do botão X)
+  const btnAbrir = document.getElementById("btn-abrir-speedsim") || document.querySelector("[id*='speedsim']");
+  const modalSpeedSim = document.getElementById("modal-speedsim") || document.getElementById("speedsim-container");
+  const btnFechar = document.getElementById("btn-fechar-speedsim") || document.querySelector(".fa-times, .close-modal, [class*='close']");
+
+  if (btnAbrir && modalSpeedSim) {
+    btnAbrir.addEventListener("click", () => {
+      modalSpeedSim.style.display = "block";
+      modalSpeedSim.classList.add("ativo");
+    });
+  }
+
+  if (btnFechar && modalSpeedSim) {
+    btnFechar.addEventListener("click", () => {
+      modalSpeedSim.style.display = "none";
+      modalSpeedSim.classList.remove("ativo");
+    });
+  }
+}
+
+// ===========================================
 // FUNÇÃO PRINCIPAL DE SIMULAÇÃO (FLUXO GERAL)
 // ===========================================
 function simularFluxo() {
@@ -114,13 +138,13 @@ function simularFluxo() {
   const selectRedutor = document.getElementById("sim-redutor");
   const redutorCotista = selectRedutor ? selectRedutor.value : "Com Redutor"; 
 
-  // 0.7. Tabela Oficial de Taxas Caixa (Alinhada com a Faixa 2/3 e Juros Nominais 5.50% a.a. para o exemplo)
+  // 0.7. Tabela Oficial de Taxas Caixa
   const tabelaTaxasFaixas = [
     { limite: 2160, cotista: 0.0500, naoCotista: 0.0550 },
     { limite: 2850, cotista: 0.0525, naoCotista: 0.0575 },
     { limite: 3200, cotista: 0.0550, naoCotista: 0.0600 },
     { limite: 3500, cotista: 0.0575, naoCotista: 0.0625 },
-    { limite: 4000, cotista: 0.0550, naoCotista: 0.0600 }, // Ajustado para 5.50% a.a. conforme print da Caixa para R$ 4.000
+    { limite: 4000, cotista: 0.0550, naoCotista: 0.0600 }, 
     { limite: 5000, cotista: 0.0650, naoCotista: 0.0700 },
     { limite: 9600, cotista: 0.0766, naoCotista: 0.0816 }, 
     { limite: 13000, cotista: 0.1000, naoCotista: 0.1000 } 
@@ -153,7 +177,7 @@ function simularFluxo() {
   const taxaManutencaoContrato = inputManutencaoEdit > 0 ? inputManutencaoEdit : 25.00;
 
   // Subsídio
-  const subsidioCalculado = 2099.00; // Ajustado conforme o print da Caixa para este cenário
+  const subsidioCalculado = 2099.00; 
   const inputSubsidioTela = document.getElementById("sim-subsidio-val");
   if (inputSubsidioTela) inputSubsidioTela.value = formatarMoeda(subsidioCalculado);
 
@@ -168,14 +192,12 @@ function simularFluxo() {
   let valorFinanciado = 0;
   if (rendaBruta > 0 && numerador > 0) {
     const valorCalculadoPorRenda = numerador / denominador;
-    const limite80PorCento = valorImovel * 0.80; // Cota máxima de financiamento de 80%
+    const limite80PorCento = valorImovel * 0.80; 
     valorFinanciado = valorCalculadoPorRenda < limite80PorCento ? valorCalculadoPorRenda : limite80PorCento;
   }
 
-  // Preenche o campo de Financiamento do SAC
   atualizarTextoSeExiste('sac-val-financiamento', formatarMoeda(valorFinanciado));
 
-  // Cálculo das Entradas e Abatimentos do SAC
   const entradaTotalSac = Math.max(0, valorImovel - valorFinanciado);
   const entradaBrutaSac = Math.max(0, entradaTotalSac - subsidioCalculado - fgts - bomPagador);
 
@@ -186,7 +208,6 @@ function simularFluxo() {
   atualizarTextoSeExiste('sac-val-bom-pagador', formatarMoeda(bomPagador));
   atualizarTextoSeExiste('sac-val-recursos', formatarMoeda(recursos));
 
-  // Geração do Cronograma SAC
   let saldoDevedor = valorFinanciado;
   const amortizacaoConstante = valorFinanciado / numeroParcelas;
   let cronogramaHTML = "";
@@ -232,5 +253,6 @@ function simularFluxo() {
 
 window.onload = function() {
   inicializarMunicipios();
+  configurarControleModal();
   simularFluxo();
 };
