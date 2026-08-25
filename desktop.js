@@ -141,7 +141,7 @@ let DADOS_PLANILHA = [];
 let DOCUMENTOS_GERAIS = []; 
 let pathAtivo = null;  
 let imovelAtivo = null;  
-let mapaAtivo = 'GSP'; 
+let mapaAtivo = 'GSP';  
 
 const COL = {
     ID: 0, CATEGORIA: 1, ORDEM: 2, 
@@ -193,23 +193,16 @@ function fecharSpeedSim() {
 }
 
 function configurarBotaoSpeedsim() {
-    let btnSpeedsim = document.getElementById('btn-sobre');
-
-    if (!btnSpeedsim) {
-        const todosElementos = document.querySelectorAll('button, a, div, span');
-        for (let el of todosElementos) {
-            if (el.textContent && el.textContent.toUpperCase().includes('SPEEDSIM')) {
-                btnSpeedsim = el;
-                break;
-            }
-        }
-    }
+    // Busca direta e limpa pelo ID padronizado
+    const btnSpeedsim = document.getElementById('btn-abrir-speedsim');
 
     if (btnSpeedsim) {
         btnSpeedsim.addEventListener('click', (e) => {
             e.preventDefault();
             abrirSpeedSim();
         });
+    } else {
+        console.warn("Botão #btn-abrir-speedsim não encontrado no DOM.");
     }
 
     window.addEventListener('click', (event) => {
@@ -528,7 +521,6 @@ function atualizarTituloSuperior(texto) {
         titulo.innerText = `MRV EM ${nomeFixo.toUpperCase()}`;
     } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
-
 
 /* ==========================================================================
    BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG)
