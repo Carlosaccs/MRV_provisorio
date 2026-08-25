@@ -6,7 +6,6 @@ const URL_API_GOOGLE = "https://script.google.com/macros/s/AKfycbwXlu0K9kGfFa0yx
 
 // LISTA DE GERENTES ATUALIZADA RIGOROSAMENTE - VERSÃO EMERGENCIAL
 const GERENTES_AUTORIZADOS = {
-
   "development": "Carlos",
   "carlos7sp2-11992617026": "Carlos",
   "isnaldo2z3v": "Isnaldo",
@@ -19,9 +18,9 @@ const GERENTES_AUTORIZADOS = {
   "edson8beta": "Edson SP2 BETA",
   "barbosa8beta": "Barbosa SP3 BETA",
   "tarcisio8beta":"Tarcísio SP3",
-  "rodrigo8beta": "Rodrigo SP3 BETA",
-  "isnaldo8beta": "Rodrigo SP3 BETA",
-  "antonio8beta": "Antonio SP2 BETA",
+  "rodrigo8beta":"Rodrigo SP3 BETA",
+  "isnaldo8beta":"Rodrigo SP3 BETA",
+  "antonio8beta":"Antonio SP2 BETA",
   "renato8beta":"Renato SP2 BETA",
   "edu8beta-pix11992617026":"Edu SP3 BETA",
   
@@ -37,7 +36,6 @@ const GERENTES_AUTORIZADOS = {
   "mizael7irf-pix11992617026": "Mizael SP2",
   "renato7bff-pix11992617026": "Renato SP2",
   "ivone7hti-pix11992617026": "Ivone SP2",
-
 };
 
 function obterParametroUrl(nome) {
@@ -46,29 +44,23 @@ function obterParametroUrl(nome) {
   return resultados === null ? '' : decodeURIComponent(resultados[1].replace(/\+/g, ' '));
 }
 
-// Pega o código da URL, remove espaços e põe em minúsculo
 const codigoRef = obterParametroUrl('ref').trim().toLowerCase();
 const telaBloqueio = document.getElementById('bloqueio-seguranca');
 const containerResultado = document.getElementById('resultado-validacao');
 const iconeStatus = document.getElementById('icone-status');
 
-// Executa a validação de forma imediata assim que o script carrega
 (function executarControleSeguranca() {
-  
-  // 1. BLOQUEIO SE A URL FOR INCOMPLETA OU COM GERENTE NÃO CADASTRADO
   if (!codigoRef || !GERENTES_AUTORIZADOS[codigoRef]) {
     localStorage.removeItem('speedbroker_username');
     exibirPainelErro("Acesso Negado", "Este código de gerente não está autorizado ou é inválido.");
     throw new Error("Acesso interrompido: Chave de referência inválida.");
   }
 
-  // 2. SOLICITAÇÃO OU CAPTURA DO USUÁRIO (GUIA ANÔNIMA / PRIMEIRO ACESSO)
   let nomeCorretor = localStorage.getItem('speedbroker_username');
 
   if (!nomeCorretor) {
     exibirFormularioIdentificacao();
   } else {
-    // Gerente válido com usuário salvo: envia o log em background e libera imediatamente!
     registrarAcessoPlanilha(codigoRef, nomeCorretor);
     liberarInterfaceDashboard();
   }
@@ -101,8 +93,6 @@ function exibirFormularioIdentificacao() {
         return;
       }
       localStorage.setItem('speedbroker_username', nomeDigitado);
-      
-      // Envia os dados para salvar na planilha e libera a tela na hora
       registrarAcessoPlanilha(codigoRef, nomeDigitado);
       liberarInterfaceDashboard();
     });
@@ -111,22 +101,12 @@ function exibirFormularioIdentificacao() {
 
 function registrarAcessoPlanilha(ref, usuario) {
   const urlFinal = `${URL_API_GOOGLE}?ref=${ref}&userID=${encodeURIComponent(usuario)}&_cb=${new Date().getTime()}`;
-  
-  console.log("Tentando registrar acesso na planilha...");
-  
-  fetch(urlFinal, { 
-    method: 'GET'
-  })
-  .then(() => {
-    console.log("Requisição de log enviada com sucesso para o servidor.");
-  })
-  .catch(erro => {
-    console.warn("Aviso: Registro processado no servidor.");
-  });
+  fetch(urlFinal, { method: 'GET' })
+  .then(() => { console.log("Requisição de log enviada com sucesso para o servidor."); })
+  .catch(erro => { console.warn("Aviso: Registro processado no servidor."); });
 }
 
 function liberarInterfaceDashboard() {
-  console.log("Acesso liberado via validação de segurança local/contingência.");
   if (telaBloqueio) {
     telaBloqueio.style.transition = "opacity 0.4s ease";
     telaBloqueio.style.opacity = "0";
@@ -183,10 +163,6 @@ const COL = {
 /* ==========================================================================
    BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS
    ========================================================================== */
-// ===========================================
-// CONTROLE DO SPEEDSIM E INICIALIZAÇÃO (DESKTOP.JS)
-// ===========================================
-
 async function iniciarApp() {
     try { 
         await Promise.all([carregarPlanilha(), carregarAbaDocumentos()]);
@@ -244,10 +220,7 @@ function configurarBotaoSpeedsim() {
     });
 }
 
-
-
-
-}function configurarBotaoDocumentos() {
+function configurarBotaoDocumentos() {
     const btnDocs = document.getElementById('btn-documentos');
     if (btnDocs) {
         btnDocs.addEventListener('click', () => {
@@ -285,12 +258,9 @@ function configurarBotaoSpeedsim() {
 
 function formatarLinkSeguro(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
-    
     let link = url.trim();
-    
     if (link.includes('drive.google.com')) {
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
-        
         if (match && match[1]) {
             return `https://drive.google.com/file/d/${match[1]}/view?usp=sharing`;
         }
@@ -300,12 +270,9 @@ function formatarLinkSeguro(url) {
 
 function formatarLinkPreview(url) {
     if (!url || url === "---" || url === "" || typeof url !== 'string') return "";
-    
     let link = url.trim();
-    
     if (link.includes('drive.google.com')) {
         const match = link.match(/\/d\/(.*?)(\/|$|\?)/) || link.match(/id=(.*?)($|&)/);
-        
         if (match && match[1]) {
             return `https://drive.google.com/file/d/${match[1]}/preview`;
         }
@@ -315,7 +282,6 @@ function formatarLinkPreview(url) {
 
 function inicializarHoverMiniaturas() {
     const botoesAbrir = document.querySelectorAll('.card-btn-abrir');
-    
     botoesAbrir.forEach(botao => {
         const urlPreview = botao.getAttribute('data-preview');
         if (!urlPreview) return;
@@ -396,7 +362,7 @@ function abrirDocumentoDireto(url) {
 
 /* ==========================================================================
    BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
-   ========================================================================= */
+   ========================================================================== */
 async function carregarAbaDocumentos() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
     const URL_DOCS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Documentos&v=${new Date().getTime()}`;
@@ -724,19 +690,16 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         }
         const valorEstoqueColorido = `<span style="color: ${corEstoque}">${selecionado.estoque || "---"} UN.</span>`;
 
-        // Linha inteira estável do Limitador
         html += `
         <div class="grid-cell full-width" style="display: flex; justify-content: center; align-items: center; padding: 6px 10px; background-color: #444444; color: #ffffff; border-bottom: 1px solid #555555; box-sizing: border-box; width: 100%; height: 32px;">
             <strong style="font-size: 0.75rem; text-align: center; word-break: break-word; font-weight: bold; letter-spacing: 0.3px;">${selecionado.limitador}</strong>
         </div>`;
 
-        // Linha inteira estável da Casa Paulista
         html += `
         <div class="grid-cell full-width" style="display: flex; justify-content: center; align-items: center; padding: 6px 10px; background-color: #444444; color: #ffffff; border-bottom: 1px solid #555555; box-sizing: border-box; width: 100%; height: 32px;">
             <strong style="font-size: 0.75rem; text-align: center; word-break: break-word; font-weight: bold; letter-spacing: 0.3px;">${selecionado.casa_paulista}</strong>
         </div>`;
 
-        // Linha inferior dividida em 4 colunas iguais
         html += `
         <div style="display: flex; width: 100%; background-color: #444444; color: #ffffff; border-bottom: 1px solid #555555; box-sizing: border-box; height: 32px;">
             <div style="flex: 1; padding: 6px 4px; border-right: 1px solid #555555; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
