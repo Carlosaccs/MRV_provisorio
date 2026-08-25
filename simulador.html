@@ -1,12 +1,54 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Teste Limpo</title>
-</head>
-<body style="background-color: #ffeb3b; padding: 40px; font-family: Arial;">
-    <h1 style="color: #d32f2f;">TESTE LIMPO - ZERO URUCUBACA</h1>
-    <label for="municipio" style="font-size: 1.2rem; font-weight: bold;">Município:</label>
-    <input type="text" id="municipio" placeholder="Digite o município..." style="padding: 8px; font-size: 1rem; width: 300px;">
-</body>
-</html>
+<!-- simulação.html ou simulador.html -->
+<div id="modal-speedsim-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999999; align-items: center; justify-content: center; font-family: Arial, sans-serif;">
+    <div id="modal-speedsim-box" style="background: #ffffff; width: 90%; max-width: 650px; max-height: 90vh; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; animation: fadeInSim 0.3s ease;">
+        
+        <!-- Cabeçalho da Popup -->
+        <div style="background: #1a73e8; color: #ffffff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px;">⚡ SpeedSim - Simulador de Financiamento</h3>
+            <button id="btn-fechar-speedsim" style="background: none; border: none; color: #ffffff; font-size: 1.5rem; cursor: pointer; font-weight: bold;">&times;</button>
+        </div>
+
+        <!-- Corpo com os Campos do Simulador -->
+        <div style="padding: 20px; overflow-y: auto; flex: 1; background: #f8f9fa;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #333;">Valor do Imóvel (R$):</label>
+                    <input type="text" id="sim-valor-imovel" placeholder="Ex: 230.000" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #333;">Renda Bruta Familiar (R$):</label>
+                    <input type="text" id="sim-renda" placeholder="Ex: 4.500" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #333;">Data de Nascimento / Idade:</label>
+                    <input type="text" id="sim-idade" placeholder="Ex: 32 anos" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #333;">Possui FGTS? (Saldo aprox.):</label>
+                    <input type="text" id="sim-fgts" placeholder="Ex: 15.000" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                </div>
+
+            </div>
+
+            <!-- Área de Resultados Preliminares -->
+            <div style="margin-top: 20px; background: #e8f0fe; border: 1px solid #b3d1fc; border-radius: 6px; padding: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #1a73e8; font-size: 0.9rem; text-transform: uppercase;">Resultado da Simulação</h4>
+                <div style="font-size: 0.85rem; color: #444; display: flex; flex-direction: column; gap: 5px;">
+                    <p style="margin: 0;">Subsídio estimado: <strong>R$ --,--</strong></p>
+                    <p style="margin: 0;">Financiamento Máximo: <strong>R$ --,--</strong></p>
+                    <p style="margin: 0;">Ato / Entrada estimada: <strong>R$ --,--</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé da Popup -->
+        <div style="padding: 12px 20px; background: #ffffff; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px;">
+            <button id="btn-executar-simulacao" style="background-color: #1a73e8; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Calcular Simulação</button>
+        </div>
+
+    </div>
+</div>
