@@ -194,31 +194,38 @@ async function iniciarApp() {
 }
 
 function configurarBotaoSpeedsim() {
-    const btnSpeedsim = document.getElementById('btn-sobre');
-    const modalSobre = document.getElementById('modal-sobre');
-    const btnFechar = document.querySelector('.modal-close');
+    // Ajustado para os IDs reais do SpeedSim
+    const btnSpeedsim = document.getElementById('btn-speedsim'); // Ou a classe/ID correta do seu botão novo
+    const modalSpeedSim = document.getElementById('modal-speedsim');
+    const btnFechar = document.querySelector('#modal-speedsim .modal-close'); // Ou o seletor do botão de fechar do modal novo
 
-    if (btnSpeedsim && modalSobre) {
+    if (btnSpeedsim && modalSpeedSim) {
         btnSpeedsim.addEventListener('click', (e) => {
             e.preventDefault();
-            modalSobre.style.display = 'block';
-        });
-    }
-
-    if (btnFechar && modalSobre) {
-        btnFechar.addEventListener('click', () => {
-            modalSobre.style.display = 'none';
-        });
-
-        window.addEventListener('click', (event) => {
-            if (event.target === modalSobre) {
-                modalSobre.style.display = 'none';
+            modalSpeedSim.style.display = 'block';
+            if (typeof simularFluxo === 'function') {
+                simularFluxo();
             }
         });
     }
-}
 
-function configurarBotaoDocumentos() {
+    if (modalSpeedSim) {
+        // Se houver um botão de fechar específico dentro do modal
+        const fecharBtn = modalSpeedSim.querySelector('button[onclick*="fecharSpeedSim"]') || btnFechar;
+        if (fecharBtn) {
+            fecharBtn.addEventListener('click', () => {
+                modalSpeedSim.style.display = 'none';
+            });
+        }
+
+        // Fechar ao clicar fora da caixa do modal
+        window.addEventListener('click', (event) => {
+            if (event.target === modalSpeedSim) {
+                modalSpeedSim.style.display = 'none';
+            }
+        });
+    }
+}function configurarBotaoDocumentos() {
     const btnDocs = document.getElementById('btn-documentos');
     if (btnDocs) {
         btnDocs.addEventListener('click', () => {
