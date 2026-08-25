@@ -173,15 +173,20 @@ async function iniciarApp() {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    abrirSpeedSim();
+});
+
 function abrirSpeedSim() {
     const modal = document.getElementById("modal-speedsim");
     if (modal) {
         modal.style.display = "block";
+        // Executa a simulação inicial se a função existir
         if (typeof simularFluxo === "function") {
             simularFluxo();
         }
     } else {
-        console.warn("Modal #modal-speedsim não encontrado.");
+        console.warn("Modal #modal-speedsim não encontrado no DOM.");
     }
 }
 
