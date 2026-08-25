@@ -1,31 +1,37 @@
 // ===========================================
-// TESTE DIAGNÓSTICO DO BOTÃO SPEEDSIM
+// TESTE DE CAPTURA GLOBAL DE CLIQUE (DIAGNÓSTICO)
 // ===========================================
-document.addEventListener("DOMContentLoaded", function() {
-  console.log("Script de teste carregado com sucesso!");
-  
-  // Procura qualquer elemento no topo que tenha o texto do SpeedSim
-  const elementos = document.querySelectorAll("button, a, div, span");
-  let encontrado = false;
 
+// Tenta aplicar o destaque assim que a página carregar e a cada 1 segundo (caso o menu seja dinâmico)
+function forcarDestaqueBotao() {
+  const elementos = document.querySelectorAll("button, a, div, span, header *");
   elementos.forEach(el => {
-    if (el.textContent && el.textContent.toUpperCase().includes("SPEEDSIM")) {
-      encontrado = true;
-      
-      // 1. Destaca o botão visualmente com uma borda vermelha grossa
+    // Procura por qualquer texto que lembre SpeedSim ou Simulador
+    const texto = el.textContent ? el.textContent.toUpperCase() : "";
+    if (texto.includes("SPEEDSIM") || texto.includes("SIMULADOR DE MCMV")) {
+      // Destaca para vermos se ele achou
       el.style.border = "4px solid red";
-      el.style.backgroundColor = "yellow"; // Fundo amarelo para destacar bem
+      el.style.backgroundColor = "yellow";
       
-      // 2. Adiciona o evento de clique com um popup simples de aviso
-      el.addEventListener("click", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        alert("Sucesso! O clique no botão do SpeedSim foi capturado pelo JavaScript!");
-      });
+      // Remove eventos antigos duplicados clonando o nó se necessário, ou apenas injeta o click
+      if (!el.dataset.testado) {
+        el.dataset.testado = "true";
+        el.addEventListener("click", function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          alert("BOTAO CLICADO COM SUCESSO! O elemento encontrado foi: " + el.tagName);
+        }, true); // Captura na fase de subida/descida para garantir
+      }
     }
   });
+}
 
-  if (!encontrado) {
-    console.warn("Aviso: Nenhum elemento com o texto 'SPEEDSIM' foi encontrado na árvore DOM no momento do carregamento.");
-  }
+// Executa no carregamento e mapeia cliques globais na barra superior
+document.addEventListener("DOMContentLoaded", function() {
+  setInterval(forcarDestaqueBotao, 1000);
+});
+
+// Captura de segurança global para ver se o clique chega ao documento
+document.addEventListener("click", function(e) {
+  console.log("Clique detectado no elemento:", e.target);
 });
