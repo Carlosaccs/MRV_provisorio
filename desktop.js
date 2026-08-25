@@ -173,27 +173,11 @@ async function iniciarApp() {
     }
 }
 
-// Funções para controle da Nova Popup do Simulador
+// Funções limpas: apenas controlam a visibilidade do modal que está no simulador.html
 function abrirPopupSimulador() {
-    const container = document.getElementById("container-modal-simulador");
-    if (container) {
-        // Se o modal ainda não foi injetado no HTML, criamos a estrutura básica em branco
-        if (!document.getElementById("modal-popup-simulador")) {
-            container.innerHTML = `
-                <div id="modal-popup-simulador" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 99999; justify-content: center; align-items: center;">
-                    <div style="background: white; width: 90%; max-width: 1000px; height: 80vh; border-radius: 8px; padding: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column;">
-                        <span onclick="fecharPopupSimulador()" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; font-weight: bold; color: #333;">&times;</span>
-                        <h2 style="color: #0066cc; margin-top: 0; font-size: 1.3rem;">SPEEDSIM - NOVO SIMULADOR DE MCMV</h2>
-                        <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0 15px 0;">
-                        <div id="conteudo-interno-simulador" style="flex: 1; overflow-y: auto; background: #fafafa; border: 1px dashed #ccc; border-radius: 6px; padding: 20px;">
-                            <p style="color: #666; text-align: center; margin-top: 50px;">Popup em branco pronta para receber o novo desenvolvimento do simulador.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else {
-            document.getElementById("modal-popup-simulador").style.display = "flex";
-        }
+    const modal = document.getElementById("modal-popup-simulador");
+    if (modal) {
+        modal.style.display = "flex";
     }
 }
 
