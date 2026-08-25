@@ -44,10 +44,6 @@ function formatarMoeda(num) {
   return "R$ " + num.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function atualizarTextoSeExiste(id, texto) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = texto;
-}
 
 // ===========================================
 // FUNÇÃO PRINCIPAL DE SIMULAÇÃO (FLUXO GERAL)
@@ -66,16 +62,11 @@ function simularFluxo() {
 
   // 0.2. Valor do Imóvel / Avaliação e Renda
   const tipoBaseImovel = document.querySelector('input[name="base-imovel"]:checked')?.value || "imovel";
-  const valImovelInput = converterMoedaParaNumero(document.getElementById("sim-val-imovel")?.value);
-  const valAvaliacaoInput = converterMoedaParaNumero(document.getElementById("sim-val-avaliacao")?.value);
+  const valImovelInput = converterMoedaParaNumero(document.getElementById("sim-val-imovel").value);
+  const valAvaliacaoInput = converterMoedaParaNumero(document.getElementById("sim-val-avaliacao").value);
   
   const valorImovel = tipoBaseImovel === "avaliacao" ? valAvaliacaoInput : valImovelInput;
-  const rendaBruta = converterMoedaParaNumero(document.getElementById("sim-renda")?.value);
-
-  // Leituras adicionais de entradas e abatimentos do painel
-  const fgts = converterMoedaParaNumero(document.getElementById("sim-fgts")?.value);
-  const recursos = converterMoedaParaNumero(document.getElementById("sim-recursos")?.value);
-  const bomPagador = converterMoedaParaNumero(document.getElementById("sim-bom-pagador")?.value);
+  const rendaBruta = converterMoedaParaNumero(document.getElementById("sim-renda").value);
 
   const inputStatusTeto = document.getElementById("sim-status-teto");
   if (inputStatusTeto) {
@@ -91,7 +82,7 @@ function simularFluxo() {
   }
 
   // 0.3 e 0.4. Data de Nascimento e Idade
-  const dataNascStr = document.getElementById("sim-data-nasc")?.value; 
+  const dataNascStr = document.getElementById("sim-data-nasc").value; 
   let idade = 26; 
   if (dataNascStr) {
     const partes = dataNascStr.split("-");
@@ -107,8 +98,8 @@ function simularFluxo() {
   }
 
   // 0.5. Número de parcelas
-  const prazoInput = parseInt(document.getElementById("sim-prazo-finan")?.value) || 420;
-  const numeroParcelas = prazoInput > 0 ? prazoInput : 420;
+  const prazoInput = parseInt(document.getElementById("sim-prazo-finan").value) || 420;
+  const numeroParcelas = prazoInput;
 
   // 0.6. Redutor
   const selectRedutor = document.getElementById("sim-redutor");
@@ -175,10 +166,6 @@ function simularFluxo() {
   const valorDIFConstante = valorImovel * (0.00028 / 100);
   const taxaManutencaoContrato = 25.00;
 
-  const subsidioCalculado = (rendaBruta > 0 && rendaBruta <= 4400) ? Math.max(0, 55000 - (rendaBruta * 5)) : 0;
-  const inputSubsidioTela = document.getElementById("sim-subsidio-val");
-  if (inputSubsidioTela) inputSubsidioTela.value = formatarMoeda(subsidioCalculado);
-
   // ===========================================
   // 1. MOTOR SAC
   // ===========================================
@@ -187,25 +174,15 @@ function simularFluxo() {
   const numerador = maxComprometimentoRenda - valorDIFConstante - taxaManutencaoContrato;
   const denominador = (1 / numeroParcelas) + taxaNominalMensal + aliquotaMIP + aliquotaFGHAB;
   
-  let valorFinanciado = 0;
-  if (rendaBruta > 0 && numerador > 0) {
-    const valorCalculadoPorRenda = numerador / denominador;
-    const limite80PorCento = valorImovel * 0.80;
-    valorFinanciado = valorCalculadoPorRenda < limite80PorCento ? valorCalculadoPorRenda : limite80PorCento;
-  }
+  const valorCalculadoPorRenda = numerador / denominador;
+  const limite80PorCento = valorImovel * 0.80;
+  
+  const valorFinanciado = valorCalculadoPorRenda < limite80PorCento ? valorCalculadoPorRenda : limite80PorCento;
+  
+  const inputFinanciadoTela = document.getElementById("sim-val-financiado");
+  if (inputFinanciadoTela) inputFinanciadoTela.value = formatarMoeda(valorFinanciado);
 
-  atualizarTextoSeExiste('sac-val-financiamento', formatarMoeda(valorFinanciado));
-
-  const entradaTotalSac = Math.max(0, valorImovel - valorFinanciado);
-  const entradaBrutaSac = Math.max(0, entradaTotalSac - subsidioCalculado - fgts - bomPagador);
-
-  atualizarTextoSeExiste('sac-val-entrada-total', formatarMoeda(entradaTotalSac));
-  atualizarTextoSeExiste('sac-val-entrada-bruta', formatarMoeda(entradaBrutaSac));
-  atualizarTextoSeExiste('sac-val-subsidio', formatarMoeda(subsidioCalculado));
-  atualizarTextoSeExiste('sac-val-fgts', formatarMoeda(fgts));
-  atualizarTextoSeExiste('sac-val-bom-pagador', formatarMoeda(bomPagador));
-  atualizarTextoSeExiste('sac-val-recursos', formatarMoeda(recursos));
-
+  // Geração do Cronograma SAC sincronizado com o HTML
   let saldoDevedor = valorFinanciado;
   const amortizacaoConstante = valorFinanciado / numeroParcelas;
   let cronogramaHTML = "";
@@ -246,6 +223,12 @@ function simularFluxo() {
   if (corpoTabela) {
     corpoTabela.innerHTML = cronogramaHTML;
   }
+
+  // ===========================================
+  // 2. MOTOR PRICE (RESERVADO PARA O PRÓXIMO PASSO)
+  // ===========================================
+  // Futuramente implementaremos o bloco PRICE aqui, 
+  // calculando a prestação fixa pela tabela francesa.
 }
 
 window.onload = function() {
