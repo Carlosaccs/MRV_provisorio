@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="desktop.css">
     <style>
         /* ==========================================================================
-           CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES
-           ========================================================================== */
+            CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES
+            ========================================================================== */
         
         div.header {
             display: flex !important;
@@ -71,7 +71,7 @@
         }
 
         /* BOTÃO SPEEDSIM DESTACADO EM AZUL MÉDIO VIBRANTE */
-        button#btn-sobre {
+        button#btn-abrir-speedsim {
             all: unset !important;
             box-sizing: border-box !important;
             background-color: #0066cc !important;
@@ -94,7 +94,7 @@
             white-space: nowrap !important;
         }
 
-        button#btn-sobre:hover {
+        button#btn-abrir-speedsim:hover {
             background-color: #004e9a !important;
             box-shadow: 0 4px 10px rgba(0,0,0,0.35) !important;
         }
@@ -126,7 +126,7 @@
         
         <div class="container-botoes-mrv">
             <button id="btn-documentos">Documentos</button>
-            <button id="btn-sobre">📊 SPEEDSIM SIMULADOR DE MCMV</button>
+            <button id="btn-abrir-speedsim">📊 SPEEDSIM SIMULADOR DE MCMV</button>
         </div>
     </div>
 
@@ -149,6 +149,7 @@
             </div>
         </aside>
     </div>
+    
     <!-- CONTAINER ONDE O MODAL DO SIMULADOR SERÁ CARREGADO -->
     <div id="container-modal-simulador"></div>
 
@@ -161,7 +162,6 @@
     <script>
         // Inicialização global da aplicação
         window.addEventListener('load', () => {
-            // Inicializa a aplicação principal se a função existir
             if (typeof iniciarApp === 'function') {
                 iniciarApp();
             } else {
