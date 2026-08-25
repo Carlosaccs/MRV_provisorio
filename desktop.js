@@ -183,72 +183,48 @@ const COL = {
 /* ==========================================================================
    BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS
    ========================================================================== */
-// ===========================================
-// CONTROLE ROBUSTO DO SPEEDSIM (DESKTOP.JS)
-// ===========================================
-
 async function iniciarApp() {
     try { 
         await Promise.all([carregarPlanilha(), carregarAbaDocumentos()]);
         configurarBotaoDocumentos(); 
         configurarBotaoSpeedsim();
     } catch (err) { 
-        console.error("Erro ao iniciar app:", err); 
-    }
-}
-
-function abrirSpeedSim() {
-    const modal = document.getElementById("modal-speedsim");
-    if (modal) {
-        modal.style.display = "block";
-        if (typeof simularFluxo === "function") {
-            simularFluxo();
-        }
-    } else {
-        console.error("Modal #modal-speedsim não foi encontrado na página!");
-    }
-}
-
-function fecharSpeedSim() {
-    const modal = document.getElementById("modal-speedsim");
-    if (modal) {
-        modal.style.display = "none";
+        console.error(err); 
     }
 }
 
 function configurarBotaoSpeedsim() {
-    // 1. Tenta pegar pelo ID padrão (caso exista)
-    let btnSpeedsim = document.getElementById('btn-speedsim');
+    // Ajustado para os IDs reais do SpeedSim
+    const btnSpeedsim = document.getElementById('btn-speedsim'); // Ou a classe/ID correta do seu botão novo
+    const modalSpeedSim = document.getElementById('modal-speedsim');
+    const btnFechar = document.querySelector('#modal-speedsim .modal-close'); // Ou o seletor do botão de fechar do modal novo
 
-    // 2. Se não achar pelo ID, varre os botões/links da tela procurando por "SPEEDSIM"
-    if (!btnSpeedsim) {
-        const todosElementos = document.querySelectorAll('button, a, div, span');
-        for (let el of todosElementos) {
-            if (el.textContent && el.textContent.toUpperCase().includes('SPEEDSIM')) {
-                btnSpeedsim = el;
-                break;
-            }
-        }
-    }
-
-    // Se encontrou o bendito botão, grampeia o evento de clique nele
-    if (btnSpeedsim) {
+    if (btnSpeedsim && modalSpeedSim) {
         btnSpeedsim.addEventListener('click', (e) => {
             e.preventDefault();
-            abrirSpeedSim();
+            modalSpeedSim.style.display = 'block';
+            if (typeof simularFluxo === 'function') {
+                simularFluxo();
+            }
         });
-        console.log("Botão SpeedSim configurado com sucesso!");
-    } else {
-        console.warn("Aviso: Botão SpeedSim não foi localizado no HTML.");
     }
 
-    // Configura o fechamento ao clicar fora do modal
-    window.addEventListener('click', (event) => {
-        const modalSpeedSim = document.getElementById("modal-speedsim");
-        if (modalSpeedSim && event.target === modalSpeedSim) {
-            modalSpeedSim.style.display = 'none';
+    if (modalSpeedSim) {
+        // Se houver um botão de fechar específico dentro do modal
+        const fecharBtn = modalSpeedSim.querySelector('button[onclick*="fecharSpeedSim"]') || btnFechar;
+        if (fecharBtn) {
+            fecharBtn.addEventListener('click', () => {
+                modalSpeedSim.style.display = 'none';
+            });
         }
-    });
+
+        // Fechar ao clicar fora da caixa do modal
+        window.addEventListener('click', (event) => {
+            if (event.target === modalSpeedSim) {
+                modalSpeedSim.style.display = 'none';
+            }
+        });
+    }
 }
 }function configurarBotaoDocumentos() {
     const btnDocs = document.getElementById('btn-documentos');
