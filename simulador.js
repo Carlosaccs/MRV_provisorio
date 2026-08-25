@@ -53,24 +53,35 @@ function atualizarTextoSeExiste(id, texto) {
 // CONTROLE DE ABERTURA E FECHAMENTO DO SPEEDSIM
 // ===========================================
 function configurarControleModal() {
-  // Ajuste os IDs conforme o seu HTML principal (ex: id do botão de abrir, do container do modal e do botão X)
-  const btnAbrir = document.getElementById("btn-abrir-speedsim") || document.querySelector("[id*='speedsim']");
-  const modalSpeedSim = document.getElementById("modal-speedsim") || document.getElementById("speedsim-container");
-  const btnFechar = document.getElementById("btn-fechar-speedsim") || document.querySelector(".fa-times, .close-modal, [class*='close']");
+  // Procura por qualquer elemento que tenha relação com abrir/fechar o speedsim
+  const botoesAbrir = document.querySelectorAll("[id*='speedsim'], [class*='speedsim-btn'], button:has-text('SPEEDSIM')");
+  
+  // Tenta encontrar o container do modal/painel por IDs comuns
+  const modalSpeedSim = document.getElementById("modal-speedsim") || 
+                        document.getElementById("speedsim-container") || 
+                        document.querySelector(".speedsim-modal") ||
+                        document.querySelector("[id*='modal']");
 
-  if (btnAbrir && modalSpeedSim) {
-    btnAbrir.addEventListener("click", () => {
-      modalSpeedSim.style.display = "block";
-      modalSpeedSim.classList.add("ativo");
-    });
-  }
+  // Se o modal existir na página, vamos escutar cliques globais para garantir a abertura/fechamento
+  document.addEventListener("click", function(event) {
+    const alvo = event.target;
 
-  if (btnFechar && modalSpeedSim) {
-    btnFechar.addEventListener("click", () => {
-      modalSpeedSim.style.display = "none";
-      modalSpeedSim.classList.remove("ativo");
-    });
-  }
+    // Se clicou no botão de abrir ou em algo dentro dele
+    if (alvo.closest("[id*='speedsim']") || alvo.textContent.includes("SPEEDSIM")) {
+      if (modalSpeedSim) {
+        modalSpeedSim.style.display = "block";
+        modalSpeedSim.classList.add("ativo");
+      }
+    }
+
+    // Se clicou no botão "X" de fechar (ou ícones de fechar)
+    if (alvo.closest(".fa-times") || alvo.closest(".close") || alvo.closest("[id*='fechar']") || (alvo.tagName === "SPAN" && alvo.textContent === "×")) {
+      if (modalSpeedSim) {
+        modalSpeedSim.style.display = "none";
+        modalSpeedSim.classList.remove("ativo");
+      }
+    }
+  });
 }
 
 // ===========================================
