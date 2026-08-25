@@ -173,7 +173,6 @@ async function iniciarApp() {
     }
 }
 
-// Funções limpas: apenas controlam a visibilidade do modal que está no simulador.html
 function abrirPopupSimulador() {
     const modal = document.getElementById("modal-popup-simulador");
     if (modal) {
@@ -192,7 +191,6 @@ function configurarBotaoPopupSimulador() {
     const btnSpeedsim = document.getElementById('btn-abrir-speedsim');
 
     if (btnSpeedsim) {
-        // Removemos qualquer conflito e garantimos o clique
         btnSpeedsim.onclick = function(e) {
             e.preventDefault();
             abrirPopupSimulador();
@@ -201,7 +199,6 @@ function configurarBotaoPopupSimulador() {
         console.warn("Botão #btn-abrir-speedsim não encontrado no DOM.");
     }
 
-    // Fecha ao clicar fora do conteúdo do modal (se clicar no fundo escuro)
     window.addEventListener('click', (event) => {
         const modalSimulador = document.getElementById("modal-popup-simulador");
         if (modalSimulador && event.target === modalSimulador) {
@@ -519,8 +516,9 @@ function atualizarTituloSuperior(texto) {
     } else { titulo.innerText = "SELECIONE UMA REGIÃO NO MAPA"; }
 }
 
+
 /* ==========================================================================
-   BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG)
+    BLOCO 05: RENDERIZAÇÃO DOS MAPAS (SVG)
    ========================================================================== */
 function renderizarNoContainer(id, dados, interativo) {
     const container = document.getElementById(id);
@@ -580,7 +578,7 @@ function trocarMapas(completo) {
 
 
 /* ==========================================================================
-   BLOCO 06: LISTA LATERAL
+    BLOCO 06: LISTA LATERAL
    ========================================================================== */
 function gerarListaLateral() {
     const container = document.getElementById('lista-imoveis');
@@ -597,7 +595,7 @@ function gerarListaLateral() {
 
 
 /* ==========================================================================
-   BLOCO 07: CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA AVANÇADA)
+    BLOCO 07: CONSTRUÇÃO DA VITRINE (FICHA TÉCNICA AVANÇADA)
    ========================================================================== */
 const criarCardMaterial = (titulo, url, icone) => {
     if (!url || url === "" || url === "---" || typeof url !== 'string') return "";
