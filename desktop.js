@@ -52,7 +52,7 @@ const iconeStatus = document.getElementById('icone-status');
 (function executarControleSeguranca() {
   if (!codigoRef || !GERENTES_AUTORIZADOS[codigoRef]) {
     localStorage.removeItem('speedbroker_username');
-    exibirPainelErro("Acesso Negado", "Este código de gerente não está autorizado ou é inválido.");
+    exibirPainelErro("Acesso Negado", " Este código de gerente não está autorizado ou é inválido.");
     throw new Error("Acesso interrompido: Chave de referência inválida.");
   }
 
@@ -135,7 +135,7 @@ function exibirPainelErro(titulo, message) {
 
 
 /* ==========================================================================
-   BLOCO 01: CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
+    BLOCO 01: CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
    ========================================================================== */
 let DADOS_PLANILHA = [];
 let DOCUMENTOS_GERAIS = []; 
@@ -161,59 +161,65 @@ const COL = {
 
 
 /* ==========================================================================
-   BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS
+    BLOCO 02: INICIALIZAÇÃO E UTILITÁRIOS
    ========================================================================== */
 async function iniciarApp() {
     try { 
         await Promise.all([carregarPlanilha(), carregarAbaDocumentos()]);
         configurarBotaoDocumentos(); 
-        configurarBotaoSpeedsim();
+        configurarBotaoPopupSimulador();
     } catch (err) { 
         console.error("Erro ao iniciar app:", err); 
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    abrirSpeedSim();
-});
-
-function abrirSpeedSim() {
-    const modal = document.getElementById("modal-speedsim");
-    if (modal) {
-        modal.style.display = "block";
-        // Executa a simulação inicial se a função existir
-        if (typeof simularFluxo === "function") {
-            simularFluxo();
+// Funções para controle da Nova Popup do Simulador
+function abrirPopupSimulador() {
+    const container = document.getElementById("container-modal-simulador");
+    if (container) {
+        // Se o modal ainda não foi injetado no HTML, criamos a estrutura básica em branco
+        if (!document.getElementById("modal-popup-simulador")) {
+            container.innerHTML = `
+                <div id="modal-popup-simulador" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 99999; justify-content: center; align-items: center;">
+                    <div style="background: white; width: 90%; max-width: 1000px; height: 80vh; border-radius: 8px; padding: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column;">
+                        <span onclick="fecharPopupSimulador()" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; font-weight: bold; color: #333;">&times;</span>
+                        <h2 style="color: #0066cc; margin-top: 0; font-size: 1.3rem;">SPEEDSIM - NOVO SIMULADOR DE MCMV</h2>
+                        <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0 15px 0;">
+                        <div id="conteudo-interno-simulador" style="flex: 1; overflow-y: auto; background: #fafafa; border: 1px dashed #ccc; border-radius: 6px; padding: 20px;">
+                            <p style="color: #666; text-align: center; margin-top: 50px;">Popup em branco pronta para receber o novo desenvolvimento do simulador.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            document.getElementById("modal-popup-simulador").style.display = "flex";
         }
-    } else {
-        console.warn("Modal #modal-speedsim não encontrado no DOM.");
     }
 }
 
-function fecharSpeedSim() {
-    const modal = document.getElementById("modal-speedsim");
+function fecharPopupSimulador() {
+    const modal = document.getElementById("modal-popup-simulador");
     if (modal) {
         modal.style.display = "none";
     }
 }
 
-function configurarBotaoSpeedsim() {
-    // Busca direta e limpa pelo ID padronizado
+function configurarBotaoPopupSimulador() {
     const btnSpeedsim = document.getElementById('btn-abrir-speedsim');
 
     if (btnSpeedsim) {
         btnSpeedsim.addEventListener('click', (e) => {
             e.preventDefault();
-            abrirSpeedSim();
+            abrirPopupSimulador();
         });
     } else {
         console.warn("Botão #btn-abrir-speedsim não encontrado no DOM.");
     }
 
     window.addEventListener('click', (event) => {
-        const modalSpeedSim = document.getElementById("modal-speedsim");
-        if (modalSpeedSim && event.target === modalSpeedSim) {
-            modalSpeedSim.style.display = 'none';
+        const modalSimulador = document.getElementById("modal-popup-simulador");
+        if (modalSimulador && event.target === modalSimulador) {
+            modalSimulador.style.display = 'none';
         }
     });
 }
@@ -359,7 +365,7 @@ function abrirDocumentoDireto(url) {
 
 
 /* ==========================================================================
-   BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
+    BLOCO 03: CARREGAMENTO DE DADOS (GOOGLE SHEETS)
    ========================================================================== */
 async function carregarAbaDocumentos() {
     const SHEET_ID = "15V194P2JPGCCPpCTKJsib8sJuCZPgtbNb-rtgNaLS7E";
@@ -463,7 +469,7 @@ async function carregarPlanilha() {
 
 
 /* ==========================================================================
-   BLOCO 04: LÓGICA DO MAPA E SELEÇÃO
+    BLOCO 04: LÓGICA DO MAPA E SELEÇÃO
    ========================================================================== */
 function obterHtmlZona(zona, tipo) {
     if (tipo === 'N' || !zona || zona === "---") return "";
@@ -795,9 +801,9 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
         let corTexto = (zUpper === 'ZN') ? "#333" : "white";
 
         html += `<div class="titulo-vitrine-faixa" style="background-color: ${corComplexo}; color: ${corTexto}; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; border-radius: 4px; font-size: 0.8rem;">
-                    ${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}
-                 </div>`;
-                 
+                     ${selecionado.nomeFull.toUpperCase()} — ${selecionado.regiao}
+                   </div>`;
+                   
         html += `<div class="box-complexo-full" style="border: 1px solid ${corComplexo}; border-radius: 4px; padding: 10px; background: #fff;">
                     <p style="font-size:0.7rem; color:#444; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                         <span>📍 ${selecionado.endereco}</span> 
@@ -807,8 +813,8 @@ function montarVitrine(selecionado, listaDaCidade, nomeRegiao) {
                         </span>
                     </p>
                     <div style="font-size:0.75rem; color:#444; line-height:1.5; text-align:justify;">${selecionado.descLonga}</div>
-                 </div>`;
-                 
+                   </div>`;
+                   
         let materiaisComplexo = extrairLinks(selecionado.linksImplant, '📍');
         if (materiaisComplexo !== "") { 
             html += `<div style="margin-top: 10px; padding: 0 5px;">
