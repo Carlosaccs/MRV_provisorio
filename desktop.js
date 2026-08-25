@@ -4,7 +4,6 @@
 
 const URL_API_GOOGLE = "https://script.google.com/macros/s/AKfycbwXlu0K9kGfFa0yxhhsUoX5MKz3clEOUPUSpuh_2zcS5eqtWzMLIrQezwumD2sd9m4/exec"; 
 
-// LISTA DE GERENTES ATUALIZADA RIGOROSAMENTE - VERSÃO EMERGENCIAL
 const GERENTES_AUTORIZADOS = {
   "development": "Carlos",
   "carlos7sp2-11992617026": "Carlos",
@@ -52,7 +51,7 @@ const iconeStatus = document.getElementById('icone-status');
 (function executarControleSeguranca() {
   if (!codigoRef || !GERENTES_AUTORIZADOS[codigoRef]) {
     localStorage.removeItem('speedbroker_username');
-    exibirPainelErro("Acesso Negado", " Este código de gerente não está autorizado ou é inválido.");
+    exibirPainelErro("Acesso Negado", "Este código de gerente não está autorizado ou é inválido.");
     throw new Error("Acesso interrompido: Chave de referência inválida.");
   }
 
@@ -167,44 +166,9 @@ async function iniciarApp() {
     try { 
         await Promise.all([carregarPlanilha(), carregarAbaDocumentos()]);
         configurarBotaoDocumentos(); 
-        configurarBotaoPopupSimulador();
     } catch (err) { 
         console.error("Erro ao iniciar app:", err); 
     }
-}
-
-function abrirPopupSimulador() {
-    const modal = document.getElementById("modal-popup-simulador");
-    if (modal) {
-        modal.style.display = "flex";
-    }
-}
-
-function fecharPopupSimulador() {
-    const modal = document.getElementById("modal-popup-simulador");
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
-
-function configurarBotaoPopupSimulador() {
-    const btnSpeedsim = document.getElementById('btn-abrir-speedsim');
-
-    if (btnSpeedsim) {
-        btnSpeedsim.onclick = function(e) {
-            e.preventDefault();
-            abrirPopupSimulador();
-        };
-    } else {
-        console.warn("Botão #btn-abrir-speedsim não encontrado no DOM.");
-    }
-
-    window.addEventListener('click', (event) => {
-        const modalSimulador = document.getElementById("modal-popup-simulador");
-        if (modalSimulador && event.target === modalSimulador) {
-            modalSimulador.style.display = 'none';
-        }
-    });
 }
 
 function configurarBotaoDocumentos() {
@@ -332,18 +296,6 @@ function copiarTexto(texto, msg = "Link copiado!") {
     }).catch(err => {
         console.error('Erro ao copiar: ', err);
     });
-}
-
-function copiarLink(url) {
-    const linkSeguro = formatarLinkSeguro(url);
-    copiarTexto(linkSeguro, "Link seguro copiado!");
-}
-
-function abrirDocumentoDireto(url) {
-    const linkSeguro = formatarLinkSeguro(url);
-    if (linkSeguro) {
-        window.open(linkSeguro, '_blank');
-    }
 }
 
 
