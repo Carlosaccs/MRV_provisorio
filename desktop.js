@@ -192,14 +192,16 @@ function configurarBotaoPopupSimulador() {
     const btnSpeedsim = document.getElementById('btn-abrir-speedsim');
 
     if (btnSpeedsim) {
-        btnSpeedsim.addEventListener('click', (e) => {
+        // Removemos qualquer conflito e garantimos o clique
+        btnSpeedsim.onclick = function(e) {
             e.preventDefault();
             abrirPopupSimulador();
-        });
+        };
     } else {
         console.warn("Botão #btn-abrir-speedsim não encontrado no DOM.");
     }
 
+    // Fecha ao clicar fora do conteúdo do modal (se clicar no fundo escuro)
     window.addEventListener('click', (event) => {
         const modalSimulador = document.getElementById("modal-popup-simulador");
         if (modalSimulador && event.target === modalSimulador) {
