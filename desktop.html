@@ -7,17 +7,13 @@
     <title>Dashboard MRV SP</title>
     <link rel="stylesheet" href="desktop.css">
     <style>
-        /* ==========================================================================
-            CONSOLIDAÇÃO DO CABEÇALHO E CENTRALIZAÇÃO DOS BOTÕES (CORRIGIDO)
-            ========================================================================== */
-        
         div.header {
             display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
             padding: 0 20px !important;
             box-sizing: border-box !important;
-            gap: 20px !important; /* Garante que título e botões nunca grudem */
+            gap: 20px !important;
         }
 
         .titulo-mrv-centro {
@@ -26,10 +22,10 @@
             font-weight: bold !important;
             text-transform: uppercase !important;
             text-align: left !important;
-            font-size: 1.1rem !important; /* Ajuste milimétrico para melhor legibilidade */
+            font-size: 1.1rem !important;
             color: #ffffff !important;
             z-index: 1 !important;
-            flex: 1 !important; /* Ocupa de forma inteligente o espaço dinâmico à esquerda */
+            flex: 1 !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
             white-space: nowrap !important;
@@ -42,21 +38,17 @@
             align-items: center !important;
             height: 100% !important;
             z-index: 10 !important;
-            flex-shrink: 0 !important; /* Impede os botões de esmagarem ou reduzirem de tamanho */
+            flex-shrink: 0 !important;
         }
 
-        button#btn-documentos,
-        button#btn-anuncio {
+        button#btn-documentos {
             all: unset !important;
             box-sizing: border-box !important;
             background-color: #febd11 !important;
             color: #004d24 !important;
             border-radius: 4px !important;
-            
-            /* Altura calibrada com sucesso */
             height: 34px !important;
             padding: 0 18px !important;
-            
             font-weight: bold !important;
             font-size: 0.8rem !important;
             text-transform: uppercase !important;
@@ -72,16 +64,6 @@
 
         button#btn-documentos:hover {
             background-color: #e0a60f !important;
-        }
-
-        /* ESTILO EXCLUSIVO DO BOTÃO DE ANÚNCIO PARA DESTACAR NA REUNIÃO */
-        button#btn-anuncio {
-            background-color: #f37021 !important; /* Laranja MRV vibrante */
-            color: #ffffff !important;
-        }
-
-        button#btn-anuncio:hover {
-            background-color: #dca206 !important; /* Muda para dourado no hover */
         }
     </style>
 </head>
@@ -108,7 +90,6 @@
         </h1>
         
         <div class="container-botoes-mrv">
-            <button id="btn-anuncio">🚀 Anúncio Clique-Único (Breve)</button>
             <button id="btn-documentos">Documentos</button>
         </div>
     </div>
@@ -134,23 +115,17 @@
 
     <script src="mapa-SP.js" defer></script>
     <script src="desktop.js" defer></script>
-    <script src="anuncios.js" defer></script>
 
     <script>
         window.addEventListener('load', () => {
-            console.log("Todos os recursos e scripts foram totalmente carregados.");
-            
-            // Verifica se a função iniciarApp foi declarada no desktop.js
             if (typeof iniciarApp === 'function') {
                 iniciarApp();
             } else {
-                console.error("Erro Crítico: A função 'iniciarApp' não foi encontrada no escopo global.");
-                // Tentativa de segurança caso haja delay no carregamento
                 setTimeout(() => {
                     if (typeof iniciarApp === 'function') {
                         iniciarApp();
                     } else {
-                        alert("Não foi possível iniciar o aplicativo. Verifique o console do navegador (F12) para detalhes.");
+                        alert("Não foi possível iniciar o aplicativo.");
                     }
                 }, 500);
             }
