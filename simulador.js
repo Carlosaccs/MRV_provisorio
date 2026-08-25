@@ -50,41 +50,6 @@ function atualizarTextoSeExiste(id, texto) {
 }
 
 // ===========================================
-// CONTROLE DE ABERTURA E FECHAMENTO DO SPEEDSIM
-// ===========================================
-function configurarControleModal() {
-  // Procura por qualquer elemento que tenha relação com abrir/fechar o speedsim
-  const botoesAbrir = document.querySelectorAll("[id*='speedsim'], [class*='speedsim-btn'], button:has-text('SPEEDSIM')");
-  
-  // Tenta encontrar o container do modal/painel por IDs comuns
-  const modalSpeedSim = document.getElementById("modal-speedsim") || 
-                        document.getElementById("speedsim-container") || 
-                        document.querySelector(".speedsim-modal") ||
-                        document.querySelector("[id*='modal']");
-
-  // Se o modal existir na página, vamos escutar cliques globais para garantir a abertura/fechamento
-  document.addEventListener("click", function(event) {
-    const alvo = event.target;
-
-    // Se clicou no botão de abrir ou em algo dentro dele
-    if (alvo.closest("[id*='speedsim']") || alvo.textContent.includes("SPEEDSIM")) {
-      if (modalSpeedSim) {
-        modalSpeedSim.style.display = "block";
-        modalSpeedSim.classList.add("ativo");
-      }
-    }
-
-    // Se clicou no botão "X" de fechar (ou ícones de fechar)
-    if (alvo.closest(".fa-times") || alvo.closest(".close") || alvo.closest("[id*='fechar']") || (alvo.tagName === "SPAN" && alvo.textContent === "×")) {
-      if (modalSpeedSim) {
-        modalSpeedSim.style.display = "none";
-        modalSpeedSim.classList.remove("ativo");
-      }
-    }
-  });
-}
-
-// ===========================================
 // FUNÇÃO PRINCIPAL DE SIMULAÇÃO (FLUXO GERAL)
 // ===========================================
 function simularFluxo() {
@@ -127,7 +92,7 @@ function simularFluxo() {
 
   // 0.3 e 0.4. Data de Nascimento e Idade
   const dataNascStr = document.getElementById("sim-data-nasc")?.value; 
-  let idade = 28; 
+  let idade = 26; 
   if (dataNascStr) {
     const partes = dataNascStr.split("-");
     const anoNasc = parseInt(partes[0]);
@@ -147,14 +112,14 @@ function simularFluxo() {
 
   // 0.6. Redutor
   const selectRedutor = document.getElementById("sim-redutor");
-  const redutorCotista = selectRedutor ? selectRedutor.value : "Com Redutor"; 
+  const redutorCotista = selectRedutor ? selectRedutor.value : "Sim"; 
 
   // 0.7. Tabela Oficial de Taxas Caixa
   const tabelaTaxasFaixas = [
-    { limite: 2160, cotista: 0.0500, naoCotista: 0.0550 },
-    { limite: 2850, cotista: 0.0525, naoCotista: 0.0575 },
-    { limite: 3200, cotista: 0.0550, naoCotista: 0.0600 },
-    { limite: 3500, cotista: 0.0575, naoCotista: 0.0625 },
+    { limite: 2160, cotista: 0.0425, naoCotista: 0.0475 },
+    { limite: 2850, cotista: 0.0450, naoCotista: 0.0500 },
+    { limite: 3200, cotista: 0.0475, naoCotista: 0.0525 },
+    { limite: 3500, cotista: 0.0500, naoCotista: 0.0550 },
     { limite: 4000, cotista: 0.0550, naoCotista: 0.0600 }, 
     { limite: 5000, cotista: 0.0650, naoCotista: 0.0700 },
     { limite: 9600, cotista: 0.0766, naoCotista: 0.0816 }, 
@@ -164,11 +129,11 @@ function simularFluxo() {
   function obterTaxaAnualPROCX(valorImov, tetoImov, renda, redutor) {
     let subsetor = (valorImov <= tetoImov) ? tabelaTaxasFaixas : tabelaTaxasFaixas.slice(6);
     let faixaEncontrada = subsetor.find(f => renda <= f.limite) || subsetor[subsetor.length - 1];
-    return (redutor.toLowerCase().includes("com")) ? faixaEncontrada.cotista : faixaEncontrada.naoCotista;
+    return (redutor.toLowerCase() === "sim" || redutor.toLowerCase() === "com redutor") ? faixaEncontrada.cotista : faixaEncontrada.naoCotista;
   }
 
   const taxaAnualNominal = obterTaxaAnualPROCX(valorImovel, tetoImovel, rendaBruta, redutorCotista);
-  const taxaNominalMensal = Math.pow(1 + taxaAnualNominal, 1 / 12) - 1;
+  const taxaNominalMensal = taxaAnualNominal / 12;
 
   const inputTaxaTopo = document.getElementById("sim-taxa-juros");
   if (inputTaxaTopo) inputTaxaTopo.value = (taxaAnualNominal * 100).toFixed(2).replace(".", ",");
@@ -176,19 +141,41 @@ function simularFluxo() {
   const inputTaxaMensalTopo = document.getElementById("sim-taxa-juros-mensal");
   if (inputTaxaMensalTopo) inputTaxaMensalTopo.value = (taxaNominalMensal * 100).toFixed(4).replace(".", ",");
 
-  // 0.8. Tabela MIP e Seguros Editáveis
-  const inputMipEdit = converterMoedaParaNumero(document.getElementById("sim-mip-val")?.value);
-  const aliquotaMIP = inputMipEdit > 0 ? (inputMipEdit / 100) : 0.000085;
+  // 0.8. Tabela MIP
+  const tabelaMIP = [
+    { idadeLimite: 18, aliquota: 0.000085 },
+    { idadeLimite: 31, aliquota: 0.000085 },
+    { idadeLimite: 36, aliquota: 0.0002 },
+    { idadeLimite: 41, aliquota: 0.0002 },
+    { idadeLimite: 46, aliquota: 0.0004 },
+    { idadeLimite: 51, aliquota: 0.0007 },
+    { idadeLimite: 56, aliquota: 0.0008 },
+    { idadeLimite: 61, aliquota: 0.0013 },
+    { idadeLimite: 66, aliquota: 0.0021 },
+    { idadeLimite: 71, aliquota: 0.0037 },
+    { idadeLimite: 76, aliquota: 0.0053 }
+  ];
 
+  function obterMIP(idadeCliente) {
+    let mIPEncontrado = tabelaMIP[0];
+    for (let i = 0; i < tabelaMIP.length; i++) {
+      if (idadeCliente >= tabelaMIP[i].idadeLimite) {
+        mIPEncontrado = tabelaMIP[i];
+      }
+    }
+    return mIPEncontrado.aliquota;
+  }
+
+  const aliquotaMIP = obterMIP(idade);
+  const inputMipTela = document.getElementById("sim-mip-taxa");
+  if (inputMipTela) inputMipTela.value = (aliquotaMIP * 100).toFixed(3).replace(".", ",");
+
+  // 0.9. FGHAB e Valores Fixos (DFI)
   const aliquotaFGHAB = 0.000196; 
-  const inputDfiEdit = converterMoedaParaNumero(document.getElementById("sim-dfi-val")?.value);
-  const valorDIFConstante = inputDfiEdit > 0 ? valorImovel * (inputDfiEdit / 100) : valorImovel * (0.00028 / 100);
-  
-  const inputManutencaoEdit = converterMoedaParaNumero(document.getElementById("sim-manutencao-val")?.value);
-  const taxaManutencaoContrato = inputManutencaoEdit > 0 ? inputManutencaoEdit : 25.00;
+  const valorDIFConstante = valorImovel * (0.00028 / 100);
+  const taxaManutencaoContrato = 25.00;
 
-  // Subsídio
-  const subsidioCalculado = 2099.00; 
+  const subsidioCalculado = (rendaBruta > 0 && rendaBruta <= 4400) ? Math.max(0, 55000 - (rendaBruta * 5)) : 0;
   const inputSubsidioTela = document.getElementById("sim-subsidio-val");
   if (inputSubsidioTela) inputSubsidioTela.value = formatarMoeda(subsidioCalculado);
 
@@ -203,7 +190,7 @@ function simularFluxo() {
   let valorFinanciado = 0;
   if (rendaBruta > 0 && numerador > 0) {
     const valorCalculadoPorRenda = numerador / denominador;
-    const limite80PorCento = valorImovel * 0.80; 
+    const limite80PorCento = valorImovel * 0.80;
     valorFinanciado = valorCalculadoPorRenda < limite80PorCento ? valorCalculadoPorRenda : limite80PorCento;
   }
 
@@ -240,19 +227,18 @@ function simularFluxo() {
 
     let valorParcelaTotal = amortizacaoTotalMes + jurosMes + mipMes + fghabMes + difMes + manutencaoMes;
 
-    if (mes === 1) {
-      cronogramaHTML += `
-        <tr style="border-bottom: 1px solid #e5e7eb;">
-          <td style="padding: 8px 10px;">${mes}</td>
-          <td style="padding: 8px 10px; font-weight: bold; color: #1e3a8a;">${formatarMoeda(valorParcelaTotal)}</td>
-          <td style="padding: 8px 10px;">${formatarMoeda(amortizacaoTotalMes)}</td>
-          <td style="padding: 8px 10px; background-color: #f0fdf4;">${formatarMoeda(amortizacaoExtra)}</td>
-          <td style="padding: 8px 10px;">${formatarMoeda(jurosMes)}</td>
-          <td style="padding: 8px 10px; font-size: 0.8rem; color: #6b7280;">MIP: ${formatarMoeda(mipMes)}<br>FGHAB: ${formatarMoeda(fghabMes)}<br>DFI: ${formatarMoeda(difMes)}<br>Manut: ${formatarMoeda(manutencaoMes)}</td>
-          <td style="padding: 8px 10px; font-weight: bold;">${formatarMoeda(saldoDevedor - amortizacaoTotalMes)}</td>
-        </tr>
-      `;
-    }
+    cronogramaHTML += `
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 8px 10px;">${mes}</td>
+        <td style="padding: 8px 10px; font-weight: bold; color: #1e3a8a;">${formatarMoeda(valorParcelaTotal)}</td>
+        <td style="padding: 8px 10px;">${formatarMoeda(amortizacaoTotalMes)}</td>
+        <td style="padding: 8px 10px; background-color: #f0fdf4;">${formatarMoeda(amortizacaoExtra)}</td>
+        <td style="padding: 8px 10px;">${formatarMoeda(jurosMes)}</td>
+        <td style="padding: 8px 10px; font-size: 0.8rem; color: #6b7280;">MIP: ${formatarMoeda(mipMes)}<br>FGHAB: ${formatarMoeda(fghabMes)}<br>DFI: ${formatarMoeda(difMes)}<br>Manut: ${formatarMoeda(manutencaoMes)}</td>
+        <td style="padding: 8px 10px; font-weight: bold;">${formatarMoeda(saldoDevedor - amortizacaoTotalMes)}</td>
+      </tr>
+    `;
+
     saldoDevedor -= amortizacaoTotalMes;
   }
 
@@ -264,6 +250,5 @@ function simularFluxo() {
 
 window.onload = function() {
   inicializarMunicipios();
-  configurarControleModal();
   simularFluxo();
 };
