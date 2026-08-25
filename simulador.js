@@ -34,7 +34,7 @@ function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, da
                     <tr><td>Mais de 1 comprador ou dependente:</td><td><strong>${dependente}</strong></td></tr>
                     <tr><td>Valor do imóvel:</td><td><strong>${valImovel}</strong></td></tr>
                     <tr class="secao-header"><td colspan="2">&nbsp;</td></tr>
-                    <tr><td>FINANCIAMENTO:</td><td><strong>${finanVal} ${taxaAA}</strong></td></tr>
+                    <tr><td>FINANCIAMENTO (Informado):</td><td><strong>${finanVal} ${taxaAA}</strong></td></tr>
                     <tr><td>Prazo:</td><td><strong>${prazo}</strong></td></tr>
                     <tr><td>1ª prestação:</td><td><strong>${primeiraParc}</strong></td></tr>
                     <tr><td>Última prestação:</td><td><strong>${ultimaParc}</strong></td></tr>
@@ -67,7 +67,6 @@ function imprimirSimulacao(tipoSistema, hoje, renda, sinal, fgts, bomPagador, da
 // =====================================================================
 let simState = {
     valorFinanciadoSac: 0,
-    valorFinanciadoPrice: 0,
     valorImovel: 0,
     taxaJurosAnual: 0,
     prazoMeses: 420,
@@ -212,18 +211,8 @@ function calcularPrazoMaximoPorDataNasc() {
 }
 
 // =====================================================================
-// 3. MOTOR SAC E CÁLCULOS DE ENTRADA
+// 3. CÁLCULOS DE ENTRADA E ORQUESTRAÇÃO (COM FINANCIAMENTO MANUAL)
 // =====================================================================
-function executarMotorSAC(valorImovel, tetoImovel, rendaBruta, redutorCotista, aliquotaMIP, prazoMeses) {
-    // -> COLOCAR AQUI O SEU NOVO MOTOR SAC QUE CALCULA O VALOR FINANCIADO EXATO <-
-    return {
-        valorFinanciado: 0,
-        primeiraParcela: 0,
-        ultimaParcela: 0,
-        taxaAnual: 0
-    };
-}
-
 function obterTaxaAnualPROCX(valorImov, tetoImov, renda, redutor) {
     let subsetor = (valorImov <= tetoImov) ? tabelaTaxasFaixas : tabelaTaxasFaixas.slice(6);
     let faixaEncontrada = subsetor.find(f => renda <= f.limite) || subsetor[subsetor.length - 1];
@@ -306,25 +295,29 @@ function simularFluxo() {
   const inputMipTela = document.getElementById("sim-mip-taxa");
   if (inputMipTela) inputMipTela.value = (aliquotaMIP * 100).toFixed(3).replace(".", ",");
 
+  // Insumos auxiliares de entrada
   const fgts = obterValorFlexivel(['sim-fgts', 'fgts']);
   const recursos = obterValorFlexivel(['sim-recursos', 'sim-sinal', 'recursos', 'sinal']);
   const bomPagador = obterValorFlexivel(['sim-bom-pagador', 'bom-pagador']);
   const subsidioVal = obterValorFlexivel(['sim-subsidio-val', 'subsidio']);
 
-  if (valorImovel <= 0 || rendaBruta <= 0) {
+  // PEGA O VALOR DO FINANCIAMENTO DIRETAMENTE DA TELA (EDITÁVEL)
+  const valorFinanciadoManual = obterValorFlexivel(['sim-val-financiamento', 'sac-val-financiamento-input', 'financiamento']);
+
+  if (valorImovel <= 0) {
     zeraValoresCards();
     return;
   }
 
-  const resultadoSAC = executarMotorSAC(valorImovel, tetoImovel, rendaBruta, redutorCotista, aliquotaMIP, simState.prazoMeses);
-  
   simState.valorImovel = valorImovel;
-  simState.valorFinanciadoSac = resultadoSAC.valorFinanciado;
+  simState.valorFinanciadoSac = valorFinanciadoManual > 0 ? valorFinanciadoManual : (valorImovel * 0.8); // Fallback de 80% se vazio
   simState.taxaJurosAnual = taxaAnualNominal * 100;
 
+  // Cálculos de Entrada
   const entradaTotalSac = Math.max(0, valorImovel - simState.valorFinanciadoSac);
   const entradaBrutaSac = Math.max(0, entradaTotalSac - subsidioVal - fgts - bomPagador);
 
+  // Atualiza os cards de exibição na tela
   atualizarTextoSeExiste('sac-val-financiamento', formatarMoeda(simState.valorFinanciadoSac));
   atualizarTextoSeExiste('sac-val-entrada-total', formatarMoeda(entradaTotalSac));
   atualizarTextoSeExiste('sac-val-entrada-bruta', formatarMoeda(entradaBrutaSac));
@@ -424,7 +417,7 @@ function validarAto(sistema, apenasAtualizar) {
 
 function zeraValoresCards() {
   const ids = [
-    'sac-val-financiamento', 'sac-val-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-val-entrada-bruta', 'sac-val-recursos', 'sac-val-saldo-rec', 'sac-val-entrada-liquida'
+    'sac-val-entrada-total', 'sac-val-subsidio', 'sac-val-fgts', 'sac-val-bom-pagador', 'sac-val-entrada-bruta', 'sac-val-recursos', 'sac-val-saldo-rec', 'sac-val-entrada-liquida'
   ];
   ids.forEach(id => {
     atualizarTextoSeExiste(id, "R$ 0,00");
@@ -439,11 +432,11 @@ function zeraValoresCards() {
   if (pct) pct.value = "0.0%";
 
   const tbody = document.getElementById('tabela-unificada-body');
-  if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e a renda para simular...</td></tr>';
+  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">Digite o valor do imóvel e o financiamento para simular...</td></tr>';
 }
 
 // =====================================================================
-// 4. TABELA UNIFICADA E AMORTIZAÇÕES
+// 4. TABELA PROVISÓRIA / UNIFICADA
 // =====================================================================
 function gerarTabelaUnificada() {
   const PSac = simState.valorFinanciadoSac;
@@ -455,7 +448,6 @@ function gerarTabelaUnificada() {
 
   let saldoSac = PSac;
   const amortizacaoConstanteSac = PSac / n;
-  let totalPagoSacComAmort = 0;
   let htmlTabela = '';
 
   for (let mes = 1; mes <= n; mes++) {
@@ -469,7 +461,6 @@ function gerarTabelaUnificada() {
       parcelaSac = amortTotalSac + jurosSac;
       saldoSac -= amortTotalSac;
       if (saldoSac < 0) saldoSac = 0;
-      totalPagoSacComAmort += parcelaSac;
     }
 
     const classeLinha = amortExtra > 0 ? 'class="linha-amortizada"' : '';
@@ -518,6 +509,7 @@ function vincularEventosMúltiplos() {
     'sim-fgts', 'fgts',
     'sim-bom-pagador', 'bom-pagador',
     'sim-prazo-finan',
+    'sim-val-financiamento', 'sac-val-financiamento-input', 'financiamento',
     'sim-qtd-parc-entrada', 'qtd-parc-entrada', 'sim-qtd-entrada',
     'sac-parc-entrada', 'sac-parc-sinal', 'municipio'
   ];
