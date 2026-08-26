@@ -1,13 +1,12 @@
-9<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeedBroker - Residências MRV em São Paulo</title>
+    <title>SpeedBroker - Simulador MCMV</title>
     <style>
         :root {
             --mrv-green: #0f7b3e;
-            --mrv-green-dark: #0b5c2f;
             --light-bg: #f8f9fa;
             --border-color: #cccccc;
             --text-dark: #333333;
@@ -23,53 +22,6 @@
 
         body {
             background-color: #e9ecef;
-            padding: 0;
-            margin: 0;
-        }
-
-        /* --- BARRA TOPO SPEED BROKER --- */
-        .top-navbar {
-            background-color: var(--mrv-green);
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .top-navbar-title {
-            font-weight: bold;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
-        .top-nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-top-sim {
-            background-color: #0056b3;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-top-sim:hover {
-            background-color: #003d82;
-        }
-
-        .btn-top-doc {
-            background-color: #ffc107;
-            color: #333;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
         }
 
         /* --- MODAL OVERLAY (CENTRALIZADO E OCULTO POR PADRÃO) --- */
@@ -80,7 +32,7 @@
             width: 100vw;
             height: 100vh;
             background-color: rgba(0, 0, 0, 0.5);
-            display: none; /* Inicia fechado, abre apenas pelo botão */
+            display: none; /* Inicia fechado, abre apenas pelo botão do SpeedBroker */
             justify-content: center;
             align-items: center;
             z-index: 9999;
@@ -90,7 +42,7 @@
         .modal-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 1220px; /* Mais larga para caber tudo perfeitamente */
+            max-width: 1220px; /* Largura ideal para caber tudo sem quebrar */
             max-height: 95vh;
             overflow-y: auto;
             border-radius: 4px;
@@ -356,16 +308,7 @@
 </head>
 <body>
 
-    <!-- BARRA DO SISTEMA PRINCIPAL SPEED BROKER -->
-    <div class="top-navbar">
-        <div class="top-navbar-title">SPEED BROKER • RESIDENCIAIS MRV EM SÃO PAULO • JUL/26</div>
-        <div class="top-nav-buttons">
-            <button class="btn-top-sim" onclick="abrirSimulador()">🚀 SPEEDSIM</button>
-            <button class="btn-top-doc">DOCUMENTOS</button>
-        </div>
-    </div>
-
-    <!-- MODAL / POPUP CENTRALIZADO -->
+    <!-- MODAL / POPUP CENTRALIZADO (Pronto para ser acoplado no SpeedBroker) -->
     <div id="simuladorModal" class="modal-overlay">
         <div class="modal-container">
             
@@ -575,7 +518,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONTROLE DO MODAL -->
+    <!-- SCRIPT DE CONTROLE PARA O BOTÃO DO SPEEDBROKER -->
     <script>
         function abrirSimulador() {
             document.getElementById('simuladorModal').style.display = 'flex';
