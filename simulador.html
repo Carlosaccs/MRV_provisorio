@@ -1,533 +1,513 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeedBroker - Simulador MCMV</title>
-    <style>
-        :root {
-            --mrv-green: #0f7b3e;
-            --light-bg: #f8f9fa;
-            --border-color: #cccccc;
-            --text-dark: #333333;
-        }
+<!-- ESTILO EXCLUSIVO DO MODAL (Insira junto às suas folhas de estilo ou no <head> do projeto principal) -->
+<style>
+    :root {
+        --mrv-green-modal: #0f7b3e;
+        --border-color-modal: #cccccc;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-        }
+    /* OCULTA O MODAL POR PADRÃO */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none; 
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        padding: 10px;
+    }
 
-        body {
-            background-color: #e9ecef;
-        }
+    .modal-container {
+        background-color: #ffffff;
+        width: 100%;
+        max-width: 1220px;
+        max-height: 95vh;
+        overflow-y: auto;
+        border-radius: 4px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        padding: 15px 20px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        box-sizing: border-box;
+    }
 
-        /* --- MODAL OVERLAY (CENTRALIZADO E OCULTO POR PADRÃO) --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none; /* Inicia fechado, abre apenas pelo botão do SpeedBroker */
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 10px;
-        }
+    .modal-container * {
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+    }
 
-        .modal-container {
-            background-color: #ffffff;
-            width: 100%;
-            max-width: 1220px; /* Largura ideal para caber tudo sem quebrar */
-            max-height: 95vh;
-            overflow-y: auto;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            padding: 15px 20px;
-        }
+    .modal-container .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
 
-        /* --- HEADER DO MODAL --- */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
+    .modal-container .header-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--mrv-green-modal);
+        font-size: 16px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
 
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--mrv-green);
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+    .modal-container .header-title span {
+        font-size: 20px;
+    }
 
-        .header-title span {
-            font-size: 20px;
-        }
+    .modal-container .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #888;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .modal-container .close-btn:hover {
+        color: #000;
+    }
 
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #888;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .close-btn:hover {
-            color: #000;
-        }
+    .modal-container .subtitle {
+        color: #666;
+        margin-bottom: 10px;
+    }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 10px;
-        }
+    .modal-container .input-section {
+        border-bottom: 1px dotted var(--border-color-modal);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
 
-        /* --- INPUTS SECTION --- */
-        .input-section {
-            border-bottom: 1px dotted var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
+    .modal-container .row {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
 
-        .row {
-            display: flex;
-            align-items: center;
-            flex-wrap: nowrap;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
+    .modal-container .row-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-        .row-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .modal-container .form-group {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
 
-        .form-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+    .modal-container .form-group label {
+        white-space: nowrap;
+    }
 
-        .form-group label {
-            white-space: nowrap;
-        }
+    .modal-container .text-green {
+        color: var(--mrv-green-modal);
+        font-weight: bold;
+    }
 
-        .text-green {
-            color: var(--mrv-green);
-            font-weight: bold;
-        }
+    .modal-container input[type="text"] {
+        border: 1px solid var(--border-color-modal);
+        padding: 3px 5px;
+        border-radius: 2px;
+        outline: none;
+    }
+    
+    .modal-container input[type="text"]:focus {
+        border-color: var(--mrv-green-modal);
+    }
 
-        input[type="text"] {
-            border: 1px solid var(--border-color);
-            padding: 3px 5px;
-            border-radius: 2px;
-            outline: none;
-        }
+    .modal-container .input-money { width: 90px; text-align: right; }
+    .modal-container .input-date { width: 85px; }
+    .modal-container .input-tiny { width: 40px; text-align: center; }
+    .modal-container .input-small { width: 60px; text-align: right; }
+
+    .modal-container .subsidio-box {
+        border: 1px solid var(--mrv-green-modal);
+        background-color: #eaf5eb;
+        color: var(--mrv-green-modal);
+        padding: 4px 10px;
+        border-radius: 3px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .modal-container .subsidio-box span:last-child {
+        font-size: 14px;
+    }
+
+    .modal-container .cards-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .modal-container .card {
+        border: 1px solid var(--border-color-modal);
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .modal-container .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .modal-container .card-title {
+        color: var(--mrv-green-modal);
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .modal-container .btn-print {
+        border: 1px solid var(--mrv-green-modal);
+        background: white;
+        color: var(--mrv-green-modal);
+        padding: 3px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .modal-container .card-body {
+        display: flex;
+        gap: 15px;
+    }
+
+    .modal-container .col-left, .modal-container .col-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .modal-container .col-divider {
+        width: 1px;
+        background-color: #333333;
+    }
+
+    .modal-container .info-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .modal-container .info-line strong {
+        font-weight: bold;
+    }
+
+    .modal-container .inline-inputs {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .modal-container .metrics-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .modal-container .metric-card {
+        border: 1px solid var(--mrv-green-modal);
+        border-radius: 4px;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .modal-container .metric-title {
+        color: var(--mrv-green-modal);
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .modal-container .metric-data {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .modal-container .metric-item strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 14px;
+    }
+
+    .modal-container .metric-item .green-val { color: var(--mrv-green-modal); }
+    .modal-container .metric-item .orange-val { color: #d97706; }
+
+    .modal-container table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    .modal-container th, .modal-container td {
+        border: 1px solid #ddd;
+        padding: 6px;
+    }
+
+    .modal-container .th-sac {
+        background-color: var(--mrv-green-modal);
+        color: white;
+        font-weight: bold;
+    }
+
+    .modal-container .th-price {
+        background-color: #333;
+        color: white;
+        font-weight: bold;
+    }
+
+    .modal-container .th-neutral {
+        background-color: #f1f1f1;
+        font-weight: bold;
+    }
+
+    .modal-container .table-footer {
+        background-color: #f8f9fa;
+        color: #888;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-top: none;
+        font-style: italic;
+    }
+</style>
+
+<!-- ESTRUTURA HTML DO MODAL (Insira no corpo do seu desktop.html) -->
+<div id="simuladorModal" class="modal-overlay">
+    <div class="modal-container">
         
-        input[type="text"]:focus {
-            border-color: var(--mrv-green);
-        }
-
-        .input-money { width: 90px; text-align: right; }
-        .input-date { width: 85px; }
-        .input-tiny { width: 40px; text-align: center; }
-        .input-small { width: 60px; text-align: right; }
-
-        .subsidio-box {
-            border: 1px solid var(--mrv-green);
-            background-color: #eaf5eb;
-            color: var(--mrv-green);
-            padding: 4px 10px;
-            border-radius: 3px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .subsidio-box span:last-child {
-            font-size: 14px;
-        }
-
-        /* --- CARDS SECTION (SAC vs PRICE) --- */
-        .cards-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .card {
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 10px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .card-title {
-            color: var(--mrv-green);
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .btn-print {
-            border: 1px solid var(--mrv-green);
-            background: white;
-            color: var(--mrv-green);
-            padding: 3px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .card-body {
-            display: flex;
-            gap: 15px;
-        }
-
-        .col-left, .col-right {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .col-divider {
-            width: 1px;
-            background-color: var(--text-dark);
-        }
-
-        .info-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            white-space: nowrap;
-        }
-
-        .info-line strong {
-            font-weight: bold;
-        }
-
-        .inline-inputs {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-
-        /* --- METRICS SECTION --- */
-        .metrics-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .metric-card {
-            border: 1px solid var(--mrv-green);
-            border-radius: 4px;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .metric-title {
-            color: var(--mrv-green);
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .metric-data {
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .metric-item strong {
-            display: block;
-            margin-top: 3px;
-            font-size: 14px;
-        }
-
-        .metric-item .green-val { color: var(--mrv-green); }
-        .metric-item .orange-val { color: #d97706; }
-
-        /* --- TABLE SECTION --- */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 6px;
-        }
-
-        .th-sac {
-            background-color: var(--mrv-green);
-            color: white;
-            font-weight: bold;
-        }
-
-        .th-price {
-            background-color: #333;
-            color: white;
-            font-weight: bold;
-        }
-
-        .th-neutral {
-            background-color: #f1f1f1;
-            font-weight: bold;
-        }
-
-        .table-footer {
-            background-color: #f8f9fa;
-            color: #888;
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-top: none;
-            font-style: italic;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- MODAL / POPUP CENTRALIZADO (Pronto para ser acoplado no SpeedBroker) -->
-    <div id="simuladorModal" class="modal-overlay">
-        <div class="modal-container">
-            
-            <!-- HEADER -->
-            <div class="header">
-                <div class="header-title">
-                    <span>📊</span> SPEEDSIM - SIMULADOR MCMV
-                </div>
-                <button class="close-btn" onclick="fecharSimulador()">&times;</button>
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-title">
+                <span>📊</span> SPEEDSIM - SIMULADOR MCMV
             </div>
-            <div class="subtitle">Simule financiamento com regras de Avaliação, PRICE / SAC e Comparativo em tempo real.</div>
-            
-            <!-- INPUTS ROW 1 -->
-            <div class="input-section">
-                <div class="row">
-                    <div class="form-group">
-                        <input type="radio" name="tipo_imovel" checked> <label>Valor imóvel:</label>
-                        <input type="text" class="input-money" value="R$ 240.000,00">
-                    </div>
-                    <div class="form-group">
-                        <input type="radio" name="tipo_imovel"> <label>Avaliação:</label>
-                        <input type="text" class="input-money" value="R$ 0,00" disabled>
-                    </div>
-                    <div class="form-group" style="margin-left: 10px;">
-                        <label class="text-green">Bom Pagador:</label>
-                        <input type="text" class="input-money" value="R$ 18.000,00">
-                    </div>
-                    <div class="form-group">
-                        <label>Renda:</label>
-                        <input type="text" class="input-money" value="R$ 0,00">
-                    </div>
-                    <div class="form-group">
-                        <label>FGTS:</label>
-                        <input type="text" class="input-money" value="R$ 11.000,00">
-                    </div>
-                    <div class="form-group">
-                        <label>Recursos:</label>
-                        <input type="text" class="input-money" value="R$ 4.000,00">
-                    </div>
-                    <div class="row-right">
-                        <label><input type="radio" name="redutor" checked> Com redutor</label>
-                        <label><input type="radio" name="redutor"> Sem redutor</label>
-                    </div>
-                </div>
-
-                <!-- INPUTS ROW 2 -->
-                <div class="row" style="margin-top: 15px;">
-                    <div class="form-group">
-                        <label>Data nasc:</label>
-                        <input type="text" class="input-date" placeholder="dd/mm/aaaa">
-                    </div>
-                    <div class="form-group">
-                        <label>máximo de:</label>
-                        <input type="text" class="input-tiny" value="420"> <label>parcelas</label>
-                    </div>
-                    <div class="form-group" style="margin-left: 10px;">
-                        <input type="checkbox" checked> <label>Mais de um comprador/dependente</label>
-                    </div>
-                    <div class="form-group" style="margin-left: 15px;">
-                        <label>Qtd. Parc. entrada:</label>
-                        <input type="text" class="input-tiny" value="30">
-                    </div>
-                    <div class="row-right">
-                        <div class="subsidio-box">
-                            <span>Subsídio:</span>
-                            <span>R$ 0,00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARDS SECTION (SAC E PRICE) -->
-            <div class="cards-wrapper">
-                <!-- CARD SAC -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">SISTEMA SAC (PARCELAS DECRESCENTES)</div>
-                        <button class="btn-print">🖨️ Imprimir SAC</button>
-                    </div>
-                    <div class="card-body">
-                        <div class="col-left">
-                            <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
-                        </div>
-                        <div class="col-divider"></div>
-                        <div class="col-right">
-                            <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line">
-                                <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
-                                <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
-                            </div>
-                            <div class="info-line">
-                                <span>ATO:</span>
-                                <div class="inline-inputs">
-                                    <input type="text" class="input-small" value="0,00"> - 
-                                    <input type="text" class="input-tiny" value="0.0">%
-                                </div>
-                                <span>DO TOTAL DO IMÓVEL</span>
-                            </div>
-                            <div class="info-line">
-                                <span>SINAL:</span> <strong>R$ 0,00</strong> 
-                                <span>EM</span> <input type="text" class="input-tiny" value="5"> 
-                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                            </div>
-                            <div class="info-line">
-                                <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
-                                <span>EM</span> <input type="text" class="input-tiny" value="30"> 
-                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD PRICE -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">SISTEMA PRICE (PARCELAS FIXAS)</div>
-                        <button class="btn-print">🖨️ Imprimir PRICE</button>
-                    </div>
-                    <div class="card-body">
-                        <div class="col-left">
-                            <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
-                        </div>
-                        <div class="col-divider"></div>
-                        <div class="col-right">
-                            <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
-                            <div class="info-line">
-                                <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
-                                <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
-                            </div>
-                            <div class="info-line">
-                                <span>ATO:</span>
-                                <div class="inline-inputs">
-                                    <input type="text" class="input-small" value="0,00"> - 
-                                    <input type="text" class="input-tiny" value="0.0">%
-                                </div>
-                                <span>DO TOTAL DO IMÓVEL</span>
-                            </div>
-                            <div class="info-line">
-                                <span>SINAL:</span> <strong>R$ 0,00</strong> 
-                                <span>EM</span> <input type="text" class="input-tiny" value="5"> 
-                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                            </div>
-                            <div class="info-line">
-                                <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
-                                <span>EM</span> <input type="text" class="input-tiny" value="30"> 
-                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- METRICS SECTION -->
-            <div class="metrics-wrapper">
-                <div class="metric-card">
-                    <div class="metric-title">MÉTRICAS TOTAIS SAC</div>
-                    <div class="metric-data">
-                        <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
-                        <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
-                        <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-title">MÉTRICAS TOTAIS PRICE</div>
-                    <div class="metric-data">
-                        <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
-                        <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
-                        <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TABLE SECTION -->
-            <table>
-                <thead>
-                    <tr>
-                        <th rowspan="2" class="th-neutral" style="width: 50px;">Mês</th>
-                        <th rowspan="2" class="th-neutral" style="width: 120px; background-color: #eaf5eb;">Amortiz. Extra<br>(R$)</th>
-                        <th colspan="3" class="th-sac">SISTEMA SAC</th>
-                        <th colspan="3" class="th-price">SISTEMA PRICE</th>
-                    </tr>
-                    <tr>
-                        <th class="th-neutral">Parcela</th>
-                        <th class="th-neutral">Juros</th>
-                        <th class="th-neutral">Saldo Dev.</th>
-                        <th class="th-neutral">Parcela</th>
-                        <th class="th-neutral">Juros</th>
-                        <th class="th-neutral">Saldo Dev.</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="8" style="padding: 15px;"></td></tr>
-                </tbody>
-            </table>
-            <div class="table-footer">
-                Digite o valor do imóvel e a renda para simular...
-            </div>
-
+            <button class="close-btn" onclick="fecharSimulador()">&times;</button>
         </div>
+        <div class="subtitle">Simule financiamento com regras de Avaliação, PRICE / SAC e Comparativo em tempo real.</div>
+        
+        <!-- INPUTS ROW 1 -->
+        <div class="input-section">
+            <div class="row">
+                <div class="form-group">
+                    <input type="radio" name="tipo_imovel" checked> <label>Valor imóvel:</label>
+                    <input type="text" class="input-money" value="R$ 240.000,00">
+                </div>
+                <div class="form-group">
+                    <input type="radio" name="tipo_imovel"> <label>Avaliação:</label>
+                    <input type="text" class="input-money" value="R$ 0,00" disabled>
+                </div>
+                <div class="form-group" style="margin-left: 10px;">
+                    <label class="text-green">Bom Pagador:</label>
+                    <input type="text" class="input-money" value="R$ 18.000,00">
+                </div>
+                <div class="form-group">
+                    <label>Renda:</label>
+                    <input type="text" class="input-money" value="R$ 0,00">
+                </div>
+                <div class="form-group">
+                    <label>FGTS:</label>
+                    <input type="text" class="input-money" value="R$ 11.000,00">
+                </div>
+                <div class="form-group">
+                    <label>Recursos:</label>
+                    <input type="text" class="input-money" value="R$ 4.000,00">
+                </div>
+                <div class="row-right">
+                    <label><input type="radio" name="redutor" checked> Com redutor</label>
+                    <label><input type="radio" name="redutor"> Sem redutor</label>
+                </div>
+            </div>
+
+            <!-- INPUTS ROW 2 -->
+            <div class="row" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label>Data nasc:</label>
+                    <input type="text" class="input-date" placeholder="dd/mm/aaaa">
+                </div>
+                <div class="form-group">
+                    <label>máximo de:</label>
+                    <input type="text" class="input-tiny" value="420"> <label>parcelas</label>
+                </div>
+                <div class="form-group" style="margin-left: 10px;">
+                    <input type="checkbox" checked> <label>Mais de um comprador/dependente</label>
+                </div>
+                <div class="form-group" style="margin-left: 15px;">
+                    <label>Qtd. Parc. entrada:</label>
+                    <input type="text" class="input-tiny" value="30">
+                </div>
+                <div class="row-right">
+                    <div class="subsidio-box">
+                        <span>Subsídio:</span>
+                        <span>R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARDS SECTION (SAC E PRICE) -->
+        <div class="cards-wrapper">
+            <!-- CARD SAC -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">SISTEMA SAC (PARCELAS DECRESCENTES)</div>
+                    <button class="btn-print">🖨️ Imprimir SAC</button>
+                </div>
+                <div class="card-body">
+                    <div class="col-left">
+                        <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
+                    </div>
+                    <div class="col-divider"></div>
+                    <div class="col-right">
+                        <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line">
+                            <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
+                            <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
+                        </div>
+                        <div class="info-line">
+                            <span>ATO:</span>
+                            <div class="inline-inputs">
+                                <input type="text" class="input-small" value="0,00"> - 
+                                <input type="text" class="input-tiny" value="0.0">%
+                            </div>
+                            <span>DO TOTAL DO IMÓVEL</span>
+                        </div>
+                        <div class="info-line">
+                            <span>SINAL:</span> <strong>R$ 0,00</strong> 
+                            <span>EM</span> <input type="text" class="input-tiny" value="5"> 
+                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                        </div>
+                        <div class="info-line">
+                            <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
+                            <span>EM</span> <input type="text" class="input-tiny" value="30"> 
+                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD PRICE -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">SISTEMA PRICE (PARCELAS FIXAS)</div>
+                    <button class="btn-print">🖨️ Imprimir PRICE</button>
+                </div>
+                <div class="card-body">
+                    <div class="col-left">
+                        <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
+                    </div>
+                    <div class="col-divider"></div>
+                    <div class="col-right">
+                        <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
+                        <div class="info-line">
+                            <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
+                            <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
+                        </div>
+                        <div class="info-line">
+                            <span>ATO:</span>
+                            <div class="inline-inputs">
+                                <input type="text" class="input-small" value="0,00"> - 
+                                <input type="text" class="input-tiny" value="0.0">%
+                            </div>
+                            <span>DO TOTAL DO IMÓVEL</span>
+                        </div>
+                        <div class="info-line">
+                            <span>SINAL:</span> <strong>R$ 0,00</strong> 
+                            <span>EM</span> <input type="text" class="input-tiny" value="5"> 
+                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                        </div>
+                        <div class="info-line">
+                            <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
+                            <span>EM</span> <input type="text" class="input-tiny" value="30"> 
+                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- METRICS SECTION -->
+        <div class="metrics-wrapper">
+            <div class="metric-card">
+                <div class="metric-title">MÉTRICAS TOTAIS SAC</div>
+                <div class="metric-data">
+                    <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
+                    <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
+                    <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">MÉTRICAS TOTAIS PRICE</div>
+                <div class="metric-data">
+                    <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
+                    <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
+                    <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" class="th-neutral" style="width: 50px;">Mês</th>
+                    <th rowspan="2" class="th-neutral" style="width: 120px; background-color: #eaf5eb;">Amortiz. Extra<br>(R$)</th>
+                    <th colspan="3" class="th-sac">SISTEMA SAC</th>
+                    <th colspan="3" class="th-price">SISTEMA PRICE</th>
+                </tr>
+                <tr>
+                    <th class="th-neutral">Parcela</th>
+                    <th class="th-neutral">Juros</th>
+                    <th class="th-neutral">Saldo Dev.</th>
+                    <th class="th-neutral">Parcela</th>
+                    <th class="th-neutral">Juros</th>
+                    <th class="th-neutral">Saldo Dev.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="8" style="padding: 15px;"></td></tr>
+            </tbody>
+        </table>
+        <div class="table-footer">
+            Digite o valor do imóvel e a renda para simular...
+        </div>
+
     </div>
+</div>
 
-    <!-- SCRIPT DE CONTROLE PARA O BOTÃO DO SPEEDBROKER -->
-    <script>
-        function abrirSimulador() {
-            document.getElementById('simuladorModal').style.display = 'flex';
-        }
+<!-- SCRIPT DE CONTROLE (Insira no seu desktop.js ou script principal) -->
+<script>
+    function abrirSimulador() {
+        document.getElementById('simuladorModal').style.display = 'flex';
+    }
 
-        function fecharSimulador() {
-            document.getElementById('simuladorModal').style.display = 'none';
-        }
-    </script>
-
-</body>
-</html>
+    function fecharSimulador() {
+        document.getElementById('simuladorModal').style.display = 'none';
+    }
+</script>
