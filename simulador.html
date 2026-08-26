@@ -1,12 +1,13 @@
-<!DOCTYPE html>
+9<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeedSim - Versão Original</title>
+    <title>SpeedBroker - Residências MRV em São Paulo</title>
     <style>
         :root {
             --mrv-green: #0f7b3e;
+            --mrv-green-dark: #0b5c2f;
             --light-bg: #f8f9fa;
             --border-color: #cccccc;
             --text-dark: #333333;
@@ -22,21 +23,82 @@
 
         body {
             background-color: #e9ecef;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* --- BARRA TOPO SPEED BROKER --- */
+        .top-navbar {
+            background-color: var(--mrv-green);
+            color: white;
+            padding: 10px 20px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-navbar-title {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .top-nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-top-sim {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-top-sim:hover {
+            background-color: #003d82;
+        }
+
+        .btn-top-doc {
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* --- MODAL OVERLAY (CENTRALIZADO E OCULTO POR PADRÃO) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Inicia fechado, abre apenas pelo botão */
             justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 10px;
         }
 
         .modal-container {
             background-color: #ffffff;
             width: 100%;
-            max-width: 1150px;
+            max-width: 1220px; /* Mais larga para caber tudo perfeitamente */
+            max-height: 95vh;
+            overflow-y: auto;
             border-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             padding: 15px 20px;
         }
 
-        /* --- HEADER --- */
+        /* --- HEADER DO MODAL --- */
         .header {
             display: flex;
             justify-content: space-between;
@@ -61,9 +123,13 @@
         .close-btn {
             background: none;
             border: none;
-            font-size: 18px;
+            font-size: 20px;
             color: #888;
             cursor: pointer;
+            font-weight: bold;
+        }
+        .close-btn:hover {
+            color: #000;
         }
 
         .subtitle {
@@ -290,213 +356,235 @@
 </head>
 <body>
 
-    <div class="modal-container">
-        
-        <!-- HEADER -->
-        <div class="header">
-            <div class="header-title">
-                <span>📊</span> SPEEDSIM - SIMULADOR MCMV
-            </div>
-            <button class="close-btn">&times;</button>
+    <!-- BARRA DO SISTEMA PRINCIPAL SPEED BROKER -->
+    <div class="top-navbar">
+        <div class="top-navbar-title">SPEED BROKER • RESIDENCIAIS MRV EM SÃO PAULO • JUL/26</div>
+        <div class="top-nav-buttons">
+            <button class="btn-top-sim" onclick="abrirSimulador()">🚀 SPEEDSIM</button>
+            <button class="btn-top-doc">DOCUMENTOS</button>
         </div>
-        <div class="subtitle">Simule financiamento com regras de Avaliação, PRICE / SAC e Comparativo em tempo real.</div>
-        
-        <!-- INPUTS ROW 1 -->
-        <div class="input-section">
-            <div class="row">
-                <div class="form-group">
-                    <input type="radio" name="tipo_imovel" checked> <label>Valor imóvel:</label>
-                    <input type="text" class="input-money" value="R$ 240.000,00">
-                </div>
-                <div class="form-group">
-                    <input type="radio" name="tipo_imovel"> <label>Avaliação:</label>
-                    <input type="text" class="input-money" value="R$ 0,00" disabled>
-                </div>
-                <div class="form-group" style="margin-left: 10px;">
-                    <label class="text-green">Bom Pagador:</label>
-                    <input type="text" class="input-money" value="R$ 18.000,00">
-                </div>
-                <div class="form-group">
-                    <label>Renda:</label>
-                    <input type="text" class="input-money" value="R$ 0,00">
-                </div>
-                <div class="form-group">
-                    <label>FGTS:</label>
-                    <input type="text" class="input-money" value="R$ 11.000,00">
-                </div>
-                <div class="form-group">
-                    <label>Recursos:</label>
-                    <input type="text" class="input-money" value="R$ 4.000,00">
-                </div>
-                <div class="row-right">
-                    <label><input type="radio" name="redutor" checked> Com redutor</label>
-                    <label><input type="radio" name="redutor"> Sem redutor</label>
-                </div>
-            </div>
-
-            <!-- INPUTS ROW 2 -->
-            <div class="row" style="margin-top: 15px;">
-                <div class="form-group">
-                    <label>Data nasc:</label>
-                    <input type="text" class="input-date" placeholder="dd/mm/aaaa">
-                </div>
-                <div class="form-group">
-                    <label>máximo de:</label>
-                    <input type="text" class="input-tiny" value="420"> <label>parcelas</label>
-                </div>
-                <div class="form-group" style="margin-left: 10px;">
-                    <input type="checkbox" checked> <label>Mais de um comprador/dependente</label>
-                </div>
-                <div class="form-group" style="margin-left: 15px;">
-                    <label>Qtd. Parc. entrada:</label>
-                    <input type="text" class="input-tiny" value="30">
-                </div>
-                <div class="row-right">
-                    <div class="subsidio-box">
-                        <span>Subsídio:</span>
-                        <span>R$ 0,00</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARDS SECTION (SAC E PRICE) -->
-        <div class="cards-wrapper">
-            <!-- CARD SAC -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">SISTEMA SAC (PARCELAS DECRESCENTES)</div>
-                    <button class="btn-print">🖨️ Imprimir SAC</button>
-                </div>
-                <div class="card-body">
-                    <div class="col-left">
-                        <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
-                    </div>
-                    <div class="col-divider"></div>
-                    <div class="col-right">
-                        <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line">
-                            <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
-                            <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
-                        </div>
-                        <div class="info-line">
-                            <span>ATO:</span>
-                            <div class="inline-inputs">
-                                <input type="text" class="input-small" value="0,00"> - 
-                                <input type="text" class="input-tiny" value="0.0">%
-                            </div>
-                            <span>DO TOTAL DO IMÓVEL</span>
-                        </div>
-                        <div class="info-line">
-                            <span>SINAL:</span> <strong>R$ 0,00</strong> 
-                            <span>EM</span> <input type="text" class="input-tiny" value="5"> 
-                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                        </div>
-                        <div class="info-line">
-                            <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
-                            <span>EM</span> <input type="text" class="input-tiny" value="30"> 
-                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD PRICE -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">SISTEMA PRICE (PARCELAS FIXAS)</div>
-                    <button class="btn-print">🖨️ Imprimir PRICE</button>
-                </div>
-                <div class="card-body">
-                    <div class="col-left">
-                        <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
-                    </div>
-                    <div class="col-divider"></div>
-                    <div class="col-right">
-                        <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
-                        <div class="info-line">
-                            <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
-                            <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
-                        </div>
-                        <div class="info-line">
-                            <span>ATO:</span>
-                            <div class="inline-inputs">
-                                <input type="text" class="input-small" value="0,00"> - 
-                                <input type="text" class="input-tiny" value="0.0">%
-                            </div>
-                            <span>DO TOTAL DO IMÓVEL</span>
-                        </div>
-                        <div class="info-line">
-                            <span>SINAL:</span> <strong>R$ 0,00</strong> 
-                            <span>EM</span> <input type="text" class="input-tiny" value="5"> 
-                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                        </div>
-                        <div class="info-line">
-                            <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
-                            <span>EM</span> <input type="text" class="input-tiny" value="30"> 
-                            <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- METRICS SECTION -->
-        <div class="metrics-wrapper">
-            <div class="metric-card">
-                <div class="metric-title">MÉTRICAS TOTAIS SAC</div>
-                <div class="metric-data">
-                    <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
-                    <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
-                    <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
-                </div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-title">MÉTRICAS TOTAIS PRICE</div>
-                <div class="metric-data">
-                    <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
-                    <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
-                    <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TABLE SECTION -->
-        <table>
-            <thead>
-                <tr>
-                    <th rowspan="2" class="th-neutral" style="width: 50px;">Mês</th>
-                    <th rowspan="2" class="th-neutral" style="width: 120px; background-color: #eaf5eb;">Amortiz. Extra<br>(R$)</th>
-                    <th colspan="3" class="th-sac">SISTEMA SAC</th>
-                    <th colspan="3" class="th-price">SISTEMA PRICE</th>
-                </tr>
-                <tr>
-                    <th class="th-neutral">Parcela</th>
-                    <th class="th-neutral">Juros</th>
-                    <th class="th-neutral">Saldo Dev.</th>
-                    <th class="th-neutral">Parcela</th>
-                    <th class="th-neutral">Juros</th>
-                    <th class="th-neutral">Saldo Dev.</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Linhas vazias apenas para visualizar o espaço do layout -->
-                <tr><td colspan="8" style="padding: 15px;"></td></tr>
-            </tbody>
-        </table>
-        <div class="table-footer">
-            Digite o valor do imóvel e a renda para simular...
-        </div>
-
     </div>
+
+    <!-- MODAL / POPUP CENTRALIZADO -->
+    <div id="simuladorModal" class="modal-overlay">
+        <div class="modal-container">
+            
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-title">
+                    <span>📊</span> SPEEDSIM - SIMULADOR MCMV
+                </div>
+                <button class="close-btn" onclick="fecharSimulador()">&times;</button>
+            </div>
+            <div class="subtitle">Simule financiamento com regras de Avaliação, PRICE / SAC e Comparativo em tempo real.</div>
+            
+            <!-- INPUTS ROW 1 -->
+            <div class="input-section">
+                <div class="row">
+                    <div class="form-group">
+                        <input type="radio" name="tipo_imovel" checked> <label>Valor imóvel:</label>
+                        <input type="text" class="input-money" value="R$ 240.000,00">
+                    </div>
+                    <div class="form-group">
+                        <input type="radio" name="tipo_imovel"> <label>Avaliação:</label>
+                        <input type="text" class="input-money" value="R$ 0,00" disabled>
+                    </div>
+                    <div class="form-group" style="margin-left: 10px;">
+                        <label class="text-green">Bom Pagador:</label>
+                        <input type="text" class="input-money" value="R$ 18.000,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Renda:</label>
+                        <input type="text" class="input-money" value="R$ 0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>FGTS:</label>
+                        <input type="text" class="input-money" value="R$ 11.000,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Recursos:</label>
+                        <input type="text" class="input-money" value="R$ 4.000,00">
+                    </div>
+                    <div class="row-right">
+                        <label><input type="radio" name="redutor" checked> Com redutor</label>
+                        <label><input type="radio" name="redutor"> Sem redutor</label>
+                    </div>
+                </div>
+
+                <!-- INPUTS ROW 2 -->
+                <div class="row" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Data nasc:</label>
+                        <input type="text" class="input-date" placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-group">
+                        <label>máximo de:</label>
+                        <input type="text" class="input-tiny" value="420"> <label>parcelas</label>
+                    </div>
+                    <div class="form-group" style="margin-left: 10px;">
+                        <input type="checkbox" checked> <label>Mais de um comprador/dependente</label>
+                    </div>
+                    <div class="form-group" style="margin-left: 15px;">
+                        <label>Qtd. Parc. entrada:</label>
+                        <input type="text" class="input-tiny" value="30">
+                    </div>
+                    <div class="row-right">
+                        <div class="subsidio-box">
+                            <span>Subsídio:</span>
+                            <span>R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS SECTION (SAC E PRICE) -->
+            <div class="cards-wrapper">
+                <!-- CARD SAC -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">SISTEMA SAC (PARCELAS DECRESCENTES)</div>
+                        <button class="btn-print">🖨️ Imprimir SAC</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="col-left">
+                            <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
+                        </div>
+                        <div class="col-divider"></div>
+                        <div class="col-right">
+                            <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line">
+                                <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
+                                <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
+                            </div>
+                            <div class="info-line">
+                                <span>ATO:</span>
+                                <div class="inline-inputs">
+                                    <input type="text" class="input-small" value="0,00"> - 
+                                    <input type="text" class="input-tiny" value="0.0">%
+                                </div>
+                                <span>DO TOTAL DO IMÓVEL</span>
+                            </div>
+                            <div class="info-line">
+                                <span>SINAL:</span> <strong>R$ 0,00</strong> 
+                                <span>EM</span> <input type="text" class="input-tiny" value="5"> 
+                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                            </div>
+                            <div class="info-line">
+                                <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
+                                <span>EM</span> <input type="text" class="input-tiny" value="30"> 
+                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD PRICE -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">SISTEMA PRICE (PARCELAS FIXAS)</div>
+                        <button class="btn-print">🖨️ Imprimir PRICE</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="col-left">
+                            <div class="info-line"><span>FINANCIAMENTO: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>ENTRADA TOTAL: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>SUBSÍDIO: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>FGTS: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line"><span>BOM PAGADOR: R$</span> <strong>R$ 0,00</strong></div>
+                        </div>
+                        <div class="col-divider"></div>
+                        <div class="col-right">
+                            <div class="info-line"><span>ENTRADA BRUTA: R$</span> <strong>R$ 0,00</strong></div>
+                            <div class="info-line">
+                                <span>REC. PROPRIOS: R$</span> <strong>0,00</strong>
+                                <span style="margin-left:5px;">SALDO RECURSOS: R$</span> <strong>0,00</strong>
+                            </div>
+                            <div class="info-line">
+                                <span>ATO:</span>
+                                <div class="inline-inputs">
+                                    <input type="text" class="input-small" value="0,00"> - 
+                                    <input type="text" class="input-tiny" value="0.0">%
+                                </div>
+                                <span>DO TOTAL DO IMÓVEL</span>
+                            </div>
+                            <div class="info-line">
+                                <span>SINAL:</span> <strong>R$ 0,00</strong> 
+                                <span>EM</span> <input type="text" class="input-tiny" value="5"> 
+                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                            </div>
+                            <div class="info-line">
+                                <span>ENTRADA LÍQUIDA:</span> <strong>R$ 0,00</strong> 
+                                <span>EM</span> <input type="text" class="input-tiny" value="30"> 
+                                <span>PARCELAS DE:</span> <strong>R$ 0,00</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- METRICS SECTION -->
+            <div class="metrics-wrapper">
+                <div class="metric-card">
+                    <div class="metric-title">MÉTRICAS TOTAIS SAC</div>
+                    <div class="metric-data">
+                        <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
+                        <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
+                        <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">MÉTRICAS TOTAIS PRICE</div>
+                    <div class="metric-data">
+                        <div class="metric-item">Total Inicial <strong>R$ 0,00</strong></div>
+                        <div class="metric-item">Total Amortizado <strong class="green-val">R$ 0,00</strong></div>
+                        <div class="metric-item">Economia / Dif. <strong class="orange-val">R$ 0,00</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLE SECTION -->
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="th-neutral" style="width: 50px;">Mês</th>
+                        <th rowspan="2" class="th-neutral" style="width: 120px; background-color: #eaf5eb;">Amortiz. Extra<br>(R$)</th>
+                        <th colspan="3" class="th-sac">SISTEMA SAC</th>
+                        <th colspan="3" class="th-price">SISTEMA PRICE</th>
+                    </tr>
+                    <tr>
+                        <th class="th-neutral">Parcela</th>
+                        <th class="th-neutral">Juros</th>
+                        <th class="th-neutral">Saldo Dev.</th>
+                        <th class="th-neutral">Parcela</th>
+                        <th class="th-neutral">Juros</th>
+                        <th class="th-neutral">Saldo Dev.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="8" style="padding: 15px;"></td></tr>
+                </tbody>
+            </table>
+            <div class="table-footer">
+                Digite o valor do imóvel e a renda para simular...
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONTROLE DO MODAL -->
+    <script>
+        function abrirSimulador() {
+            document.getElementById('simuladorModal').style.display = 'flex';
+        }
+
+        function fecharSimulador() {
+            document.getElementById('simuladorModal').style.display = 'none';
+        }
+    </script>
 
 </body>
 </html>
